@@ -15,7 +15,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React s
+          Learn How Chino Culero can be that Culero
         </a>
       </header>
     </div>
