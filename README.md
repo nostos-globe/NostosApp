@@ -24,6 +24,8 @@ With Metro running, open a new terminal window/pane from the root of your React 
 
 ### Android
 
+setx ANDROID_HOME "C:\Users\Alumno\AppData\Local\Android\Sdk"
+
 ```sh
 # Using npm
 npm run android

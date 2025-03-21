@@ -12,9 +12,58 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { authService } from '../services/authService';
+import { useEffect, useState } from 'react';
+import { profileService, Profile } from '../services/profileService';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [followers, setFollowers] = useState<Profile[]>([]);
+  const [following, setFollowing] = useState<Profile[]>([]);
+
+  useEffect(() => {
+    const loadProfileData = async () => {
+      try {
+        console.log('Starting to load profile data...');
+        
+        const currentUser = await authService.getCurrentUser();
+        console.log('Current user data:', currentUser);
+        
+        if (!currentUser?.user.user_id) {
+          console.error('No user ID found in current user data');
+          throw new Error('No user ID found');
+        }
+        
+        console.log('Fetching profile for user ID:', currentUser.user.user_id);
+        const profileData = await profileService.getProfileById(currentUser.user.user_id);
+        console.log('Profile data retrieved:', profileData);
+        setProfile(profileData);
+        
+        console.log('Fetching followers and following data...');
+        const [followersData, followingData] = await Promise.all([
+          profileService.getFollowers(profileData.id),
+          profileService.getFollowing(profileData.id)
+        ]);
+        
+        console.log('Followers data:', followersData);
+        console.log('Following data:', followingData);
+        
+        setFollowers(followersData);
+        setFollowing(followingData);
+        
+        console.log('Profile data loading completed successfully');
+      } catch (error) {
+        console.error('Detailed error loading profile:', error);
+        console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace available');
+        Alert.alert(
+          'Error',
+          'Failed to load profile data. Please check your connection and try again.'
+        );
+      }
+    };
+
+    loadProfileData();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -37,8 +86,8 @@ const ProfileScreen = () => {
         </TouchableOpacity>
         <View style={styles.profileInfo}>
           <View style={styles.avatarPlaceholder} />
-          <Text style={styles.username}>Alex Doe</Text>
-          <Text style={styles.bio}>Travel enthusiast | Photographer</Text>
+          <Text style={styles.username}>{profile?.username || 'Loading...'}</Text>
+          <Text style={styles.bio}>{profile?.bio || 'Loading...'}</Text>
         </View>
         <View style={styles.stats}>
           <View style={styles.statItem}>
@@ -46,58 +95,57 @@ const ProfileScreen = () => {
             <Text style={styles.statLabel}>Posts</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>856</Text>
+            <Text style={styles.statNumber}>{followers.length}</Text>
             <Text style={styles.statLabel}>Followers</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>162</Text>
+            <Text style={styles.statNumber}>{following.length}</Text>
             <Text style={styles.statLabel}>Following</Text>
           </View>
         </View>
       </View>
 
-      // In the return statement, update the ScrollView and TabBar sections:
+      {/* ScrollView and TabBar sections */}
+      <ScrollView style={styles.content}>
+        <View style={styles.gridContainer}>
+          {[1, 2, 3, 4, 5, 6].map((item) => (
+            <TouchableOpacity 
+              key={item} 
+              style={styles.gridItem}
+              onPress={() => navigation.navigate('PhotoView' as never)}
+            >
+              <View style={styles.photoPlaceholder} />
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
       
-            <ScrollView style={styles.content}>
-              <View style={styles.gridContainer}>
-                {[1, 2, 3, 4, 5, 6].map((item) => (
-                  <TouchableOpacity 
-                    key={item} 
-                    style={styles.gridItem}
-                    onPress={() => navigation.navigate('PhotoView' as never)}
-                  >
-                    <View style={styles.photoPlaceholder} />
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </ScrollView>
-      
-            <View style={styles.tabBar}>
-              <TouchableOpacity 
-                style={styles.tabItem}
-                onPress={() => navigation.navigate('Home' as never)}
-              >
-                <Text>🏠</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.tabItem}>
-                <Text>🌎</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.addButton}>
-                <Text style={styles.addButtonText}>+</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.tabItem}
-                onPress={() => navigation.navigate('Explore' as never)}
-              >
-                <Text>🔍</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.tabItem, { opacity: 1 }]}
-                disabled={true}
-              >
-                <Text>👤</Text>
-              </TouchableOpacity>
-            </View>
+      <View style={styles.tabBar}>
+        <TouchableOpacity 
+          style={styles.tabItem}
+          onPress={() => navigation.navigate('Home' as never)}
+        >
+          <Text>🏠</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tabItem}>
+          <Text>🌎</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.addButton}>
+          <Text style={styles.addButtonText}>+</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.tabItem}
+          onPress={() => navigation.navigate('Explore' as never)}
+        >
+          <Text>🔍</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.tabItem, { opacity: 1 }]}
+          disabled={true}
+        >
+          <Text>👤</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
