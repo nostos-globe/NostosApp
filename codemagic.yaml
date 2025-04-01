@@ -6,6 +6,8 @@ workflows:
         - react-native
     scripts:
       - npm install
-      - cd android && ./gradlew assembleRelease
+      - cd android
+      - chmod +x ./gradlew     # <-- Add this line
+      - ./gradlew assembleRelease
     artifacts:
       - android/app/build/outputs/**/*.apk
