@@ -4,13 +4,13 @@ workflows:
     environment:
       groups:
         - react-native
-      scripts:
-        - npm install
-        - pwd                           # print current directory
-        - ls -la                        # list files to confirm structure
-        - cd android
-        - ls -la                        # confirm gradlew exists
-        - chmod +x ./gradlew
-        - ./gradlew assembleRelease
+    scripts:
+      - npm install
+      - pwd                           # print current directory
+      - ls -la                        # list files to confirm structure
+      - cd android
+      - ls -la                        # confirm gradlew exists
+      - chmod +x ./gradlew
+      - ./gradlew assembleRelease
     artifacts:
       - android/app/build/outputs/**/*.apk
