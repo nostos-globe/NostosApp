@@ -10,6 +10,8 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { authService } from '../services/authService';
 import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AUTH_STORAGE } from '../config/variables';
 
 const LoginScreen = () => {
     const navigation = useNavigation();
@@ -27,10 +29,20 @@ const LoginScreen = () => {
         try {
             const response = await authService.login({ email, password });
             console.log('Login successful:', response);
+            
+            // Store the token safely
+            if (response.token) {
+                try {
+                    await AsyncStorage.setItem(AUTH_STORAGE.TOKEN, response.token);
+                } catch (storageError) {
+                    console.error('Failed to store token:', storageError);
+                }
+            }
+
             // Navigate to Home screen after successful login
             navigation.navigate('Home' as never);
         } catch (error: any) {
-            Alert.alert('Error', error.message);
+            Alert.alert('Error', error.message || 'Login failed');
         } finally {
             setIsLoading(false);
         }

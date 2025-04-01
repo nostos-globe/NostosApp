@@ -1,20 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-  Alert,
+  View, Text, StyleSheet, SafeAreaView, ScrollView,
+  TouchableOpacity, Dimensions, Alert
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { authService } from '../services/authService';
+import { profileService, Profile } from '../services/profileService';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [followers, setFollowers] = useState<Profile[]>([]);
+  const [following, setFollowing] = useState<Profile[]>([]);
+
+  useEffect(() => {
+    loadProfileData();
+  }, []);
+
+  const loadProfileData = async () => {
+    try {
+      const currentUser = await authService.getProfile();
+      if (!currentUser?.user?.id) {
+        throw new Error('No user ID found');
+      }
+
+      const profileData = await profileService.getProfileById(currentUser.user.id);
+      setProfile(profileData);
+
+      const [followersData, followingData] = await Promise.all([
+        profileService.getFollowers(profileData.id),
+        profileService.getFollowing(profileData.id)
+      ]);
+
+      setFollowers(followersData);
+      setFollowing(followingData);
+    } catch (error) {
+      console.error('Error loading profile:', error);
+      Alert.alert(
+        'Error',
+        'Failed to load profile data. Please check your connection and try again.'
+      );
+    }
+  };
 
   const handleLogout = async () => {
     try {
