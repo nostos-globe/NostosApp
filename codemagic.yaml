@@ -12,6 +12,5 @@ workflows:
         - ls -la                        # confirm gradlew exists
         - chmod +x ./gradlew
         - ./gradlew assembleRelease
-
     artifacts:
       - android/app/build/outputs/**/*.apk
