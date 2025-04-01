@@ -1,0 +1,11 @@
+workflows:
+  react-native-android:
+    name: React Native Android Build
+    environment:
+      groups:
+        - react-native
+    scripts:
+      - npm install
+      - npm run android:release
+    artifacts:
+      - android/app/build/outputs/**/*.apk
