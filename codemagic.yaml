@@ -10,7 +10,7 @@ workflows:
       - ls -la                        # list files to confirm structure
       - cd android
       - ls -la                        # confirm gradlew exists
-      - chmod +x ./gradlew
+      - chmod +x ./android/gradlew
       - ./gradlew assembleRelease
     artifacts:
       - android/app/build/outputs/**/*.apk
