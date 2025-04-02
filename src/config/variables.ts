@@ -1,6 +1,7 @@
 // For Android emulator, 10.0.2.2 is the special alias to reach host's localhost
 export const API_URL = 'http://10.0.2.2:8082/';
 export const PROFILE_API_URL = 'http://10.0.2.2:8083/';
+export const MEDIA_API_URL = 'http://10.0.2.2:8084/';
 
 export const AUTH_ENDPOINTS = {
     LOGIN: '/login',
@@ -18,12 +19,14 @@ export const AUTH_ENDPOINTS = {
 export const APP_CONFIG = {
     API_TIMEOUT: 5000,
     DEFAULT_LANGUAGE: 'en',
+    USER_ID: '@nostos_user_id',
     TOKEN_STORAGE_KEY: '@nostos_auth_token',    // Key for storing the auth token
     REFRESH_TOKEN_STORAGE_KEY: '@nostos_refresh_token'    // Key for storing the refresh token
 };
 
 // Storage keys for authentication
 export const AUTH_STORAGE = {
+    USER_ID: APP_CONFIG.USER_ID,
     TOKEN: APP_CONFIG.TOKEN_STORAGE_KEY,
     REFRESH_TOKEN: APP_CONFIG.REFRESH_TOKEN_STORAGE_KEY
 };

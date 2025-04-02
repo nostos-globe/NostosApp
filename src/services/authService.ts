@@ -28,18 +28,68 @@ api.interceptors.request.use(
 );
 
 // Add response interceptor to handle token refresh
+// Add this variable to track refresh token promise
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+// Helper to add new request to subscribers
+const subscribeTokenRefresh = (cb: (token: string) => void) => {
+    refreshSubscribers.push(cb);
+};
+
+// Helper to notify all subscribers
+const onRefreshed = (token: string) => {
+    refreshSubscribers.forEach(cb => cb(token));
+    refreshSubscribers = [];
+};
+
+// Update the response interceptor
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
-        if (error.response.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-            try {
-                await api.post(AUTH_ENDPOINTS.REFRESH_TOKEN);
-                return api(originalRequest);
-            } catch (refreshError) {
-                return Promise.reject(refreshError);
+        
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            if (!isRefreshing) {
+                isRefreshing = true;
+                originalRequest._retry = true;
+
+                try {
+                    const refreshToken = await AsyncStorage.getItem(AUTH_STORAGE.REFRESH_TOKEN);
+                    if (!refreshToken) {
+                        throw new Error('No refresh token available');
+                    }
+
+                    const response = await api.post(AUTH_ENDPOINTS.REFRESH_TOKEN, {
+                        refreshToken
+                    });
+
+                    const { token } = response.data;
+                    await AsyncStorage.setItem(AUTH_STORAGE.TOKEN, token);
+                    
+                    // Update authorization header
+                    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                    originalRequest.headers['Authorization'] = `Bearer ${token}`;
+                    
+                    onRefreshed(token);
+                    isRefreshing = false;
+                    
+                    return api(originalRequest);
+                } catch (refreshError) {
+                    isRefreshing = false;
+                    // Clear tokens and reject
+                    await AsyncStorage.multiRemove([AUTH_STORAGE.TOKEN, AUTH_STORAGE.REFRESH_TOKEN]);
+                    return Promise.reject(refreshError);
+                }
             }
+
+            // If refresh is already in progress, wait for it
+            return new Promise(resolve => {
+                subscribeTokenRefresh(token => {
+                    originalRequest.headers['Authorization'] = `Bearer ${token}`;
+                    resolve(api(originalRequest));
+                });
+            });
         }
         return Promise.reject(error);
     }
@@ -77,12 +127,26 @@ export const authService = {
         try {
             const response = await api.post(AUTH_ENDPOINTS.LOGIN, credentials);
             // Store the tokens
-            if (response.data.token) {
-                await AsyncStorage.setItem(AUTH_STORAGE.TOKEN, response.data.token);
+            if (response.data.accessToken) {
+                await AsyncStorage.setItem(AUTH_STORAGE.TOKEN, response.data.accessToken);
             }
-            if (response.data.refreshToken) {
-                await AsyncStorage.setItem(AUTH_STORAGE.REFRESH_TOKEN, response.data.refreshToken);
+            
+            if (response.data.user_id) {
+                console.log('User ID on login:', response.data.user_id);
+                const userIdString = String(response.data.user_id);
+                await AsyncStorage.setItem(AUTH_STORAGE.USER_ID, userIdString);
             }
+
+            // Get refresh token from cookies
+            const cookies = response.headers['set-cookie'];
+            if (cookies) {
+                const refreshTokenCookie = cookies.find(cookie => cookie.startsWith('refresh_token='));
+                if (refreshTokenCookie) {
+                    const refreshToken = refreshTokenCookie.split(';')[0].split('=')[1];
+                    await AsyncStorage.setItem(AUTH_STORAGE.REFRESH_TOKEN, refreshToken);
+                }
+            }
+            
             return response.data;
         } catch (error: any) {
             if (error.response) {
@@ -148,7 +212,15 @@ export const authService = {
 
     async updatePassword(credentials: UpdatePasswordCredentials): Promise<void> {
         try {
-            await api.post(AUTH_ENDPOINTS.UPDATE_PASSWORD, credentials);
+            const token = await AsyncStorage.getItem(AUTH_STORAGE.TOKEN);
+            if (!token) {
+                throw new Error('No token found');
+            }
+            const response = await api.post(AUTH_ENDPOINTS.UPDATE_PASSWORD, credentials, {
+                headers: {
+                    Cookie: `auth_token=${token}`
+                }
+            });
         } catch (error: any) {
             if (error.response) {
                 throw new Error(error.response.data.message || 'Password update failed');
@@ -159,7 +231,16 @@ export const authService = {
 
     async getProfile(): Promise<any> {
         try {
-            const response = await api.get(AUTH_ENDPOINTS.PROFILE);
+            const token = await AsyncStorage.getItem(AUTH_STORAGE.TOKEN);
+            if (!token) {
+                throw new Error('No token found');
+            }
+            const response = await api.get(AUTH_ENDPOINTS.PROFILE, {
+                headers: {
+                    Cookie: `auth_token=${token}`
+                }
+            });
+            console.log('Profile Response:', response.data);
             return response.data;
         } catch (error: any) {
             if (error.response) {

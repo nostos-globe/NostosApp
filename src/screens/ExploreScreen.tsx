@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,80 +7,260 @@ import {
   ScrollView,
   Dimensions,
   TouchableOpacity,
+  Image,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { mediaService, TripWithMedia } from '../services/mediaService';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/types';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const ExploreScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
+  const [publicTrips, setPublicTrips] = useState<TripWithMedia[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handlePhotoPress = (index: number) => {
-    navigation.navigate('PhotoView' as never);
+  useEffect(() => {
+    loadPublicTrips();
+  }, []);
+
+  const loadPublicTrips = async () => {
+    try {
+      setLoading(true);
+      const trips = await mediaService.getPublicTrips();
+      console.log('Public trips from API:', JSON.stringify(trips));
+      setPublicTrips(trips || []);
+    } catch (error) {
+      console.error('Error loading public trips:', error);
+      setPublicTrips([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
-        <View style={styles.grid}>
-          <View style={styles.row}>
-            <TouchableOpacity 
-              style={[styles.tile, { backgroundColor: '#4267B2', flex: 2 }]}
-              onPress={() => handlePhotoPress(0)}
-            />
-            <View style={styles.column}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Explore</Text>
+      </View>
+      
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#8BB8E8" />
+        </View>
+      ) : (
+        <ScrollView>
+          <View style={styles.grid}>
+            <View style={styles.row}>
               <TouchableOpacity 
-                style={[styles.tile, { backgroundColor: '#DD4B39', flex: 1 }]}
-                onPress={() => handlePhotoPress(1)}
-              />
+                style={[styles.tile, { backgroundColor: '#4267B2', flex: 2 }]}
+                onPress={() => publicTrips[0] && navigation.navigate('PhotoView', {
+                  imageUrl: publicTrips[0].media?.[0]?.url,
+                  tripMedia: publicTrips[0].media || [],
+                  initialIndex: 0,
+                  trip: publicTrips[0].trip
+                })}
+              >
+                {publicTrips[0]?.media?.[0]?.url && (
+                  <Image 
+                    source={{ uri: publicTrips[0].media[0].url }}
+                    style={styles.tileImage}
+                    resizeMode="cover"
+                  />
+                )}
+              </TouchableOpacity>
+              <View style={styles.column}>
+                <TouchableOpacity 
+                  style={[styles.tile, { backgroundColor: '#DD4B39', flex: 1 }]}
+                  onPress={() => publicTrips[1] && navigation.navigate('PhotoView', {
+                    imageUrl: publicTrips[1].media?.[0]?.url,
+                    tripMedia: publicTrips[1].media || [],
+                    initialIndex: 0,
+                    trip: publicTrips[1].trip
+                  })}
+                >
+                  {publicTrips[1]?.media?.[0]?.url && (
+                    <Image 
+                      source={{ uri: publicTrips[1].media[0].url }}
+                      style={styles.tileImage}
+                      resizeMode="cover"
+                    />
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.tile, { backgroundColor: '#333333', flex: 1 }]}
+                  onPress={() => publicTrips[2] && navigation.navigate('PhotoView', {
+                    imageUrl: publicTrips[2].media?.[0]?.url,
+                    tripMedia: publicTrips[2].media || [],
+                    initialIndex: 0,
+                    trip: publicTrips[2].trip
+                  })}
+                >
+                  {publicTrips[2]?.media?.[0]?.url && (
+                    <Image 
+                      source={{ uri: publicTrips[2].media[0].url }}
+                      style={styles.tileImage}
+                      resizeMode="cover"
+                    />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+            
+            <View style={styles.row}>
               <TouchableOpacity 
-                style={[styles.tile, { backgroundColor: '#333333', flex: 1 }]}
-                onPress={() => handlePhotoPress(2)}
-              />
+                style={[styles.tile, { backgroundColor: '#E91E63', flex: 1 }]}
+                onPress={() => publicTrips[3] && navigation.navigate('PhotoView', {
+                  imageUrl: publicTrips[3].media?.[0]?.url,
+                  tripMedia: publicTrips[3].media || [],
+                  initialIndex: 0,
+                  trip: publicTrips[3].trip
+                })}
+              >
+                {publicTrips[3]?.media?.[0]?.url && (
+                  <Image 
+                    source={{ uri: publicTrips[3].media[0].url }}
+                    style={styles.tileImage}
+                    resizeMode="cover"
+                  />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.tile, { backgroundColor: '#4CAF50', flex: 2 }]}
+                onPress={() => publicTrips[4] && navigation.navigate('PhotoView', {
+                  imageUrl: publicTrips[4].media?.[0]?.url,
+                  tripMedia: publicTrips[4].media || [],
+                  initialIndex: 0,
+                  trip: publicTrips[4].trip
+                })}
+              >
+                {publicTrips[4]?.media?.[0]?.url && (
+                  <Image 
+                    source={{ uri: publicTrips[4].media[0].url }}
+                    style={styles.tileImage}
+                    resizeMode="cover"
+                  />
+                )}
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.row}>
+              <TouchableOpacity 
+                style={[styles.tile, { backgroundColor: '#9E9E9E', flex: 1 }]}
+                onPress={() => publicTrips[5] && navigation.navigate('PhotoView', {
+                  imageUrl: publicTrips[5].media?.[0]?.url,
+                  tripMedia: publicTrips[5].media || [],
+                  initialIndex: 0,
+                  trip: publicTrips[5].trip
+                })}
+              >
+                {publicTrips[5]?.media?.[0]?.url && (
+                  <Image 
+                    source={{ uri: publicTrips[5].media[0].url }}
+                    style={styles.tileImage}
+                    resizeMode="cover"
+                  />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.tile, { backgroundColor: '#1976D2', flex: 1 }]}
+                onPress={() => publicTrips[6] && navigation.navigate('PhotoView', {
+                  imageUrl: publicTrips[6].media?.[0]?.url,
+                  tripMedia: publicTrips[6].media || [],
+                  initialIndex: 0,
+                  trip: publicTrips[6].trip
+                })}
+              >
+                {publicTrips[6]?.media?.[0]?.url && (
+                  <Image 
+                    source={{ uri: publicTrips[6].media[0].url }}
+                    style={styles.tileImage}
+                    resizeMode="cover"
+                  />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.tile, { backgroundColor: '#8BC34A', flex: 1 }]}
+                onPress={() => publicTrips[7] && navigation.navigate('PhotoView', {
+                  imageUrl: publicTrips[7].media?.[0]?.url,
+                  tripMedia: publicTrips[7].media || [],
+                  initialIndex: 0,
+                  trip: publicTrips[7].trip
+                })}
+              >
+                {publicTrips[7]?.media?.[0]?.url && (
+                  <Image 
+                    source={{ uri: publicTrips[7].media[0].url }}
+                    style={styles.tileImage}
+                    resizeMode="cover"
+                  />
+                )}
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.row}>
+              <TouchableOpacity 
+                style={[styles.tile, { backgroundColor: '#8BC34A', flex: 1 }]}
+                onPress={() => publicTrips[8] && navigation.navigate('PhotoView', {
+                  imageUrl: publicTrips[8].media?.[0]?.url,
+                  tripMedia: publicTrips[8].media || [],
+                  initialIndex: 0,
+                  trip: publicTrips[8].trip
+                })}
+              >
+                {publicTrips[8]?.media?.[0]?.url && (
+                  <Image 
+                    source={{ uri: publicTrips[8].media[0].url }}
+                    style={styles.tileImage}
+                    resizeMode="cover"
+                  />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.tile, { backgroundColor: '#FFC107', flex: 1 }]}
+                onPress={() => publicTrips[9] && navigation.navigate('PhotoView', {
+                  imageUrl: publicTrips[9].media?.[0]?.url,
+                  tripMedia: publicTrips[9].media || [],
+                  initialIndex: 0,
+                  trip: publicTrips[9].trip
+                })}
+              >
+                {publicTrips[9]?.media?.[0]?.url && (
+                  <Image 
+                    source={{ uri: publicTrips[9].media[0].url }}
+                    style={styles.tileImage}
+                    resizeMode="cover"
+                  />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.tile, { backgroundColor: '#9C27B0', flex: 1 }]}
+                onPress={() => publicTrips[10] && navigation.navigate('PhotoView', {
+                  imageUrl: publicTrips[10].media?.[0]?.url,
+                  tripMedia: publicTrips[10].media || [],
+                  initialIndex: 0,
+                  trip: publicTrips[10].trip
+                })}
+              >
+                {publicTrips[10]?.media?.[0]?.url && (
+                  <Image 
+                    source={{ uri: publicTrips[10].media[0].url }}
+                    style={styles.tileImage}
+                    resizeMode="cover"
+                  />
+                )}
+              </TouchableOpacity>
             </View>
           </View>
-          
-          <View style={styles.row}>
-            <TouchableOpacity 
-              style={[styles.tile, { backgroundColor: '#E91E63', flex: 1 }]}
-              onPress={() => handlePhotoPress(3)}
-            />
-            <TouchableOpacity 
-              style={[styles.tile, { backgroundColor: '#4CAF50', flex: 2 }]}
-              onPress={() => handlePhotoPress(4)}
-            />
-          </View>
-          
-          <View style={styles.row}>
-            <TouchableOpacity 
-              style={[styles.tile, { backgroundColor: '#9E9E9E', flex: 1 }]}
-              onPress={() => handlePhotoPress(5)}
-            />
-            <TouchableOpacity 
-              style={[styles.tile, { backgroundColor: '#1976D2', flex: 1 }]}
-              onPress={() => handlePhotoPress(6)}
-            />
-            <TouchableOpacity 
-              style={[styles.tile, { backgroundColor: '#8BC34A', flex: 1 }]}
-              onPress={() => handlePhotoPress(7)}
-            />
-          </View>
-          
-          <View style={styles.row}>
-            <TouchableOpacity 
-              style={[styles.tile, { backgroundColor: '#FFC107', flex: 1 }]}
-              onPress={() => handlePhotoPress(8)}
-            />
-            <TouchableOpacity 
-              style={[styles.tile, { backgroundColor: '#9C27B0', flex: 1 }]}
-              onPress={() => handlePhotoPress(9)}
-            />
-          </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      )}
 
       <View style={styles.tabBar}>
         <TouchableOpacity 
           style={styles.tabItem}
-          onPress={() => navigation.navigate('Home' as never)}
+          onPress={() => navigation.navigate('Home')}
         >
           <Text>🏠</Text>
         </TouchableOpacity>
@@ -96,10 +276,9 @@ const ExploreScreen = () => {
         >
           <Text>🔍</Text>
         </TouchableOpacity>
-        // In the tab bar section
         <TouchableOpacity 
           style={styles.tabItem}
-          onPress={() => navigation.navigate('Profile' as never)}
+          onPress={() => navigation.navigate('Profile')}
         >
           <Text>👤</Text>
         </TouchableOpacity>
@@ -112,6 +291,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  header: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   grid: {
     padding: 2,
@@ -126,7 +320,50 @@ const styles = StyleSheet.create({
   },
   tile: {
     margin: 1,
-    borderRadius: 4,
+    borderRadius: 0,
+    overflow: 'hidden',
+  },
+  tileImage: {
+    width: '100%',
+    height: '100%',
+  },
+  tripItem: {
+    width: Dimensions.get('window').width / 2 - 4,
+    height: 200,
+    margin: 2,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  tripImage: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#E0E0E0',
+  },
+  tripOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 8,
+  },
+  tripName: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  mediaCount: {
+    color: '#ddd',
+    fontSize: 12,
+  },
+  noTripsContainer: {
+    width: '100%',
+    padding: 20,
+    alignItems: 'center',
+  },
+  noTripsText: {
+    fontSize: 16,
+    color: '#666',
   },
   tabBar: {
     flexDirection: 'row',
