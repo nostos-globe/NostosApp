@@ -8,11 +8,13 @@ import {
   Dimensions,
   TouchableOpacity,
   Text,
+  Platform,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { Trip, TripMedia } from '../services/mediaService';
+import { Trip, TripMedia, uploadMediaToTrip } from '../services/mediaService';
 import { RootStackParamList } from '../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -37,6 +39,44 @@ const PhotoViewScreen = () => {
     }
   }, [initialIndex]);
 
+  const handleImageUpload = async () => {
+    try {
+      // Use react-native-image-picker instead of expo-image-picker
+      launchImageLibrary({
+        mediaType: 'photo',
+        quality: 1,
+        includeBase64: false,
+      }, async (response) => {
+        if (response.didCancel) {
+          return;
+        }
+        
+        if (response.errorCode) {
+          console.error('ImagePicker Error: ', response.errorMessage);
+          return;
+        }
+        
+        if (response.assets && response.assets.length > 0) {
+          const selectedImage = response.assets[0];
+          
+          // Call the upload endpoint with the selected image and trip
+          await uploadMediaToTrip(trip.TripID.toString(), selectedImage.uri || '');
+          
+          // Refresh the screen or navigate back to reload the images
+          navigation.goBack();
+          navigation.navigate('PhotoView', { 
+            imageUrl: tripMedia[0]?.url,
+            tripMedia, 
+            initialIndex, 
+            trip 
+          });
+        }
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.topBar}>
@@ -45,8 +85,8 @@ const PhotoViewScreen = () => {
         </TouchableOpacity>
         <Text style={styles.title}>{trip?.name || "Personal Globe"}</Text>
 
-        <TouchableOpacity>
-          <Text style={styles.addButton}>+</Text>
+        <TouchableOpacity onPress={handleImageUpload}>
+          <Text style={styles.addButton2}>+</Text>
         </TouchableOpacity>
       </View>
       
@@ -146,10 +186,12 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    backgroundColor: '#000',
   },
   photoContainer: {
     width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
+    marginTop: 140,
+    height: "66%",
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -162,9 +204,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingTop: 35,
+    paddingBottom: 25,
+    backgroundColor: 'rgba(255, 255, 255, 1)',
     position: 'absolute',
     top: 0,
     left: 0,
@@ -181,6 +223,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
+  addButton2: {
+    color: '#000',
+    fontSize: 22,
+    fontWeight: 'bold',
+    width: 34,
+    height: 34,
+    backgroundColor: 'rgb(255, 255, 255)',
+    borderRadius: 22,
+    elevation: 25,
+    textAlign: 'center',
+  },
   addButton: {
     color: '#000',
     fontSize: 22,
@@ -195,14 +248,15 @@ const styles = StyleSheet.create({
   iconBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingHorizontal: 40,
+    paddingHorizontal: 5,
     paddingVertical: 12,
     position: 'absolute',
     top: 90,
     left: 0,
     right: 0,
     zIndex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+    borderTopWidth: 0.5,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
@@ -219,30 +273,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dateText: {
-    color: '#fff',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    color: '#000',
+    backgroundColor: 'rgba(255, 255, 255, 0.69)',
     paddingHorizontal: 20,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 9,
     fontSize: 14,
     fontWeight: '500',
     overflow: 'hidden',
   },
   thumbnailContainer: {
     position: 'absolute',
-    bottom: 80,
+    bottom: 70,
     left: 0,
     right: 0,
-    height: 70,
-    paddingHorizontal: 10,
+    height: 80,
+    backgroundColor: 'rgb(255, 255, 255)',
   },
   thumbnail: {
     width: 60,
-    height: 60,
-    marginHorizontal: 5,
-    borderRadius: 5,
+    height: 80,
     overflow: 'hidden',
-    borderWidth: 1,
+    borderWidth: 0.2,
     borderColor: '#fff',
   },
   thumbnailImage: {

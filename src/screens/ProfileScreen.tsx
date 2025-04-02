@@ -208,16 +208,17 @@ const styles = StyleSheet.create({
   },
   gridItemContent: {
     flex: 1,
+    height: 200, // Ensure the height is 100% of the parent container
     position: 'relative',
   },
   photoPlaceholder: {
     width: '100%',
-    height: '100%',
+    height: 200,
     backgroundColor: '#E0E0E0',
   },
   tripOverlay: {
-    position: 'absolute',
-    bottom: 0,
+    position: 'relative',
+    bottom: 33,
     left: 0,
     right: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

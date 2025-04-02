@@ -100,9 +100,14 @@ const getTokenHeader = async () => {
 
 export const mediaService = {
     async uploadMediaToTrip(tripId: string, file: FormData): Promise<MediaItem> {
+        const token = await AsyncStorage.getItem(AUTH_STORAGE.TOKEN);
+        if (!token) {
+            throw new Error('No token found');
+        }
         const response = await mediaApi.post(`/api/media/trip/${tripId}`, file, {
             headers: {
                 'Content-Type': 'multipart/form-data',
+                Cookie: `auth_token=${token}`
             }
         });
         return response.data;
@@ -160,4 +165,31 @@ export const mediaService = {
         });
         return response.data;
     }
+};
+
+
+// Add this function to your mediaService.ts file
+
+export const uploadMediaToTrip = async (tripId: string, imageUri: string): Promise<MediaItem> => {
+  try {
+    // Create a FormData object to send the image
+    const formData = new FormData();
+    
+    // Get the file name from the URI
+    const uriParts = imageUri.split('/');
+    const fileName = uriParts[uriParts.length - 1];
+    
+    // Append the image to the form data
+    formData.append('media', {
+      uri: imageUri,
+      name: fileName,
+      type: 'image/jpeg', // You might want to detect this dynamically
+    } as any);
+    
+    // Use the existing mediaService method instead of creating a new fetch call
+    return await mediaService.uploadMediaToTrip(tripId, formData);
+  } catch (error) {
+    console.error('Error uploading media:', error);
+    throw error;
+  }
 };
