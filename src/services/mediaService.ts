@@ -38,6 +38,7 @@ export interface Trip {
 export interface TripWithMedia {
     media: TripMedia[];
     trip: Trip;
+    location: string;
 }
 
 const mediaApi = axios.create({
@@ -156,6 +157,12 @@ export const mediaService = {
       const response = await mediaApi.get('/api/trips/public', config);
       return response.data;
     },
+
+    async getFollowingTrips(): Promise<TripWithMedia[]> {
+        const config = await getTokenHeader();
+        const response = await mediaApi.get('/api/trips/following', config);
+        return response.data;
+      },
 
     async uploadTripMedia(tripId: string, file: FormData): Promise<TripMedia> {
         const response = await mediaApi.post(`/api/media/trip/${tripId}`, file, {

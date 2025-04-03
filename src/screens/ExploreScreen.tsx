@@ -40,7 +40,15 @@ const ExploreScreen = () => {
     }
   };
 
-  // Create a masonry layout with varying heights
+  const cardStyles = [
+    { height: 180, flex: 1 },
+    { height: 250, flex: 1 },
+    { height: 200, flex: 1 },
+    { height: 120, flex: 1 },
+    { height: 220, flex: 1 },
+    { height: 160, flex: 1 },
+  ];
+  
   const renderMasonryLayout = () => {
     if (publicTrips.length === 0) {
       return (
@@ -50,225 +58,46 @@ const ExploreScreen = () => {
       );
     }
 
+    // Organize trips into three columns
+    const columns: TripWithMedia[][] = [[], [], []];
+    publicTrips.forEach((trip, index) => {
+      columns[index % 3].push(trip);
+    });
+
     return (
       <ScrollView style={styles.scrollView}>
         <View style={styles.masonryContainer}>
-          {/* First column */}
-          <View style={styles.masonryColumn}>
-            <TouchableOpacity 
-              style={[styles.masonryItem, { height: 180, backgroundColor: '#6979F8' }]}
-              onPress={() => publicTrips[0] && navigation.navigate('PhotoView', {
-                imageUrl: publicTrips[0].media[0]?.url,
-                tripMedia: publicTrips[0].media || [],
-                initialIndex: 0,
-                trip: publicTrips[0].trip
-              })}
-            >
-              {publicTrips[0]?.media?.[0]?.url && (
-                <Image 
-                  source={{ uri: publicTrips[0].media[0].url }}
-                  style={styles.tripImage}
-                  resizeMode="cover"
-                />
-              )}
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.masonryItem, { height: 220, backgroundColor: '#BE6ADE' }]}
-              onPress={() => publicTrips[1] && navigation.navigate('PhotoView', {
-                imageUrl: publicTrips[1].media[0]?.url,
-                tripMedia: publicTrips[1].media || [],
-                initialIndex: 0,
-                trip: publicTrips[1].trip
-              })}
-            >
-              {publicTrips[1]?.media?.[0]?.url && (
-                <Image 
-                  source={{ uri: publicTrips[1].media[0].url }}
-                  style={styles.tripImage}
-                  resizeMode="cover"
-                />
-              )}
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.masonryItem, { height: 120, backgroundColor: '#A0A8CD' }]}
-              onPress={() => publicTrips[2] && navigation.navigate('PhotoView', {
-                imageUrl: publicTrips[2].media[0]?.url,
-                tripMedia: publicTrips[2].media || [],
-                initialIndex: 0,
-                trip: publicTrips[2].trip
-              })}
-            >
-              {publicTrips[2]?.media?.[0]?.url && (
-                <Image 
-                  source={{ uri: publicTrips[2].media[0].url }}
-                  style={styles.tripImage}
-                  resizeMode="cover"
-                />
-              )}
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.masonryItem, { height: 150, backgroundColor: '#AEDCC0' }]}
-              onPress={() => publicTrips[3] && navigation.navigate('PhotoView', {
-                imageUrl: publicTrips[3].media[0]?.url,
-                tripMedia: publicTrips[3].media || [],
-                initialIndex: 0,
-                trip: publicTrips[3].trip
-              })}
-            >
-              {publicTrips[3]?.media?.[0]?.url && (
-                <Image 
-                  source={{ uri: publicTrips[3].media[0].url }}
-                  style={styles.tripImage}
-                  resizeMode="cover"
-                />
-              )}
-
-            </TouchableOpacity>
-          </View>
-          
-          {/* Second column */}
-          <View style={styles.masonryColumn}>
-            <TouchableOpacity 
-              style={[styles.masonryItem, { height: 300, backgroundColor: '#E07A7A' }]}
-              onPress={() => publicTrips[4] && navigation.navigate('PhotoView', {
-                imageUrl: publicTrips[4].media[0]?.url,
-                tripMedia: publicTrips[4].media || [],
-                initialIndex: 0,
-                trip: publicTrips[4].trip
-              })}
-            >
-              {publicTrips[4]?.media?.[0]?.url && (
-                <Image 
-                  source={{ uri: publicTrips[4].media[0].url }}
-                  style={styles.tripImage}
-                  resizeMode="cover"
-                />
-              )}
-
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.masonryItem, { height: 180, backgroundColor: '#D8E0A3' }]}
-              onPress={() => publicTrips[5] && navigation.navigate('PhotoView', {
-                imageUrl: publicTrips[5].media[0]?.url,
-                tripMedia: publicTrips[5].media || [],
-                initialIndex: 0,
-                trip: publicTrips[5].trip
-              })}
-            >
-              {publicTrips[5]?.media?.[0]?.url && (
-                <Image 
-                  source={{ uri: publicTrips[5].media[0].url }}
-                  style={styles.tripImage}
-                  resizeMode="cover"
-                />
-              )}
-
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.masonryItem, { height: 150, backgroundColor: '#1A4B8C' }]}
-              onPress={() => publicTrips[6] && navigation.navigate('PhotoView', {
-                imageUrl: publicTrips[6].media[0]?.url,
-                tripMedia: publicTrips[6].media || [],
-                initialIndex: 0,
-                trip: publicTrips[6].trip
-              })}
-            >
-              {publicTrips[6]?.media?.[0]?.url && (
-                <Image 
-                  source={{ uri: publicTrips[6].media[0].url }}
-                  style={styles.tripImage}
-                  resizeMode="cover"
-                />
-              )}
-
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.masonryItem, { height: 120, backgroundColor: '#FFCC66' }]}
-              onPress={() => publicTrips[7] && navigation.navigate('PhotoView', {
-                imageUrl: publicTrips[7].media[0]?.url,
-                tripMedia: publicTrips[7].media || [],
-                initialIndex: 0,
-                trip: publicTrips[7].trip
-              })}
-            >
-              {publicTrips[7]?.media?.[0]?.url && (
-                <Image 
-                  source={{ uri: publicTrips[7].media[0].url }}
-                  style={styles.tripImage}
-                  resizeMode="cover"
-                />
-              )}
-
-            </TouchableOpacity>
-          </View>
-          
-          {/* Third column */}
-          <View style={styles.masonryColumn}>
-            <TouchableOpacity 
-              style={[styles.masonryItem, { height: 180, backgroundColor: '#3D3D3D' }]}
-              onPress={() => publicTrips[8] && navigation.navigate('PhotoView', {
-                imageUrl: publicTrips[8].media[0]?.url,
-                tripMedia: publicTrips[8].media || [],
-                initialIndex: 0,
-                trip: publicTrips[8].trip
-              })}
-            >
-              {publicTrips[8]?.media?.[0]?.url && (
-                <Image 
-                  source={{ uri: publicTrips[8].media[0].url }}
-                  style={styles.tripImage}
-                  resizeMode="cover"
-                />
-              )}
-              <View style={styles.tripOverlay}>
-                <Text style={styles.tripName}>{publicTrips[8]?.trip.name}</Text>
-              </View>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.masonryItem, { height: 250, backgroundColor: '#4CAF50' }]}
-              onPress={() => publicTrips[9] && navigation.navigate('PhotoView', {
-                imageUrl: publicTrips[9].media[0]?.url,
-                tripMedia: publicTrips[9].media || [],
-                initialIndex: 0,
-                trip: publicTrips[9].trip
-              })}
-            >
-              {publicTrips[9]?.media?.[0]?.url && (
-                <Image 
-                  source={{ uri: publicTrips[9].media[0].url }}
-                  style={styles.tripImage}
-                  resizeMode="cover"
-                />
-              )}
-
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.masonryItem, { height: 180, backgroundColor: '#E6C7C7' }]}
-              onPress={() => publicTrips[10] && navigation.navigate('PhotoView', {
-                imageUrl: publicTrips[10].media[0]?.url,
-                tripMedia: publicTrips[10].media || [],
-                initialIndex: 0,
-                trip: publicTrips[10].trip
-              })}
-            >
-              {publicTrips[10]?.media?.[0]?.url && (
-                <Image 
-                  source={{ uri: publicTrips[10].media[0].url }}
-                  style={styles.tripImage}
-                  resizeMode="cover"
-                />
-              )}
-
-            </TouchableOpacity>
-          </View>
+          {columns.map((column, columnIndex) => (
+            <View key={columnIndex} style={styles.masonryColumn}>
+              {column.map((trip, index) => (
+                <TouchableOpacity 
+                  key={trip.trip.TripID}
+                  style={[
+                    styles.masonryItem, 
+                    cardStyles[(index * columnIndex + index * 2) % cardStyles.length],
+                    { backgroundColor: '#E0E0E0' }
+                  ]}
+                  onPress={() => navigation.navigate('PhotoView', {
+                    imageUrl: trip.media?.[0]?.url,
+                    tripMedia: trip.media || [],
+                    initialIndex: 0,
+                    trip: trip.trip
+                  })}
+                >
+                  {trip.media?.[0]?.url && (
+                    <Image 
+                      source={{ uri: trip.media[0].url }}
+                      style={styles.tripImage}
+                      resizeMode="cover"
+                    />
+                  )}
+                  <View style={styles.tripOverlay}>
+                    <Text style={styles.tripName}>{trip.trip.name}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))}
         </View>
       </ScrollView>
     );
@@ -340,10 +169,12 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    paddingBottom: 80, // Add padding for tab bar
   },
   masonryContainer: {
     flexDirection: 'row',
     padding: 2,
+    paddingBottom: 16, // Add some space at the bottom of the masonry layout
   },
   masonryColumn: {
     flex: 1,

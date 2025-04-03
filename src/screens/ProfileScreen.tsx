@@ -29,38 +29,47 @@ const ProfileScreen = () => {
   }, []);
 
   const loadProfileData = async () => {
+    console.log('ProfileScreen: Loading profile data...');
     try {
       const currentUser = await authService.getProfile();
+      console.log('ProfileScreen: Current user data:', currentUser);
 
       const userId = currentUser?.user?.user_id;
       if (!userId) {
+        console.error('ProfileScreen: No user ID found');
         throw new Error('No user ID found');
       }
 
       const tripsData = await mediaService.getMyTrips();
+      console.log('ProfileScreen: Trips data loaded:', tripsData.length, 'trips');
       setTrips(tripsData);
-      console.log('Trips with media:', tripsData);
 
       const profileData = await profileService.getProfileById(userId);
+      console.log('ProfileScreen: Profile data loaded:', profileData);
       setProfile(profileData);
       
-      // In the loadProfileData function, update the followers/following section:
       const [followersData, followingData] = await Promise.all([
           profileService.getFollowers(profileData.UserID.toString()),
           profileService.getFollowing(profileData.UserID.toString())
       ]);
       
+      console.log('ProfileScreen: Followers/Following data loaded:', {
+        followers: followersData.Follow.count,
+        following: followingData.Follow.count
+      });
+      
       setFollowers(followersData);
       setFollowing(followingData);
       
     } catch (error) {
-      console.error('Error loading profile:', error);
+      console.error('ProfileScreen: Error loading profile:', error);
       Alert.alert(
         'Error',
         'Failed to load profile data. Please check your connection and try again.'
       );
     }
   };
+
 
   const handleLogout = async () => {
     try {
@@ -161,6 +170,7 @@ const ProfileScreen = () => {
           <Text style={styles.tripName} numberOfLines={1}>{trip.trip.name}</Text>
           <Text style={styles.mediaCount}>{trip.media?.length || 0} photos</Text>
         </View>
+
       </View>
     </TouchableOpacity>
   ))}
@@ -204,26 +214,16 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: "100%",
+    paddingBottom: 0, 
   },
   gridItemContent: {
     flex: 1,
-    height: 200, // Ensure the height is 100% of the parent container
-    position: 'relative',
+    height: '100%',
   },
   photoPlaceholder: {
     width: '100%',
-    height: 200,
+    height: '100%',
     backgroundColor: '#E0E0E0',
-  },
-  tripOverlay: {
-    position: 'relative',
-    bottom: 33,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 4,
-    zIndex: 1,
   },
   header: {
     padding: 16,
@@ -316,11 +316,11 @@ const styles = StyleSheet.create({
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingBottom: 16, // Add padding at the bottom for better scroll experience
+    paddingBottom: 16,
   },
   gridItem: {
     width: Dimensions.get('window').width / 3,
-    aspectRatio: 1,
+    height: (Dimensions.get('window').width / 3) * 1.6, 
     padding: 1,
   },
   content: {
@@ -359,14 +359,22 @@ const styles = StyleSheet.create({
     color: '#FF3B30',
     fontSize: 16,
   },
-
+  tripOverlay: {
+    position: 'absolute', // Changed from relative to absolute
+    bottom: 0, // Changed from 33 to 0
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.69)',
+    padding: 4,
+    zIndex: 1,
+  },
   tripName: {
-    color: '#fff',
+    color: '#000',
     fontSize: 11,
     fontWeight: 'bold',
   },
   mediaCount: {
-    color: '#ddd',
+    color: '#000',
     fontSize: 9,
   },
 });
