@@ -187,7 +187,7 @@ const HomeScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.tabItem, { opacity: 1 }]}
-          disabled={true}
+          onPress={() => navigation.navigate('Profile' as never)}
         >
           <Text>👤</Text>
         </TouchableOpacity>

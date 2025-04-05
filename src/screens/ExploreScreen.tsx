@@ -120,7 +120,7 @@ const ExploreScreen = () => {
       <View style={styles.tabBar}>
         <TouchableOpacity 
           style={styles.tabItem}
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('Home' as never)}
         >
           <Text>🏠</Text>
         </TouchableOpacity>
@@ -131,14 +131,14 @@ const ExploreScreen = () => {
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
         <TouchableOpacity 
-          style={[styles.tabItem, { opacity: 1 }]}
-          disabled={true}
+          style={styles.tabItem}
+          onPress={() => navigation.navigate('Explore' as never)}
         >
           <Text>🔍</Text>
         </TouchableOpacity>
         <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={() => navigation.navigate('Profile')}
+          style={[styles.tabItem, { opacity: 1 }]}
+          onPress={() => navigation.navigate('Profile' as never)}
         >
           <Text>👤</Text>
         </TouchableOpacity>

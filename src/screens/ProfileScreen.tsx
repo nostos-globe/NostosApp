@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView, ScrollView,
   TouchableOpacity, Dimensions, Alert,
-  Image, ImageBackground
+  Image, ImageBackground, RefreshControl
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { authService } from '../services/authService';
@@ -23,10 +23,22 @@ const ProfileScreen = () => {
     Follow: { count: 0, profiles: [] } 
   });
   const [trips, setTrips] = useState<TripWithMedia[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadProfileData();
   }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await loadProfileData();
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const loadProfileData = async () => {
     console.log('ProfileScreen: Loading profile data...');
@@ -90,6 +102,14 @@ const ProfileScreen = () => {
         style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#8BB8E8']}
+            tintColor={'#8BB8E8'}
+          />
+        }
       >
     <ImageBackground 
       source={{ uri: profile?.ProfilePicture || 'https://placeholder.com/1200x400' }}
@@ -177,32 +197,35 @@ const ProfileScreen = () => {
 </View>
       </ScrollView>
       
-            <View style={styles.tabBar}>
-              <TouchableOpacity 
-                style={styles.tabItem}
-                onPress={() => navigation.navigate('Home' as never)}
-              >
-                <Text>🏠</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.tabItem}>
-                <Text>🌎</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.addButton}>
-                <Text style={styles.addButtonText}>+</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.tabItem}
-                onPress={() => navigation.navigate('Explore' as never)}
-              >
-                <Text>🔍</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.tabItem, { opacity: 1 }]}
-                disabled={true}
-              >
-                <Text>👤</Text>
-              </TouchableOpacity>
-            </View>
+      <View style={styles.tabBar}>
+        <TouchableOpacity 
+          style={styles.tabItem}
+          onPress={() => navigation.navigate('Home' as never)}
+        >
+          <Text>🏠</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tabItem}>
+          <Text>🌎</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.addButton}
+          onPress={() => navigation.navigate('AddTrip' as never)}
+        >
+          <Text style={styles.addButtonText}>+</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.tabItem}
+          onPress={() => navigation.navigate('Explore' as never)}
+        >
+          <Text>🔍</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.tabItem, { opacity: 1 }]}
+          onPress={() => navigation.navigate('Profile' as never)}
+        >
+          <Text>👤</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };

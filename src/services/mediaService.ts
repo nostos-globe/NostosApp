@@ -120,7 +120,14 @@ export const mediaService = {
     },
 
     async deleteMedia(mediaId: string): Promise<void> {
-        await mediaApi.delete(`/api/media/${mediaId}`);
+        try {
+            const config = await getTokenHeader();
+            await mediaApi.delete(`/api/media/${mediaId}`, config);
+            console.log(`Media with ID ${mediaId} successfully deleted`);
+        } catch (error) {
+            console.error('Error deleting media:', error);
+            throw new Error(`Failed to delete media: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
     },
 
     async addMetadataToMedia(mediaId: string, metadata: MediaMetadata): Promise<MediaItem> {
@@ -130,10 +137,17 @@ export const mediaService = {
 
     async changeMediaVisibility(
         mediaId: string, 
-        visibility: 'public' | 'private' | 'followers'
+        visibility: 'PUBLIC' | 'PRIVATE' | 'FRIENDS'
     ): Promise<MediaItem> {
-        const response = await mediaApi.put(`/api/media/${mediaId}/visibility`, { visibility });
+        const config = await getTokenHeader();
+        const response = await mediaApi.put(`/api/media/${mediaId}/visibility`, { visibility }, config);
         return response.data;
+    },
+
+    async getMediaVisibility(mediaId: string): Promise<'PUBLIC' | 'PRIVATE' | 'FRIENDS'> {
+        const config = await getTokenHeader();
+        const response = await mediaApi.get(`/api/media/${mediaId}/visibility`, config);
+        return response.data.visibility;
     },
 
     async getMediaByTripId(tripId: string): Promise<MediaItem[]> {
@@ -171,7 +185,19 @@ export const mediaService = {
             }
         });
         return response.data;
-    }
+    },
+
+    async createTrip(tripData: {
+        name: string;
+        description: string;
+        visibility: 'PUBLIC' | 'PRIVATE' | 'FRIENDS';
+        start_date: string;
+        end_date: string;
+      }): Promise<any> {
+        const config = await getTokenHeader();
+        const response = await mediaApi.post('/api/trips', tripData, config);
+        return response.data;
+      },
 };
 
 
@@ -200,3 +226,4 @@ export const uploadMediaToTrip = async (tripId: string, imageUri: string): Promi
     throw error;
   }
 };
+

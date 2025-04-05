@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Image,
@@ -9,9 +9,10 @@ import {
   TouchableOpacity,
   Text,
   Platform,
+  Alert,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { Trip, TripMedia, uploadMediaToTrip } from '../services/mediaService';
+import { Trip, TripMedia, uploadMediaToTrip, mediaService } from '../services/mediaService';
 import { RootStackParamList } from '../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -28,16 +29,91 @@ const PhotoViewScreen = () => {
     trip: Trip
   };
   
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [mediaVisibility, setMediaVisibility] = useState<Record<string, string>>({});
   const scrollViewRef = React.useRef<ScrollView>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({
         x: initialIndex * Dimensions.get('window').width,
         animated: false
       });
     }
+    
+    // Fetch visibility for all media items
+    fetchMediaVisibility();
   }, [initialIndex]);
+
+  const fetchMediaVisibility = async () => {
+    const visibilityMap: Record<string, string> = {};
+    
+    for (const media of tripMedia) {
+      try {
+        const mediaId = media.mediaId.toString();
+        const visibility = await mediaService.getMediaVisibility(mediaId);
+        visibilityMap[mediaId] = visibility;
+      } catch (error) {
+        console.error('Error fetching visibility for media', media.mediaId, error);
+        visibilityMap[media.mediaId.toString()] = '';
+      }
+    }
+    
+    setMediaVisibility(visibilityMap);
+  };
+
+  const getVisibilityIcon = (mediaId: string): string => {
+    const visibility = mediaVisibility[mediaId];
+    if (visibility === 'PRIVATE') {
+      return '🔒'; // Lock icon for private
+    } else if (visibility === 'FRIENDS') {
+      return '👥'; // People icon for friends-only
+    } else if (visibility === 'PUBLIC') {
+      return '🌐'; // Globe for public visibility
+    }
+    return '🔒'; // Default to lock if not loaded yet
+  };
+
+  const handleVisibilityChange = async () => {
+    if (!tripMedia || tripMedia.length === 0 || currentIndex >= tripMedia.length) {
+      return;
+    }
+
+    const mediaId = tripMedia[currentIndex].mediaId.toString();
+    const currentVisibility = mediaVisibility[mediaId] || 'PRIVATE';
+    
+    // Cycle through visibility options
+    let newVisibility: 'PUBLIC' | 'PRIVATE' | 'FRIENDS';
+    
+    if (currentVisibility === 'PRIVATE') {
+      newVisibility = 'FRIENDS';
+    } else if (currentVisibility === 'FRIENDS') {
+      newVisibility = 'PUBLIC';
+    } else {
+      newVisibility = 'PRIVATE';
+    }
+    
+    try {
+      await mediaService.changeMediaVisibility(mediaId, newVisibility);
+      
+      // Update local state
+      setMediaVisibility(prev => ({
+        ...prev,
+        [mediaId]: newVisibility
+      }));
+    } catch (error) {
+      console.error('Error changing visibility:', error);
+      Alert.alert('Error', 'Failed to change visibility');
+    }
+  };
+
+  const handleScroll = (event: any) => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x;
+    const newIndex = Math.round(contentOffsetX / Dimensions.get('window').width);
+    if (newIndex !== currentIndex) {
+      setCurrentIndex(newIndex);
+    }
+  };
 
   const handleImageUpload = async () => {
     try {
@@ -77,6 +153,65 @@ const PhotoViewScreen = () => {
     }
   };
 
+  const handleDeleteMedia = async () => {
+    if (!tripMedia || tripMedia.length === 0 || currentIndex >= tripMedia.length) {
+      return;
+    }
+  
+    const mediaId = tripMedia[currentIndex].mediaId.toString();
+    
+    Alert.alert(
+      "Delete Photo",
+      "Are you sure you want to delete this photo? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await mediaService.deleteMedia(mediaId);
+              
+              // Create a new array without the deleted media
+              const updatedMedia = [...tripMedia];
+              updatedMedia.splice(currentIndex, 1);
+              
+              if (updatedMedia.length === 0) {
+                // If no media left, go back to profile
+                navigation.goBack();
+                return;
+              }
+              
+              // Adjust current index if needed
+              const newIndex = currentIndex >= updatedMedia.length 
+                ? updatedMedia.length - 1 
+                : currentIndex;
+              
+              // Update the screen with the new media array
+              navigation.setParams({
+                tripMedia: updatedMedia,
+                initialIndex: newIndex,
+                trip
+              });
+              
+              // Update local state
+              setCurrentIndex(newIndex);
+              
+              // Show success message
+              Alert.alert("Success", "Photo deleted successfully");
+            } catch (error) {
+              console.error('Error deleting media:', error);
+              Alert.alert("Error", "Failed to delete photo. Please try again.");
+            }
+          }
+        }
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.topBar}>
@@ -91,8 +226,12 @@ const PhotoViewScreen = () => {
       </View>
       
       <View style={styles.iconBar}>
-        <TouchableOpacity>
-          <Text style={styles.iconText}>🔒</Text>
+        <TouchableOpacity onPress={handleVisibilityChange}>
+          <Text style={styles.iconText}>
+            {tripMedia && tripMedia.length > 0 && currentIndex < tripMedia.length
+              ? getVisibilityIcon(tripMedia[currentIndex].mediaId.toString())
+              : '🔒'}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity>
           <Text style={styles.iconText}>⭐</Text>
@@ -100,7 +239,8 @@ const PhotoViewScreen = () => {
         <TouchableOpacity>
           <Text style={styles.iconText}>⏱️</Text>
         </TouchableOpacity>
-        <TouchableOpacity>
+        // Then update the trash icon TouchableOpacity:
+        <TouchableOpacity onPress={handleDeleteMedia}>
           <Text style={styles.iconText}>🗑️</Text>
         </TouchableOpacity>
       </View>
@@ -121,6 +261,7 @@ const PhotoViewScreen = () => {
         pagingEnabled
         horizontal
         showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={handleScroll}
       >
         {tripMedia.map((media, index) => (
           <View key={media.mediaId} style={styles.photoContainer}>
@@ -138,7 +279,17 @@ const PhotoViewScreen = () => {
           {tripMedia.map((media, index) => (
             <TouchableOpacity 
               key={`thumb-${media.mediaId}`}
-              style={styles.thumbnail}
+              style={[
+                styles.thumbnail,
+                currentIndex === index ? styles.activeThumbnail : null
+              ]}
+              onPress={() => {
+                setCurrentIndex(index);
+                scrollViewRef.current?.scrollTo({
+                  x: index * Dimensions.get('window').width,
+                  animated: true
+                });
+              }}
             >
               <Image
                 source={{ uri: media.url }}
@@ -152,7 +303,7 @@ const PhotoViewScreen = () => {
       <View style={styles.fixedTabBar}>
         <TouchableOpacity 
           style={styles.tabItem}
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('Home' as never)}
         >
           <Text>🏠</Text>
         </TouchableOpacity>
@@ -164,13 +315,13 @@ const PhotoViewScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.tabItem}
-          onPress={() => navigation.navigate('Explore')}
+          onPress={() => navigation.navigate('Explore' as never)}
         >
           <Text>🔍</Text>
         </TouchableOpacity>
         <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={() => navigation.navigate('Profile')}
+          style={[styles.tabItem, { opacity: 1 }]}
+          onPress={() => navigation.navigate('Profile' as never)}
         >
           <Text>👤</Text>
         </TouchableOpacity>
@@ -296,6 +447,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 0.2,
     borderColor: '#fff',
+  },
+  activeThumbnail: {
+    borderWidth: 2,
+    borderColor: '#8BB8E8',
   },
   thumbnailImage: {
     width: '100%',
