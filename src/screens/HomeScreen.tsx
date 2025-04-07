@@ -12,103 +12,63 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { mediaService, TripWithMedia } from '../services/mediaService';
+import { profileService } from '../services/profileService';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/types';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const HomeScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const [followingTrips, setFollowingTrips] = useState<TripWithMedia[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userProfiles, setUserProfiles] = useState<{[key: string]: string}>({});
+
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const profile = await profileService.getProfileById(userId);
+      setUserProfiles(prev => ({
+        ...prev,
+        [userId]: profile.ProfilePicture || 'https://via.placeholder.com/40'
+      }));
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
 
   useEffect(() => {
-    console.log('HomeScreen mounted');
     fetchFollowingTrips();
-    return () => {
-      console.log('HomeScreen unmounted');
-    };
   }, []);
+
+  useEffect(() => {
+    if (followingTrips.length > 0) {
+      followingTrips.forEach(trip => {
+        if (trip.trip.user_id) {
+          fetchUserProfile(trip.trip.user_id.toString());
+        }
+      });
+    }
+  }, [followingTrips]);
 
   const fetchFollowingTrips = async () => {
     try {
       setLoading(true);
-      console.log('Fetching following trips...');
       const trips = await mediaService.getFollowingTrips();
-      
-      console.log('Raw trips data:', JSON.stringify(trips, null, 2));
-      console.log('Number of trips received:', trips?.length || 0);
-      
-      if (trips && trips.length > 0) {
-        console.log('First trip details:', {
-          tripId: trips[0].trip.TripID,
-          userId: trips[0].trip.user_id,
-          name: trips[0].trip.name,
-          mediaCount: trips[0].media?.length || 0,
-          firstMediaUrl: trips[0].media?.[0]?.url || 'No media'
-        });
-      }
-      
       const filteredTrips = trips?.filter(trip => trip.trip.user_id !== 1) || [];
-      console.log('Filtered trips count:', filteredTrips.length);
-      
       setFollowingTrips(filteredTrips);
     } catch (error) {
       console.error('Error fetching following trips:', error);
       setFollowingTrips([]);
     } finally {
       setLoading(false);
-      console.log('Fetch operation completed');
     }
   };
 
-  // Add this logging when rendering trips
-  <View style={styles.postsContainer}>
-    {loading ? (
-      <ActivityIndicator size="large" color="#8BB8E8" />
-    ) : (
-      followingTrips.map((post) => {
-        console.log('Rendering trip:', post.trip.TripID, post.trip.name);
-        return (
-          <View 
-            key={post.trip.TripID} 
-            style={styles.postCard}
-          >
-            <View style={styles.locationHeader}>
-              <Text style={styles.location}>{post.trip.name}</Text>
-              <Text style={styles.location}>{post.location}</Text>
-              <TouchableOpacity style={styles.likeButton}>
-                <Text style={styles.likeIcon}>🤍</Text>
-              </TouchableOpacity>
-            </View>
-            {post.media && post.media.length > 0 && (
-              <Image 
-                source={{ uri: post.media[0].url }}
-                style={styles.postImage}
-              />
-            )}
-          </View>
-        );
-      })
-    )}
-  </View>
+  
   const globes = [
-    { id: 1, name: 'Personal Globe', color: '#98D8B9' },
-    { id: 2, name: 'Globe with John Marcus', color: '#FFE5B4' },
-    { id: 3, name: 'Globe with your friends', color: '#B4E4FF' },
-  ];
-
-  const feedPosts = [
-    {
-      id: 1,
-      location: 'Japan',
-      image: 'https://example.com/japan.jpg',
-      flag: '🇯🇵',
-      likes: 234,
-    },
-    {
-      id: 2,
-      location: 'China',
-      image: 'https://example.com/china.jpg',
-      flag: '🇨🇳',
-      likes: 187,
-    },
+    { id: 1, name: 'Personal Globe', color: '#98D8B9', completed: 22 },
+    { id: 2, name: 'Globe with John Marcus', color: '#FFE5B4', completed: 45 },
+    { id: 3, name: 'Globe with your friends', color: '#B4E4FF', completed: 15 },
   ];
 
   return (
@@ -126,18 +86,28 @@ const HomeScreen = () => {
           showsHorizontalScrollIndicator={false}
           style={styles.globesScroll}
         >
+          
           {globes.map((globe) => (
             <TouchableOpacity 
               key={globe.id} 
               style={styles.globeItem}
             >
               <View style={[styles.globePlaceholder, { backgroundColor: globe.color }]}>
-                <Text style={styles.globeIcon}>🌍</Text>
+                <View style={styles.globeContent}>
+                  <View style={styles.globeIconWrapper}>
+                    <Text style={styles.globeIcon}>🌍</Text>
+                  </View>
+                  <View style={styles.globeTextContainer}>
+                    <Text style={styles.globeText}>{globe.name}</Text>
+                    <Text style={styles.completionText}>{globe.completed}% completed</Text>
+                  </View>
+                </View>
               </View>
-              <Text style={styles.globeText}>{globe.name}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
+
+        <View style={styles.separator} />
 
         <View style={styles.postsContainer}>
           {loading ? (
@@ -148,18 +118,38 @@ const HomeScreen = () => {
                 key={post.trip.TripID} 
                 style={styles.postCard}
               >
-                <View style={styles.locationHeader}>
-                  <Text style={styles.location}>{post.trip.name}</Text>
-                  <Text style={styles.location}>{post.location}</Text>
-                  <TouchableOpacity style={styles.likeButton}>
-                    <Text style={styles.likeIcon}>🤍</Text>
-                  </TouchableOpacity>
-                </View>
                 {post.media && post.media.length > 0 && (
-                  <Image 
-                    source={{ uri: post.media[0].url }}
-                    style={styles.postImage}
-                  />
+                  <View style={styles.imageContainer}>
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('ExplorePhotoView', {
+                        imageUrl: post.media[0].url,
+                        tripMedia: post.media,
+                        initialIndex: 0,
+                        trip: post.trip
+                      })}
+                    >
+                      <Image 
+                        source={{ uri: post.media[0].url }}
+                        style={styles.postImage}
+                      />
+                    </TouchableOpacity>
+                    <View style={styles.locationHeader}>
+                      <Image 
+                        source={{ 
+                          uri: userProfiles[post.trip.user_id?.toString()] || 'https://via.placeholder.com/40'
+                        }}
+                        style={styles.profilePic}
+                      />
+                      <View style={styles.locationContainer}>
+                        <Text style={styles.location}>{post.trip.name}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.locationBottom}>
+                      <TouchableOpacity style={styles.likeButton}>
+                        <Text style={styles.likeIcon}>🤍</Text>
+                      </TouchableOpacity>                    
+                    </View>
+                  </View>
                 )}
               </View>
             ))
@@ -218,57 +208,107 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   globeItem: {
-    alignItems: 'center',
     marginHorizontal: 8,
-    width: 100,
+    width: 150,
+    height: 190,
   },
   globePlaceholder: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
+    padding: 10,
+  },
+  globeContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  globeIconWrapper: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
   },
   globeIcon: {
-    fontSize: 32,
+    fontSize: 90,
+  },
+  globeTextContainer: {
+    gap: 4,
   },
   globeText: {
-    fontSize: 12,
-    textAlign: 'center',
-    color: '#666',
+    fontSize: 10,
+    color: '#000000',
+    fontWeight: '600',
+  },
+  completionText: {
+    fontSize: 10,
+    color: '#000000',
+    opacity: 0.6,
   },
   locationHeader: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 12,
+    padding: 16,
+  },
+  locationContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    padding: 5,
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 45,
+  },
+  locationBottom : {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
   },
   location: {
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: '600',
+    color: '#000000',
+    textAlign: 'center',
+  },
+  likeIcon: {
+    fontSize: 24,
+    color: '#ffffff',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+  },
+  profilePic: {
+    width: 35,
+    height: 35,
+    borderRadius: 20,
+
   },
   likeButton: {
     padding: 4,
   },
-  likeIcon: {
-    fontSize: 20,
-  },
   postCard: {
-    marginBottom: 16,
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
-    elevation: 2,
+    elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
   },
   postImage: {
     width: '100%',
-    height: 250,
+    height: 300,
     backgroundColor: '#f0f0f0',
+    resizeMode: 'cover',
+  },
+  postsContainer: {
+    padding: 16,
+    paddingBottom: 80,
+    gap: 20,  // Adds consistent spacing between posts
   },
   headerTitle: {
     fontSize: 20,
@@ -276,9 +316,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  postsContainer: {
-    padding: 16,
   },
   tabBar: {
     flexDirection: 'row',
@@ -307,6 +344,15 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: '#fff',
     fontSize: 24,
+  },
+  imageContainer: {
+    position: 'relative',
+  },
+  separator: {
+    height: 2,
+    backgroundColor: '#eee',
+    marginHorizontal: 16,
+    marginVertical: 8,
   },
 });
 
