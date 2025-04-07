@@ -114,11 +114,6 @@ export const mediaService = {
         return response.data;
     },
 
-    async getMediaUrl(mediaId: string): Promise<string> {
-        const response = await mediaApi.get(`/api/media/${mediaId}`);
-        return response.data.url;
-    },
-
     async deleteMedia(mediaId: string): Promise<void> {
         try {
             const config = await getTokenHeader();
@@ -150,13 +145,9 @@ export const mediaService = {
         return response.data.visibility;
     },
 
-    async getMediaByTripId(tripId: string): Promise<MediaItem[]> {
-        const response = await mediaApi.get(`/api/media/trip/${tripId}`);
-        return response.data;
-    },
-
-    async getTripMedia(tripId: string): Promise<TripMedia[]> {
-        const response = await mediaApi.get(`/api/media/trip/${tripId}`);
+    async getTripMedia(tripId: string): Promise<TripWithMedia[]> {
+        const config = await getTokenHeader();
+        const response = await mediaApi.get(`/api/media/trip/${tripId}`,config);
         return response.data;
     },
 
@@ -166,11 +157,23 @@ export const mediaService = {
         return response.data;
     },
 
+    async searchTrips(query: string): Promise<TripWithMedia[]> {
+        const config = await getTokenHeader();
+        const response = await mediaApi.post('/api/trips/search', { query }, config);
+        return response.data;
+    },
+
     async getPublicTrips(): Promise<TripWithMedia[]> {
       const config = await getTokenHeader();
       const response = await mediaApi.get('/api/trips/public', config);
       return response.data;
     },
+
+    async getTripsByUserId(userId: string): Promise<TripWithMedia[]> {
+        const config = await getTokenHeader();
+        const response = await mediaApi.get(`/api/trips/user/${userId}`, config);
+        return response.data;
+      },
 
     async getFollowingTrips(): Promise<TripWithMedia[]> {
         const config = await getTokenHeader();

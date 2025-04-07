@@ -20,10 +20,9 @@ import { launchImageLibrary } from 'react-native-image-picker';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-const PhotoViewScreen = () => {
+const PhotoExploreScreen = () => {  // Changed component name to match file name
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute();
-  // In the route params section
   const { tripMedia, initialIndex = 0, trip } = route.params as { 
     tripMedia: TripMedia[],
     initialIndex: number,
@@ -41,74 +40,16 @@ const PhotoViewScreen = () => {
         animated: false
       });
     }
-    
-    // Fetch visibility for all media items
-    fetchMediaVisibility();
   }, [initialIndex]);
-
-  const fetchMediaVisibility = async () => {
-    const visibilityMap: Record<string, string> = {};
-    
-    for (const media of tripMedia) {
-      try {
-        const mediaId = media.mediaId.toString();
-        const visibility = await mediaService.getMediaVisibility(mediaId);
-        visibilityMap[mediaId] = visibility;
-      } catch (error) {
-        console.error('Error fetching visibility for media', media.mediaId, error);
-        visibilityMap[media.mediaId.toString()] = '';
-      }
-    }
-    
-    setMediaVisibility(visibilityMap);
-  };
-
-  const getVisibilityIcon = (mediaId: string): string => {
-    const visibility = mediaVisibility[mediaId];
-    if (visibility === 'PRIVATE') {
-      return '🔒'; // Lock icon for private
-    } else if (visibility === 'FRIENDS') {
-      return '👥'; // People icon for friends-only
-    } else if (visibility === 'PUBLIC') {
-      return '🌐'; // Globe for public visibility
-    }
-    return '🔒'; // Default to lock if not loaded yet
-  };
 
   const handleVisibilityChange = async () => {
     if (!tripMedia || tripMedia.length === 0 || currentIndex >= tripMedia.length) {
       return;
     }
+    const mediaId = tripMedia[currentIndex].mediaId.toString();    
+  }; // Added missing closing brace
 
-    const mediaId = tripMedia[currentIndex].mediaId.toString();
-    const currentVisibility = mediaVisibility[mediaId] || 'PRIVATE';
-    
-    // Cycle through visibility options
-    let newVisibility: 'PUBLIC' | 'PRIVATE' | 'FRIENDS';
-    
-    if (currentVisibility === 'PRIVATE') {
-      newVisibility = 'FRIENDS';
-    } else if (currentVisibility === 'FRIENDS') {
-      newVisibility = 'PUBLIC';
-    } else {
-      newVisibility = 'PRIVATE';
-    }
-    
-    try {
-      await mediaService.changeMediaVisibility(mediaId, newVisibility);
-      
-      // Update local state
-      setMediaVisibility(prev => ({
-        ...prev,
-        [mediaId]: newVisibility
-      }));
-    } catch (error) {
-      console.error('Error changing visibility:', error);
-      Alert.alert('Error', 'Failed to change visibility');
-    }
-  };
-
-  const handleScroll = (event: any) => {
+  const handleScroll = (event: any) => {  // Moved outside handleVisibilityChange
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const newIndex = Math.round(contentOffsetX / Dimensions.get('window').width);
     if (newIndex !== currentIndex) {
@@ -116,102 +57,7 @@ const PhotoViewScreen = () => {
     }
   };
 
-  const handleImageUpload = async () => {
-    try {
-      // Use react-native-image-picker instead of expo-image-picker
-      launchImageLibrary({
-        mediaType: 'photo',
-        quality: 1,
-        includeBase64: false,
-      }, async (response) => {
-        if (response.didCancel) {
-          return;
-        }
-        
-        if (response.errorCode) {
-          console.error('ImagePicker Error: ', response.errorMessage);
-          return;
-        }
-        
-        if (response.assets && response.assets.length > 0) {
-          const selectedImage = response.assets[0];
-          
-          // Call the upload endpoint with the selected image and trip
-          await uploadMediaToTrip(trip.TripID.toString(), selectedImage.uri || '');
-          
-          // Refresh the screen or navigate back to reload the images
-          navigation.goBack();
-          navigation.navigate('PhotoView', { 
-            imageUrl: tripMedia[0]?.url,
-            tripMedia, 
-            initialIndex, 
-            trip 
-          });
-        }
-      });
-    } catch (error) {
-      console.error('Error uploading image:', error);
-    }
-  };
-
-  const handleDeleteMedia = async () => {
-    if (!tripMedia || tripMedia.length === 0 || currentIndex >= tripMedia.length) {
-      return;
-    }
   
-    const mediaId = tripMedia[currentIndex].mediaId.toString();
-    
-    Alert.alert(
-      "Delete Photo",
-      "Are you sure you want to delete this photo? This action cannot be undone.",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await mediaService.deleteMedia(mediaId);
-              
-              // Create a new array without the deleted media
-              const updatedMedia = [...tripMedia];
-              updatedMedia.splice(currentIndex, 1);
-              
-              if (updatedMedia.length === 0) {
-                // If no media left, go back to profile
-                navigation.goBack();
-                return;
-              }
-              
-              // Adjust current index if needed
-              const newIndex = currentIndex >= updatedMedia.length 
-                ? updatedMedia.length - 1 
-                : currentIndex;
-              
-              // Update the screen with the new media array
-              navigation.setParams({
-                tripMedia: updatedMedia,
-                initialIndex: newIndex,
-                trip
-              });
-              
-              // Update local state
-              setCurrentIndex(newIndex);
-              
-              // Show success message
-              Alert.alert("Success", "Photo deleted successfully");
-            } catch (error) {
-              console.error('Error deleting media:', error);
-              Alert.alert("Error", "Failed to delete photo. Please try again.");
-            }
-          }
-        }
-      ]
-    );
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -220,29 +66,17 @@ const PhotoViewScreen = () => {
           <Text style={styles.backButton}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>{trip?.name || "Personal Globe"}</Text>
-
-        <TouchableOpacity onPress={handleImageUpload}>
-          <Text style={styles.addButton2}>+</Text>
-        </TouchableOpacity>
       </View>
       
       <View style={styles.iconBar}>
-        <TouchableOpacity onPress={handleVisibilityChange}>
-          <Text style={styles.iconText}>
-            {tripMedia && tripMedia.length > 0 && currentIndex < tripMedia.length
-              ? getVisibilityIcon(tripMedia[currentIndex].mediaId.toString())
-              : '🔒'}
-          </Text>
-        </TouchableOpacity>
         <TouchableOpacity>
           <Text style={styles.iconText}>⭐</Text>
         </TouchableOpacity>
         <TouchableOpacity>
           <Text style={styles.iconText}>⏱️</Text>
         </TouchableOpacity>
-        // Then update the trash icon TouchableOpacity:
-        <TouchableOpacity onPress={handleDeleteMedia}>
-          <Text style={styles.iconText}>🗑️</Text>
+        <TouchableOpacity>
+          <Text style={styles.iconText}>📍</Text>
         </TouchableOpacity>
       </View>
 
@@ -479,4 +313,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PhotoViewScreen;
+export default PhotoExploreScreen;  // Changed export name to match component
