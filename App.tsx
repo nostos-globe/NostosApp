@@ -10,6 +10,7 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import AddTripScreen from './src/screens/AddTripScreen';
 import PhotoExploreScreen from './src/screens/PhotoExploreScreen';
 import OtherProfileScreen from './src/screens/OtherProfileScreen';
+import Globe3DView from './src/screens/Globe3DView';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +21,7 @@ function App(): JSX.Element {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Globe3DView" component={Globe3DView}/>
         <Stack.Screen name="Explore" component={ExploreScreen} />
         <Stack.Screen name="ExplorePhotoView" component={PhotoExploreScreen} />
         <Stack.Screen name="PhotoView" component={PhotoViewScreen} />

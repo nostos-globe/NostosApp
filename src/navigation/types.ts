@@ -1,3 +1,4 @@
+import { Globe } from '../services/globesService';
 import { TripMedia, Trip } from '../services/mediaService';
 
 export type RootStackParamList = {
@@ -13,6 +14,7 @@ export type RootStackParamList = {
     initialIndex: number;
     trip?: Trip;
   };
+  Globe3DView: { globe: Globe };
   OtherProfile: {
     userId: number; 
   }

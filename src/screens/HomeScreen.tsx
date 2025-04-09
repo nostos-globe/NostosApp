@@ -15,6 +15,7 @@ import { mediaService, TripWithMedia } from '../services/mediaService';
 import { profileService } from '../services/profileService';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
+import { globesService, Globe } from '../services/globesService';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -23,6 +24,8 @@ const HomeScreen = () => {
   const [followingTrips, setFollowingTrips] = useState<TripWithMedia[]>([]);
   const [loading, setLoading] = useState(true);
   const [userProfiles, setUserProfiles] = useState<{[key: string]: string}>({});
+  const [myGlobes, setMyGlobes] = useState<Globe[]>([]);
+  const [loadingGlobes, setLoadingGlobes] = useState(true);
 
   const fetchUserProfile = async (userId: string) => {
     try {
@@ -65,6 +68,24 @@ const HomeScreen = () => {
   };
 
   
+  const fetchMyGlobes = async () => {
+    try {
+      setLoadingGlobes(true);
+      const globes = await globesService.getMyGlobes();
+      setMyGlobes(globes);
+    } catch (error) {
+      console.error('Error fetching globes:', error);
+      setMyGlobes([]);
+    } finally {
+      setLoadingGlobes(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMyGlobes();
+    fetchFollowingTrips();
+  }, []);
+
   const globes = [
     { id: 1, name: 'Personal Globe', color: '#98D8B9', completed: 22 },
     { id: 2, name: 'Globe with John Marcus', color: '#FFE5B4', completed: 45 },
@@ -86,25 +107,29 @@ const HomeScreen = () => {
           showsHorizontalScrollIndicator={false}
           style={styles.globesScroll}
         >
-          
-          {globes.map((globe) => (
-            <TouchableOpacity 
-              key={globe.id} 
-              style={styles.globeItem}
-            >
-              <View style={[styles.globePlaceholder, { backgroundColor: globe.color }]}>
-                <View style={styles.globeContent}>
-                  <View style={styles.globeIconWrapper}>
-                    <Text style={styles.globeIcon}>🌍</Text>
-                  </View>
-                  <View style={styles.globeTextContainer}>
-                    <Text style={styles.globeText}>{globe.name}</Text>
-                    <Text style={styles.completionText}>{globe.completed}% completed</Text>
+          {loadingGlobes ? (
+            <ActivityIndicator size="large" color="#8BB8E8" />
+          ) : (
+            myGlobes.map((globe) => (
+              <TouchableOpacity 
+                key={globe.AlbumID} 
+                style={styles.globeItem}
+                onPress={() => navigation.navigate('Globe3DView', { globe })}
+              >
+                <View style={[styles.globePlaceholder, { backgroundColor: getRandomColor() }]}>
+                  <View style={styles.globeContent}>
+                    <View style={styles.globeIconWrapper}>
+                      <Text style={styles.globeIcon}>🌍</Text>
+                    </View>
+                    <View style={styles.globeTextContainer}>
+                      <Text style={styles.globeText}>{globe.name}</Text>
+                      <Text style={styles.completionText}>{globe.visibility}</Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          ))}
+              </TouchableOpacity>
+            ))
+          )}
         </ScrollView>
 
         <View style={styles.separator} />
@@ -357,3 +382,9 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
+
+// Add this helper function at the bottom before styles
+const getRandomColor = () => {
+  const colors = ['#98D8B9', '#FFE5B4', '#B4E4FF', '#FFB4B4', '#B4FFD8'];
+  return colors[Math.floor(Math.random() * colors.length)];
+};
