@@ -75,7 +75,8 @@ const Globe3DView = () => {
       lat: parseFloat(trip.trip.latitude),
       lng: parseFloat(trip.trip.longitude),
       name: trip.trip.name,
-      imageUrl: trip.media[0].url
+      imageUrl: trip.media[0].url,
+      tripId: trip.trip.TripID // Add tripId to make identification easier
     }));
 
     return `
@@ -124,7 +125,7 @@ const Globe3DView = () => {
             try {
               const markers = ${JSON.stringify(markers)};
               const globe = Globe()
-                .globeImageUrl('    ')
+                .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
                 .backgroundColor('#fff')
                 .htmlElementsData(markers)
                 .htmlElement(d => {
@@ -136,23 +137,32 @@ const Globe3DView = () => {
                   \`;
                   el.style.cursor = 'pointer';
                   el.onclick = () => {
+                    // Log to console for debugging
+                    console.log('Marker clicked:', d);
+                    
+                    // Send message immediately without animation delay
+                    try {
+                      const message = JSON.stringify({
+                        lat: d.lat,
+                        lng: d.lng,
+                        tripId: d.tripId
+                      });
+                      console.log('Sending message to React Native:', message);
+                      window.ReactNativeWebView.postMessage(message);
+                    } catch (err) {
+                      console.error('Error sending message:', err);
+                    }
+                    
                     // Animate to marker position
                     globe.pointOfView({
                       lat: d.lat,
                       lng: d.lng,
                       altitude: 0.005
                     }, 1000);
-                    
-                    setTimeout(() => {
-                      window.ReactNativeWebView.postMessage(JSON.stringify({
-                        lat: d.lat,
-                        lng: d.lng
-                      }));
-                    }, 1000);
                   };
                   return el;
                 })
-                .htmlAltitude(0.01)  // Increased altitude to reduce overlap
+                .htmlAltitude(0.01)
                 .htmlTransitionDuration(1000);
 
               // Initialize with custom rotation
@@ -180,19 +190,38 @@ const Globe3DView = () => {
   };
 
   const handleMessage = (event: { nativeEvent: { data: string; }; }) => {
-    const point = JSON.parse(event.nativeEvent.data);
-    const trip = testTrips.find(t => 
-      t.trip.latitude === point.lat.toString() && 
-      t.trip.longitude === point.lng.toString()
-    );
+    console.log('Message received from WebView:', event.nativeEvent.data);
     
-    if (trip) {
-      navigation.navigate('ExplorePhotoView', {
-        imageUrl: trip.media[0].url,
-        tripMedia: trip.media,
-        initialIndex: 1,
-        trip: trip.trip
-      });
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
+      
+      // First try to find by tripId if available
+      let trip = data.tripId ? 
+        testTrips.find(t => t.trip.TripID === data.tripId) : 
+        null;
+      
+      // If not found by ID, try coordinates
+      if (!trip && data.lat && data.lng) {
+        trip = testTrips.find(t => {
+          const latDiff = Math.abs(parseFloat(t.trip.latitude) - data.lat);
+          const lngDiff = Math.abs(parseFloat(t.trip.longitude) - data.lng);
+          return latDiff < 0.001 && lngDiff < 0.001;
+        });
+      }
+      
+      if (trip) {
+        console.log('Trip found:', trip.trip.name);
+        navigation.navigate('ExplorePhotoView', {
+          imageUrl: trip.media[0].url,
+          tripMedia: trip.media,
+          initialIndex: 1,
+          trip: trip.trip
+        });
+      } else {
+        console.log('No matching trip found for data:', data);
+      }
+    } catch (error) {
+      console.error('Error handling WebView message:', error);
     }
   };
 
