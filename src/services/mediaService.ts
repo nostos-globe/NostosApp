@@ -10,6 +10,11 @@ export interface MediaMetadata {
     date?: string;
 }
 
+export interface Location {
+    Country: string;
+    City: string;
+}
+
 export interface MediaItem {
     media_id: string;
     trip_id: string;
@@ -23,6 +28,9 @@ export interface MediaItem {
 export interface TripMedia {
     mediaId: number;
     url: string;
+    latitude: number;
+    longitude: number;
+    visibility: 'PUBLIC' | 'PRIVATE' | 'FOLLOWERS';
 }
 
 export interface Trip {
@@ -130,10 +138,16 @@ export const mediaService = {
         return response.data;
     },
 
+    async getTripsLocations(tripId: string): Promise<TripWithMedia> {
+        const config = await getTokenHeader();
+        const response = await mediaApi.get(`/api/trips/${tripId}/locations`, config);
+        return response.data; 
+    },
+
     async changeMediaVisibility(
         mediaId: string, 
         visibility: 'PUBLIC' | 'PRIVATE' | 'FRIENDS'
-    ): Promise<MediaItem> {
+    ): Promise<Location> {
         const config = await getTokenHeader();
         const response = await mediaApi.put(`/api/media/${mediaId}/visibility`, { visibility }, config);
         return response.data;

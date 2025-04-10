@@ -17,10 +17,13 @@
     "axios": "^1.8.1",
     "react": "18.3.1",
     "react-native": "0.77.0",
+    "react-native-gl-model-view": "^1.6.0",
     "react-native-image-picker": "^8.2.0",
+    "react-native-maps": "^1.20.1",
     "react-native-mmkv": "^3.2.0",
     "react-native-safe-area-context": "^5.2.0",
     "react-native-screens": "^4.9.1",
+    "react-native-vector-icons": "^10.2.0",
     "react-native-webview": "^13.13.5",
     "three": "^0.175.0"
   },
