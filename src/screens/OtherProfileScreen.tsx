@@ -197,28 +197,45 @@ const OtherProfileScreen = () => {
           style={styles.tabItem}
           onPress={() => navigation.navigate('Home' as never)}
         >
-          <Text>🏠</Text>
+          <Text>                      
+            <Image 
+              source={require('../assets/homeIcon.png')}
+              style={styles.tabItem}
+            />
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.tabItem}>
-          <Text>🌎</Text>
+          <Text>
+            <Image 
+                source={require('../assets/globeIcon.png')}
+                style={styles.tabItem}
+              />
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.addButton}
-          onPress={() => navigation.navigate('AddTrip' as never)}
-        >
+        <TouchableOpacity style={styles.addButton}>
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.tabItem}
           onPress={() => navigation.navigate('Explore' as never)}
         >
-          <Text>🔍</Text>
+          <Text>
+            <Image 
+                source={require('../assets/findIcon.png')}
+                style={styles.tabItem}
+            />
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.tabItem, { opacity: 1 }]}
           onPress={() => navigation.navigate('Profile' as never)}
         >
-          <Text>👤</Text>
+          <Text>
+            <Image 
+                source={require('../assets/profileIcon.png')}
+                style={styles.tabItem}
+            />
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
