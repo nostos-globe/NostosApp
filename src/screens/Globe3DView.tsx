@@ -700,10 +700,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   addButton: {
-    width: 44,
-    height: 44,
+    width: 50,
+    height: 50,
     backgroundColor: '#8BB8E8',
-    borderRadius: 22,
+    borderRadius: 36,
     justifyContent: 'center',
     alignItems: 'center',
   },

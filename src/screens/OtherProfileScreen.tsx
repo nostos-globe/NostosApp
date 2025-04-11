@@ -25,6 +25,8 @@ const OtherProfileScreen = () => {
   const [following, setFollowing] = useState<FollowResponse>({ 
     Follow: { count: 0, profiles: [] } 
   });
+  const [isFollowing, setIsFollowing] = useState(false);
+
   const [trips, setTrips] = useState<TripWithMedia[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const { userId } = route.params as { userId: string };
@@ -45,14 +47,11 @@ const OtherProfileScreen = () => {
   };
 
   const loadProfileData = async () => {
-    console.log('ProfileScreen: Loading profile data...');
     try {
       const tripsData = await mediaService.getTripsByUserId(userId);
-      console.log('ProfileScreen: Trips data loaded:', tripsData?.length || 0, 'trips');
       setTrips(tripsData || []);
 
       const profileData = await profileService.getProfileById(userId);
-      console.log('ProfileScreen: Profile data loaded:', profileData);
       setProfile(profileData);
       
       const [followersData, followingData] = await Promise.all([
@@ -60,11 +59,14 @@ const OtherProfileScreen = () => {
           profileService.getFollowing(profileData.UserID.toString())
       ]);
       
-      console.log('ProfileScreen: Followers/Following data loaded:', {
-        followers: followersData.Follow.count,
-        following: followingData.Follow.count
-      });
+      const currentUserId = await authService.getProfile();
+      const loggedUserProfile = await profileService.getProfileById(currentUserId.user.user_id);
       
+      const isUserFollowing = followersData.Follow.profiles.some(
+        follower => follower.profileId.toString() === loggedUserProfile.ProfileID.toString()
+      );
+      
+      setIsFollowing(isUserFollowing);
       setFollowers(followersData);
       setFollowing(followingData);
       
@@ -77,6 +79,35 @@ const OtherProfileScreen = () => {
     }
   };
 
+  const handleFollowToggle = async () => {
+    try {
+      if (isFollowing) {
+        await profileService.unfollowUser(userId);
+        setFollowers(prev => ({
+          Follow: {
+            ...prev.Follow,
+            count: prev.Follow.count - 1
+          }
+        }));
+      } else {
+        await profileService.followUser(userId);
+        setFollowers(prev => ({
+          Follow: {
+            ...prev.Follow,
+            count: prev.Follow.count + 1
+          }
+        }));
+      }
+      setIsFollowing(!isFollowing);
+    } catch (error) {
+      console.error('Error toggling follow:', error);
+      Alert.alert(
+        'Error',
+        'Failed to update follow status. Please try again.'
+      );
+    }
+  };
+  
 
   const handleLogout = async () => {
     try {
@@ -144,6 +175,17 @@ const OtherProfileScreen = () => {
       <View style={styles.actionButtons}>
         <TouchableOpacity style={styles.actionButton}>
           <Text style={styles.actionButtonText}>Compartir</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[
+            styles.actionButton,
+            isFollowing && styles.followingButton
+          ]}
+          onPress={handleFollowToggle}
+        >
+          <Text style={styles.actionButtonText}>
+            {isFollowing ? 'Unfollow' : 'Follow'}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -326,9 +368,9 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   actionButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 50,
+    paddingVertical: 7,
+    borderRadius: 9,
     borderWidth: 1,
     borderColor: '#ddd',
     marginHorizontal: 5,
@@ -373,10 +415,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addButton: {
-    width: 44,
-    height: 44,
+    width: 50,
+    height: 50,
     backgroundColor: '#8BB8E8',
-    borderRadius: 22,
+    borderRadius: 36,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -424,6 +466,11 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 24,
     color: '#000',
+  },
+  followingButton: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
 });
 
