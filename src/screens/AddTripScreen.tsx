@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,9 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { mediaService } from '../services/mediaService';
+import NavigationBar from '../components/NavigationBar';
+import { globesService, Globe } from '../services/globesService';
+import { Picker } from '@react-native-picker/picker';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -28,6 +31,24 @@ const AddTripScreen = () => {
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [globes, setGlobes] = useState<Globe[]>([]);
+  const [selectedGlobe, setSelectedGlobe] = useState<string>('');
+
+  useEffect(() => {
+    fetchGlobes();
+  }, []);
+
+  const fetchGlobes = async () => {
+    try {
+      const userGlobes = await globesService.getMyGlobes();
+      setGlobes(userGlobes);
+      if (userGlobes.length > 0) {
+        setSelectedGlobe(userGlobes[0].AlbumID.toString());
+      }
+    } catch (error) {
+      console.error('Error fetching globes:', error);
+    }
+  };
 
   const handleCreateTrip = async () => {
     if (!name.trim()) {
@@ -40,6 +61,11 @@ const AddTripScreen = () => {
       return;
     }
 
+    if (!selectedGlobe) {
+      Alert.alert('Error', 'Please select a globe');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -48,7 +74,8 @@ const AddTripScreen = () => {
         description,
         visibility,
         start_date: startDate.toISOString(),
-        end_date: endDate.toISOString()
+        end_date: endDate.toISOString(),
+        globe_id: selectedGlobe
       };
 
       // Call your API to create the trip
@@ -201,6 +228,25 @@ const AddTripScreen = () => {
           )}
         </View>
 
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>Select Globe</Text>
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={selectedGlobe}
+              onValueChange={(itemValue) => setSelectedGlobe(itemValue)}
+              style={styles.picker}
+            >
+              {globes.map((globe) => (
+                <Picker.Item 
+                  key={globe.AlbumID} 
+                  label={globe.name} 
+                  value={globe.AlbumID.toString()} 
+                />
+              ))}
+            </Picker>
+          </View>
+        </View>
+
         <TouchableOpacity
           style={[styles.createButton, isLoading && styles.disabledButton]}
           onPress={handleCreateTrip}
@@ -211,6 +257,7 @@ const AddTripScreen = () => {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+      <NavigationBar />
     </SafeAreaView>
   );
 };
@@ -308,6 +355,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    backgroundColor: '#f9f9f9',
+    marginTop: 5,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
   },
 });
 

@@ -16,6 +16,7 @@ import { Trip, TripMedia, uploadMediaToTrip, mediaService } from '../services/me
 import { RootStackParamList } from '../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { launchImageLibrary } from 'react-native-image-picker';
+import NavigationBar from '../components/NavigationBar';
 
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -135,52 +136,7 @@ const PhotoExploreScreen = () => {  // Changed component name to match file name
         </ScrollView>
       </View>
 
-      <View style={styles.fixedTabBar}>
-        <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={() => navigation.navigate('Home' as never)}
-        >
-          <Text>                      
-            <Image 
-              source={require('../assets/homeIcon.png')}
-              style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem}>
-          <Text>
-            <Image 
-                source={require('../assets/globeIcon.png')}
-                style={styles.tabItem}
-              />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={() => navigation.navigate('Explore' as never)}
-        >
-          <Text>
-            <Image 
-                source={require('../assets/findIcon.png')}
-                style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tabItem, { opacity: 1 }]}
-          onPress={() => navigation.navigate('Profile' as never)}
-        >
-          <Text>
-            <Image 
-                source={require('../assets/profileIcon.png')}
-                style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <NavigationBar />
     </SafeAreaView>
   );
 };
@@ -325,6 +281,8 @@ const styles = StyleSheet.create({
     borderTopColor: '#eee',
   },
   tabItem: {
+    width: 30,
+    height: 30,
     alignItems: 'center',
   },
   addButtonText: {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Dimensions, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, StyleSheet, Dimensions, Text, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/types';
@@ -7,6 +7,7 @@ import { Globe, globesService, GlobeWithTrips } from '../services/globesService'
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { mediaService, Trip, TripMedia } from '../services/mediaService';
+import NavigationBar from '../components/NavigationBar';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -372,6 +373,40 @@ const Globe3DView = () => {
             <Text style={styles.headerText}>{globe.name}</Text>
           </View>
         </TouchableOpacity>
+        
+        {/* Add delete button */}
+        <TouchableOpacity 
+          style={styles.deleteButton}
+          onPress={() => {
+            Alert.alert(
+              "Delete Globe",
+              "Are you sure you want to delete this globe? This action cannot be undone.",
+              [
+                {
+                  text: "Cancel",
+                  style: "cancel"
+                },
+                {
+                  text: "Delete",
+                  onPress: async () => {
+                    try {
+                      await globesService.deleteGlobe(globe.AlbumID.toString());
+                      navigation.navigate('Home');
+                    } catch (error) {
+                      console.error('Error deleting globe:', error);
+                      Alert.alert("Error", "Failed to delete globe. Please try again.");
+                    }
+                  }
+                }
+              ]
+            );
+          }}
+        >
+          <Image 
+            source={require('../assets/delete_icon.png')}
+            style={styles.deleteIcon}
+          />
+        </TouchableOpacity>
       </View>
       
       {showGlobesList ? (
@@ -533,52 +568,7 @@ const Globe3DView = () => {
         </TouchableOpacity>
       </View>
       
-      <View style={styles.tabBar}>
-        <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={() => navigation.navigate('Home' as never)}
-        >
-          <Text>                      
-            <Image 
-              source={require('../assets/homeIcon.png')}
-              style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem}>
-          <Text>
-            <Image 
-                source={require('../assets/globeIcon.png')}
-                style={styles.tabItem}
-              />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={() => navigation.navigate('Explore' as never)}
-        >
-          <Text>
-            <Image 
-                source={require('../assets/findIcon.png')}
-                style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tabItem, { opacity: 1 }]}
-          onPress={() => navigation.navigate('Profile' as never)}
-        >
-          <Text>
-            <Image 
-                source={require('../assets/profileIcon.png')}
-                style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <NavigationBar />
     </View>
   );
 };
@@ -591,12 +581,12 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingTop: 50,
     paddingBottom: 10,
+    paddingHorizontal: 16,
     backgroundColor: '#fff',
-    gap: 10,
   },
   headerCard: {
     backgroundColor: '#fff',
@@ -688,6 +678,8 @@ const styles = StyleSheet.create({
     borderTopColor: '#eee',
   },
   tabItem: {
+    width: 30,
+    height: 30,
     alignItems: 'center',
     justifyContent: 'center',
 
@@ -698,6 +690,14 @@ const styles = StyleSheet.create({
   },
   tabIcon: {
     fontSize: 20,
+  },
+  deleteButton: {
+    padding: 8,
+  },
+  deleteIcon: {
+    width: 24,
+    height: 24,
+    tintColor: '#FF6B6B',
   },
   addButton: {
     width: 50,

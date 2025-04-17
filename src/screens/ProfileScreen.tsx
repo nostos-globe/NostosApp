@@ -10,6 +10,7 @@ import { profileService, Profile, FollowerFollowing, FollowResponse } from '../s
 import { mediaService, TripMedia, TripWithMedia } from '../services/mediaService';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
+import NavigationBar from '../components/NavigationBar';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -153,14 +154,24 @@ const ProfileScreen = () => {
       </View>
 
       <View style={styles.tripCategories}>
-        <TouchableOpacity style={styles.categoryButton}>
-          <Text>🧳</Text>
+        <TouchableOpacity style={[styles.categoryButton, styles.activeCategoryButton]}>
+          <Image 
+            source={require('../assets/trip_icon.png')}
+            style={styles.tripCategoriesItem}
+          />
+          <View style={styles.activeIndicator} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.categoryButton}>
-          <Text>🎬</Text>
+          <Image 
+            source={require('../assets/video_icon.png')}
+            style={styles.tripCategoriesItem}
+          />
         </TouchableOpacity>
         <TouchableOpacity style={styles.categoryButton}>
-          <Text>❤️</Text>
+        <Image 
+            source={require('../assets/likeProfile_icon.png')}
+            style={styles.tripCategoriesItem}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -197,52 +208,7 @@ const ProfileScreen = () => {
 </View>
       </ScrollView>
       
-      <View style={styles.tabBar}>
-        <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={() => navigation.navigate('Home' as never)}
-        >
-          <Text>                      
-            <Image 
-              source={require('../assets/homeIcon.png')}
-              style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem}>
-          <Text>
-            <Image 
-                source={require('../assets/globeIcon.png')}
-                style={styles.tabItem}
-              />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={() => navigation.navigate('Explore' as never)}
-        >
-          <Text>
-            <Image 
-                source={require('../assets/findIcon.png')}
-                style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tabItem, { opacity: 1 }]}
-          onPress={() => navigation.navigate('Profile' as never)}
-        >
-          <Text>
-            <Image 
-                source={require('../assets/profileIcon.png')}
-                style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <NavigationBar />
     </SafeAreaView>
   );
 };
@@ -346,12 +312,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
-    paddingVertical: 16,
+    paddingTop: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
+  tripCategoriesItem: {
+    width: 25,
+    height: 25,
+  },
   categoryButton: {
     padding: 8,
+    alignItems: 'center',
+  },
+  activeCategoryButton: {
+    position: 'relative',
+  },
+  activeIndicator: {
+    position: 'absolute',
+    bottom: -2,
+    width: 45,
+    height: 2,
+    backgroundColor: '#000',
+    borderRadius: 1.5,
   },
   gridContainer: {
     flexDirection: 'row',
@@ -375,6 +357,9 @@ const styles = StyleSheet.create({
     borderTopColor: '#eee',
   },
   tabItem: {
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   addButton: {

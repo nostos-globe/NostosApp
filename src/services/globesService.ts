@@ -82,7 +82,6 @@ export const globesService = {
         name: string;
         description: string;
         visibility: 'PUBLIC' | 'PRIVATE' | 'FRIENDS';
-        creation_date: string;
       }): Promise<any> {
         const config = await getTokenHeader();
         const response = await mediaApi.post('/api/albums', globeData, config);
@@ -164,4 +163,5 @@ export const globesService = {
         return response.data;
       },
 };
+
 

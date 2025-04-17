@@ -11,6 +11,7 @@ import { mediaService, TripMedia, TripWithMedia } from '../services/mediaService
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useRoute } from '@react-navigation/native';
+import NavigationBar from '../components/NavigationBar';
 
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -234,52 +235,7 @@ const OtherProfileScreen = () => {
 </View>
       </ScrollView>
       
-      <View style={styles.tabBar}>
-        <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={() => navigation.navigate('Home' as never)}
-        >
-          <Text>                      
-            <Image 
-              source={require('../assets/homeIcon.png')}
-              style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem}>
-          <Text>
-            <Image 
-                source={require('../assets/globeIcon.png')}
-                style={styles.tabItem}
-              />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={() => navigation.navigate('Explore' as never)}
-        >
-          <Text>
-            <Image 
-                source={require('../assets/findIcon.png')}
-                style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tabItem, { opacity: 1 }]}
-          onPress={() => navigation.navigate('Profile' as never)}
-        >
-          <Text>
-            <Image 
-                source={require('../assets/profileIcon.png')}
-                style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <NavigationBar />
     </SafeAreaView>
   );
 };
@@ -412,6 +368,8 @@ const styles = StyleSheet.create({
     borderTopColor: '#eee',
   },
   tabItem: {
+    width: 30,
+    height: 30,
     alignItems: 'center',
   },
   addButton: {

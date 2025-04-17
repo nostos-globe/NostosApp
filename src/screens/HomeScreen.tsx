@@ -16,6 +16,8 @@ import { profileService } from '../services/profileService';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { globesService, Globe } from '../services/globesService';
+import { likesService } from '../services/likesService';
+import NavigationBar from '../components/NavigationBar';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -26,6 +28,8 @@ const HomeScreen = () => {
   const [userProfiles, setUserProfiles] = useState<{[key: string]: string}>({});
   const [myGlobes, setMyGlobes] = useState<Globe[]>([]);
   const [loadingGlobes, setLoadingGlobes] = useState(true);
+  const [tripLikes, setTripLikes] = useState<{[key: string]: number}>({});
+  const [likedTrips, setLikedTrips] = useState<{[key: string]: boolean}>({});
 
   const fetchUserProfile = async (userId: string) => {
     try {
@@ -38,20 +42,6 @@ const HomeScreen = () => {
       console.error('Error fetching user profile:', error);
     }
   };
-
-  useEffect(() => {
-    fetchFollowingTrips();
-  }, []);
-
-  useEffect(() => {
-    if (followingTrips.length > 0) {
-      followingTrips.forEach(trip => {
-        if (trip.trip.user_id) {
-          fetchUserProfile(trip.trip.user_id.toString());
-        }
-      });
-    }
-  }, [followingTrips]);
 
   const fetchFollowingTrips = async () => {
     try {
@@ -67,7 +57,45 @@ const HomeScreen = () => {
     }
   };
 
-  
+  const handleLikeToggle = async (tripId: string) => {
+    try {
+      if (likedTrips[tripId]) {
+        await likesService.unlikeTrip(tripId);
+        setLikedTrips(prev => ({...prev, [tripId]: false}));
+        setTripLikes(prev => ({...prev, [tripId]: (prev[tripId] || 1) - 1}));
+      } else {
+        await likesService.likeTrip(tripId);
+        setLikedTrips(prev => ({...prev, [tripId]: true}));
+        setTripLikes(prev => ({...prev, [tripId]: (prev[tripId] || 0) + 1}));
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
+  };
+
+  const fetchTripLikes = async (tripId: string) => {
+    try {
+      const likesData = await likesService.getLikes(tripId);
+      console.log('Likes data for trip', tripId, ':', likesData);
+      
+      // Update total likes count
+      setTripLikes(prev => ({
+        ...prev,
+        [tripId]: likesData.total_likes || 0
+      }));
+      
+      // Check if the current user has liked this trip by checking if their profile is in the profiles array
+      const hasUserLiked = likesData.profiles && likesData.profiles.length > 0;
+      
+      setLikedTrips(prev => ({
+        ...prev,
+        [tripId]: hasUserLiked
+      }));
+    } catch (error) {
+      console.error('Error fetching likes for trip:', tripId, error);
+    }
+  };
+
   const fetchMyGlobes = async () => {
     try {
       setLoadingGlobes(true);
@@ -86,18 +114,27 @@ const HomeScreen = () => {
     fetchFollowingTrips();
   }, []);
 
-  const globes = [
-    { id: 1, name: 'Personal Globe', color: '#98D8B9', completed: 22 },
-    { id: 2, name: 'Globe with John Marcus', color: '#FFE5B4', completed: 45 },
-    { id: 3, name: 'Globe with your friends', color: '#B4E4FF', completed: 15 },
-  ];
+  useEffect(() => {
+    if (followingTrips.length > 0) {
+      followingTrips.forEach(trip => {
+        if (trip.trip.user_id) {
+          fetchUserProfile(trip.trip.user_id.toString());
+        }
+        fetchTripLikes(trip.trip.TripID.toString());
+      });
+    }
+  }, [followingTrips]);
+
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Your Globes</Text>
         <TouchableOpacity>
-          <Text style={styles.notificationIcon}>🔔</Text>
+          <Image 
+            source={require('../assets/notifications_icon.png')}
+            style={styles.tabItem}
+          />
         </TouchableOpacity>
       </View>
       
@@ -107,13 +144,28 @@ const HomeScreen = () => {
           showsHorizontalScrollIndicator={false}
           style={styles.globesScroll}
         >
+          {/* Create New Globe Card */}
+          <TouchableOpacity 
+            style={styles.createGlobeItem}
+            onPress={() => navigation.navigate('CreateGlobe')}
+          >
+            <View style={styles.createGlobePlaceholder}>
+              <View style={styles.createGlobeContent}>
+                <View style={styles.createGlobeIconWrapper}>
+                  <Text style={styles.createGlobeIcon}>+</Text>
+                </View>
+                <Text style={styles.createGlobeText}>Create a new Globe</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+
           {loadingGlobes ? (
             <ActivityIndicator size="large" color="#8BB8E8" />
           ) : (
             myGlobes.map((globe) => (
               <TouchableOpacity 
                 key={globe.AlbumID} 
-                style={styles.globeItem}
+                style={[styles.createGlobeItem]}
                 onPress={() => navigation.navigate('Globe3DView', { globe })}
               >
                 <View style={[styles.globePlaceholder, { backgroundColor: getRandomColor() }]}>
@@ -131,9 +183,6 @@ const HomeScreen = () => {
             ))
           )}
         </ScrollView>
-
-        <View style={styles.separator} />
-
         <View style={styles.postsContainer}>
           {loading ? (
             <ActivityIndicator size="large" color="#8BB8E8" />
@@ -170,9 +219,24 @@ const HomeScreen = () => {
                       </View>
                     </View>
                     <View style={styles.locationBottom}>
-                      <TouchableOpacity style={styles.likeButton}>
-                        <Text style={styles.likeIcon}>🤍</Text>
-                      </TouchableOpacity>                    
+                      <TouchableOpacity 
+                        style={styles.likeButton}
+                        onPress={() => handleLikeToggle(post.trip.TripID.toString())}
+                      >
+                        <View style={styles.likeContainer}>
+                          <Image 
+                            source={
+                              likedTrips[post.trip.TripID.toString()]
+                              ? require('../assets/filledLike_icon.png')
+                              : require('../assets/like_icon.png')
+                            } 
+                            style={styles.iconItem}
+                          />
+                          <Text style={styles.likeCount}>
+                            {tripLikes[post.trip.TripID.toString()] || 0}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
                     </View>
                   </View>
                 )}
@@ -181,52 +245,8 @@ const HomeScreen = () => {
           )}
         </View>
       </ScrollView>
-      <View style={styles.tabBar}>
-        <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={() => navigation.navigate('Home' as never)}
-        >
-          <Text>                      
-            <Image 
-              source={require('../assets/homeIcon.png')}
-              style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem}>
-          <Text>
-            <Image 
-                source={require('../assets/globeIcon.png')}
-                style={styles.tabItem}
-              />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={() => navigation.navigate('Explore' as never)}
-        >
-          <Text>
-            <Image 
-                source={require('../assets/findIcon.png')}
-                style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tabItem, { opacity: 1 }]}
-          onPress={() => navigation.navigate('Profile' as never)}
-        >
-          <Text>
-            <Image 
-                source={require('../assets/profileIcon.png')}
-                style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-      </View>
+
+      <NavigationBar />
       {}
     </SafeAreaView>
   );
@@ -252,10 +272,44 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 8,
   },
-  globeItem: {
+  createGlobeItem: {
     marginHorizontal: 8,
     width: 150,
     height: 190,
+  },
+  createGlobePlaceholder: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
+    padding: 10,
+    borderWidth: 2,
+    borderColor: 'rgba(0, 0, 0, 0.41)',
+    borderStyle: 'dashed',
+    backgroundColor: 'rgba(65, 65, 65, 0.02)',
+     },
+  createGlobeContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  createGlobeIconWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(65, 65, 65, 0.15)',
+    marginBottom: 15,
+  },
+  createGlobeIcon: {
+    fontSize: 40,
+    color: '#fff',
+  },
+  createGlobeText: {
+    fontSize: 14,
+    color: '#000',
+    fontWeight: '600',
+    textAlign: 'center',
   },
   globePlaceholder: {
     width: '100%',
@@ -295,22 +349,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+    borderColor: '#ddd',
+    borderWidth: 1,
+    padding: 5,
   },
   locationContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    padding: 5,
-    borderRadius: 8,
+    width: '100%',
     flex: 1,
-    marginHorizontal: 45,
   },
   locationBottom : {
     position: 'absolute',
     bottom: 0,
-    right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
+    left: 0,
+    padding: 5,
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+
   },
   location: {
     fontSize: 12,
@@ -319,8 +374,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   likeIcon: {
-    fontSize: 24,
-    color: '#ffffff',
+    fontSize: 20,
+    color: 'black',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 3,
@@ -329,32 +384,24 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     borderRadius: 20,
-
   },
   likeButton: {
     padding: 4,
   },
   postCard: {
     backgroundColor: '#fff',
-    borderRadius: 16,
     overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
   },
   postImage: {
     width: '100%',
-    height: 300,
+    height: 450,
     backgroundColor: '#f0f0f0',
     resizeMode: 'cover',
   },
 
   postsContainer: {
-    padding: 16,
     paddingBottom: 80,
-    gap: 20,  // Adds consistent spacing between posts
+    gap: 10, 
   },
   headerTitle: {
     fontSize: 20,
@@ -377,6 +424,8 @@ const styles = StyleSheet.create({
     right: 0,
   },
   tabItem: {
+    width: 30,
+    height: 30,
     alignItems: 'center',
   },
   addButton: {
@@ -394,11 +443,22 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: 'relative',
   },
-  separator: {
-    height: 2,
-    backgroundColor: '#eee',
-    marginHorizontal: 16,
-    marginVertical: 8,
+  likedIcon: {
+    color: 'red',
+  },
+  iconItem: {
+    width: 24,
+    height: 24,
+    marginRight: 5,
+  },
+  likeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  likeCount: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
   },
 });
 

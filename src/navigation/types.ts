@@ -22,4 +22,12 @@ export type RootStackParamList = {
   Login: undefined;
   Explore: undefined;
   Profile: undefined;
+  GlobesList: undefined;
+  AddContent: undefined;
+  CreateMedia: undefined;
+  CreateTrip: undefined;
+  CreateGlobe: undefined;
+  AddTrip: {
+    globeId: number | string;
+  };
 };

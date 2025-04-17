@@ -16,6 +16,8 @@ import { Trip, TripMedia, uploadMediaToTrip, mediaService } from '../services/me
 import { RootStackParamList } from '../navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { likesService } from '../services/likesService';
+import NavigationBar from '../components/NavigationBar';
 
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -33,7 +35,39 @@ const PhotoViewScreen = () => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [mediaVisibility, setMediaVisibility] = useState<Record<string, string>>({});
   const scrollViewRef = React.useRef<ScrollView>(null);
-
+  // Add a new state to track favorited media
+  const [favoritedMedia, setFavoritedMedia] = useState<Record<string, boolean>>({});
+  
+  // Add a function to fetch favorite status for all media
+  // Add more detailed logging to fetchMediaFavorites
+  // Update the fetchMediaFavorites function to correctly parse the API response
+  const fetchMediaFavorites = async () => {
+    console.log('Starting to fetch favorites for all media items');
+    const favoritesMap: Record<string, boolean> = {};
+    
+    for (const media of tripMedia) {
+      try {
+        const mediaId = media.mediaId.toString();
+        console.log(`Fetching favorite status for media ID: ${mediaId}`);
+        const response = await likesService.getMediaFavoriteStatus(mediaId);
+        console.log('API Response for favorite status:', JSON.stringify(response));
+        
+        // Check if the response indicates this media is favorited
+        // The API returns is_favorite instead of isFavorited
+        const isFavorited = response.is_favourite || false;
+        console.log(`Media ${mediaId} favorite status: ${isFavorited}`);
+        favoritesMap[mediaId] = isFavorited;
+      } catch (error) {
+        console.error('Error fetching favorite status for media', media.mediaId, error);
+        favoritesMap[media.mediaId.toString()] = false;
+      }
+    }
+    
+    console.log('Final favorites map:', favoritesMap);
+    setFavoritedMedia(favoritesMap);
+  };
+  
+  // Update the useEffect to also fetch favorites
   useEffect(() => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({
@@ -42,8 +76,9 @@ const PhotoViewScreen = () => {
       });
     }
     
-    // Fetch visibility for all media items
+    // Fetch visibility and favorites for all media items
     fetchMediaVisibility();
+    fetchMediaFavorites();
   }, [initialIndex]);
 
   const fetchMediaVisibility = async () => {
@@ -113,6 +148,41 @@ const PhotoViewScreen = () => {
     const newIndex = Math.round(contentOffsetX / Dimensions.get('window').width);
     if (newIndex !== currentIndex) {
       setCurrentIndex(newIndex);
+    }
+  };
+
+  // Add more logging to handleFavoriteToggle
+  const handleFavoriteToggle = async () => {
+    if (!tripMedia || tripMedia.length === 0 || currentIndex >= tripMedia.length) {
+      console.log('Cannot toggle favorite: invalid media or index');
+      return;
+    }
+  
+    const mediaId = tripMedia[currentIndex].mediaId.toString();
+    const isFavorited = favoritedMedia[mediaId] || false;
+    console.log(`Toggling favorite for media ${mediaId}. Current status: ${isFavorited}`);
+    
+    try {
+      if (isFavorited) {
+        console.log(`Attempting to unfavorite media ${mediaId}`);
+        const response = await likesService.unfavMedia(mediaId);
+        console.log('Unfavorite response:', response);
+      } else {
+        console.log(`Attempting to favorite media ${mediaId}`);
+        const response = await likesService.favMedia(mediaId);
+        console.log('Favorite response:', response);
+      }
+      
+      // Update local state
+      const newStatus = !isFavorited;
+      console.log(`Updating favorite status for media ${mediaId} to: ${newStatus}`);
+      setFavoritedMedia(prev => ({
+        ...prev,
+        [mediaId]: newStatus
+      }));
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      Alert.alert('Error', 'Failed to update favorite status');
     }
   };
 
@@ -234,15 +304,31 @@ const PhotoViewScreen = () => {
               : '🔒'}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.iconText}>⭐</Text>
+        <TouchableOpacity onPress={handleFavoriteToggle}>
+          <Image 
+              source={
+                tripMedia && 
+                tripMedia.length > 0 && 
+                currentIndex < tripMedia.length &&
+                favoritedMedia[tripMedia[currentIndex].mediaId.toString()]
+                  ? require('../assets/filledFav_icon.png')
+                  : require('../assets/fav_icon.png')
+              }
+              style={styles.iconItem}
+          />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Text style={styles.iconText}>⏱️</Text>
+          <Image 
+                source={require('../assets/info_icon.png')}
+                style={styles.iconItem}
+          />
         </TouchableOpacity>
-        // Then update the trash icon TouchableOpacity:
+        {/* Then update the trash icon TouchableOpacity: */}
         <TouchableOpacity onPress={handleDeleteMedia}>
-          <Text style={styles.iconText}>🗑️</Text>
+          <Image 
+                source={require('../assets/delete_icon.png')}
+                style={styles.iconItem}
+          />
         </TouchableOpacity>
       </View>
 
@@ -301,52 +387,7 @@ const PhotoViewScreen = () => {
         </ScrollView>
       </View>
 
-      <View style={styles.fixedTabBar}>
-        <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={() => navigation.navigate('Home' as never)}
-        >
-          <Text>                      
-            <Image 
-              source={require('../assets/homeIcon.png')}
-              style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem}>
-          <Text>
-            <Image 
-                source={require('../assets/globeIcon.png')}
-                style={styles.tabItem}
-              />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={() => navigation.navigate('Explore' as never)}
-        >
-          <Text>
-            <Image 
-                source={require('../assets/findIcon.png')}
-                style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tabItem, { opacity: 1 }]}
-          onPress={() => navigation.navigate('Profile' as never)}
-        >
-          <Text>
-            <Image 
-                source={require('../assets/profileIcon.png')}
-                style={styles.tabItem}
-            />
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <NavigationBar />
     </SafeAreaView>
   );
 };
@@ -436,6 +477,10 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 20,
   },
+  iconItem: {
+    width: 20,
+    height: 20,
+  },
   dateContainer: {
     position: 'absolute',
     top: 150,
@@ -491,6 +536,8 @@ const styles = StyleSheet.create({
     borderTopColor: '#eee',
   },
   tabItem: {
+    width: 30,
+    height: 30,
     alignItems: 'center',
   },
   addButtonText: {

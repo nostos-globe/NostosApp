@@ -1,8 +1,9 @@
 // For Android emulator, 10.0.2.2 is the special alias to reach host's localhost
 export const API_URL = 'https://auth.nostos-globe.me';
 export const PROFILE_API_URL = 'https://profile.nostos-globe.me';
-export const MEDIA_API_URL = 'http://10.0.2.2:8084';
-export const GLOBES_API_URL = 'http://10.0.2.2:8085';
+export const MEDIA_API_URL = 'https://trips.nostos-globe.me';
+export const GLOBES_API_URL = 'https://albums.nostos-globe.me';
+export const LIKES_API_URL =  'https://actions.nostos-globe.me';
 
 export const AUTH_ENDPOINTS = {
     LOGIN: '/login',
