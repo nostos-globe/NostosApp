@@ -29,7 +29,7 @@ const ProfileCategories: React.FC<ProfileCategoriesProps> = ({ onCategoryPress, 
         onPress={() => onCategoryPress?.('media')}
       >
           <Image 
-            source={require('../assets/video_icon.png')}
+            source={require('../assets/globe_icon.png')}
             style={styles.tripCategoriesItem}
           />
       </TouchableOpacity>
