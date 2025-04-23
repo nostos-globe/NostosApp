@@ -210,6 +210,7 @@ export const mediaService = {
         visibility: 'PUBLIC' | 'PRIVATE' | 'FRIENDS';
         start_date: string;
         end_date: string;
+        album_id?: string;
       }): Promise<any> {
         const config = await getTokenHeader();
         const response = await mediaApi.post('/api/trips', tripData, config);

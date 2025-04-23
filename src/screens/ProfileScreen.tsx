@@ -11,6 +11,7 @@ import { mediaService, TripMedia, TripWithMedia } from '../services/mediaService
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import NavigationBar from '../components/NavigationBar';
+import ProfileCategories from '../components/ProfileCategories';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -25,10 +26,16 @@ const ProfileScreen = () => {
   });
   const [trips, setTrips] = useState<TripWithMedia[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('trips');
 
   useEffect(() => {
     loadProfileData();
   }, []);
+
+  const handleCategoryPress = (category: string) => {
+    // Handle category selection here
+    console.log('Selected category:', category);
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -54,8 +61,8 @@ const ProfileScreen = () => {
       }
 
       const tripsData = await mediaService.getMyTrips();
-      console.log('ProfileScreen: Trips data loaded:', tripsData.length, 'trips');
-      setTrips(tripsData);
+      console.log('ProfileScreen: Trips data loaded:', tripsData?.length || 0, 'trips');
+      setTrips(tripsData || []); // Set empty array if tripsData is null
 
       const profileData = await profileService.getProfileById(userId);
       console.log('ProfileScreen: Profile data loaded:', profileData);
@@ -116,7 +123,10 @@ const ProfileScreen = () => {
       source={{ uri: profile?.ProfilePicture || 'https://placeholder.com/1200x400' }}
       style={styles.coverImage}
     >
-      <TouchableOpacity style={styles.settingsButton}>
+      <TouchableOpacity 
+        style={styles.settingsButton}
+        onPress={() => navigation.navigate('Settings')}
+      >
         <Text>⚙️</Text>
       </TouchableOpacity>
     </ImageBackground>
@@ -153,27 +163,10 @@ const ProfileScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.tripCategories}>
-        <TouchableOpacity style={[styles.categoryButton, styles.activeCategoryButton]}>
-          <Image 
-            source={require('../assets/trip_icon.png')}
-            style={styles.tripCategoriesItem}
-          />
-          <View style={styles.activeIndicator} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.categoryButton}>
-          <Image 
-            source={require('../assets/video_icon.png')}
-            style={styles.tripCategoriesItem}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.categoryButton}>
-        <Image 
-            source={require('../assets/likeProfile_icon.png')}
-            style={styles.tripCategoriesItem}
-          />
-        </TouchableOpacity>
-      </View>
+      <ProfileCategories 
+  onCategoryPress={(category) => setSelectedCategory(category)}
+  selectedCategory={selectedCategory}
+/>
     </View>
 
       // In the return statement, update the ScrollView and TabBar sections:
@@ -217,6 +210,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    paddingBottom: 70,
   },
   scrollContent: {
     flexGrow: 1,
@@ -307,18 +301,6 @@ const styles = StyleSheet.create({
   actionButtonText: {
     color: '#000',
     fontWeight: '500',
-  },
-  tripCategories: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    paddingTop: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  tripCategoriesItem: {
-    width: 25,
-    height: 25,
   },
   categoryButton: {
     padding: 8,

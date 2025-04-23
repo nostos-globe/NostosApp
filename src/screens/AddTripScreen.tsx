@@ -10,7 +10,7 @@ import {
   Alert,
   Platform
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -23,6 +23,8 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const AddTripScreen = () => {
   const navigation = useNavigation<NavigationProp>();
+  const route = useRoute();
+  const globeIdFromNav = (route.params as any)?.globeId;
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [visibility, setVisibility] = useState<'PUBLIC' | 'PRIVATE' | 'FRIENDS'>('PUBLIC');
@@ -32,11 +34,13 @@ const AddTripScreen = () => {
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [globes, setGlobes] = useState<Globe[]>([]);
-  const [selectedGlobe, setSelectedGlobe] = useState<string>('');
+  const [selectedGlobe, setSelectedGlobe] = useState<string>(globeIdFromNav || '');
 
   useEffect(() => {
-    fetchGlobes();
-  }, []);
+    if (!globeIdFromNav) {
+      fetchGlobes();
+    }
+  }, [globeIdFromNav]);
 
   const fetchGlobes = async () => {
     try {
@@ -75,7 +79,7 @@ const AddTripScreen = () => {
         visibility,
         start_date: startDate.toISOString(),
         end_date: endDate.toISOString(),
-        globe_id: selectedGlobe
+        album_id: selectedGlobe
       };
 
       // Call your API to create the trip
@@ -228,24 +232,26 @@ const AddTripScreen = () => {
           )}
         </View>
 
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Select Globe</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={selectedGlobe}
-              onValueChange={(itemValue) => setSelectedGlobe(itemValue)}
-              style={styles.picker}
-            >
-              {globes.map((globe) => (
-                <Picker.Item 
-                  key={globe.AlbumID} 
-                  label={globe.name} 
-                  value={globe.AlbumID.toString()} 
-                />
-              ))}
-            </Picker>
+        {!globeIdFromNav && (
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>Select Globe</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={selectedGlobe}
+                onValueChange={(itemValue) => setSelectedGlobe(itemValue)}
+                style={styles.picker}
+              >
+                {globes.map((globe) => (
+                  <Picker.Item 
+                    key={globe.AlbumID} 
+                    label={globe.name} 
+                    value={globe.AlbumID.toString()} 
+                  />
+                ))}
+              </Picker>
+            </View>
           </View>
-        </View>
+        )}
 
         <TouchableOpacity
           style={[styles.createButton, isLoading && styles.disabledButton]}
@@ -266,6 +272,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    paddingBottom: 60,
   },
   header: {
     flexDirection: 'row',

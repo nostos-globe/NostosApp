@@ -127,25 +127,27 @@ export const authService = {
     async login(credentials: UserCredentials): Promise<AuthResponse> {
         try {
             const response = await api.post(AUTH_ENDPOINTS.LOGIN, credentials);
-            // Store the tokens
-            if (response.data.accessToken) {
-                await AsyncStorage.setItem(AUTH_STORAGE.TOKEN, response.data.accessToken);
-            }
             
-            if (response.data.user_id) {
-                console.log('User ID on login:', response.data.user_id);
-                const userIdString = String(response.data.user_id);
-                await AsyncStorage.setItem(AUTH_STORAGE.USER_ID, userIdString);
-            }
-
-            // Get refresh token from cookies
+            // Get tokens from cookies
             const cookies = response.headers['set-cookie'];
             if (cookies) {
+                const authTokenCookie = cookies.find(cookie => cookie.startsWith('auth_token='));
                 const refreshTokenCookie = cookies.find(cookie => cookie.startsWith('refresh_token='));
+            
+                if (authTokenCookie) {
+                    const authToken = authTokenCookie.split(';')[0].split('=')[1];
+                    await AsyncStorage.setItem(AUTH_STORAGE.TOKEN, authToken);
+                }
+            
                 if (refreshTokenCookie) {
                     const refreshToken = refreshTokenCookie.split(';')[0].split('=')[1];
                     await AsyncStorage.setItem(AUTH_STORAGE.REFRESH_TOKEN, refreshToken);
                 }
+            }
+            
+            if (response.data.user_id) {
+                const userIdString = String(response.data.user_id);
+                await AsyncStorage.setItem(AUTH_STORAGE.USER_ID, userIdString);
             }
             
             return response.data;
@@ -160,8 +162,50 @@ export const authService = {
     async signup(credentials: UserCredentials): Promise<AuthResponse> {
         try {
             const response = await api.post(AUTH_ENDPOINTS.SIGNUP, credentials);
+            
+            // Get tokens from cookies
+            const cookies = response.headers['set-cookie'];
+            if (cookies) {
+                const authTokenCookie = cookies.find(cookie => cookie.startsWith('auth_token='));
+                const refreshTokenCookie = cookies.find(cookie => cookie.startsWith('refresh_token='));
+            
+                if (authTokenCookie) {
+                    const authToken = authTokenCookie.split(';')[0].split('=')[1];
+                    await AsyncStorage.setItem(AUTH_STORAGE.TOKEN, authToken);
+                    console.log('Auth token stored successfully');
+                } else {
+                    console.warn('No auth token cookie found');
+                }
+            
+                if (refreshTokenCookie) {
+                    const refreshToken = refreshTokenCookie.split(';')[0].split('=')[1];
+                    await AsyncStorage.setItem(AUTH_STORAGE.REFRESH_TOKEN, refreshToken);
+                    console.log('Refresh token stored successfully');
+                } else {
+                    console.warn('No refresh token cookie found');
+                }
+            } else {
+                console.warn('No cookies in response headers');
+            }
+
+            if (response.data.user_id) {
+                const userIdString = String(response.data.user_id);
+                await AsyncStorage.setItem(AUTH_STORAGE.USER_ID, userIdString);
+                console.log('User ID stored successfully:', userIdString);
+            }
+
+            // Verify stored values
+            const storedToken = await AsyncStorage.getItem(AUTH_STORAGE.TOKEN);
+            const storedRefreshToken = await AsyncStorage.getItem(AUTH_STORAGE.REFRESH_TOKEN);
+            
+            console.log('Stored values verification:', {
+                hasToken: !!storedToken,
+                hasRefreshToken: !!storedRefreshToken
+            });
+
             return response.data;
         } catch (error: any) {
+            console.error('Signup error:', error.response?.data || error.message);
             if (error.response) {
                 throw new Error(error.response.data.message || 'Signup failed');
             }

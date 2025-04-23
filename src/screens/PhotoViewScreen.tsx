@@ -18,6 +18,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { likesService } from '../services/likesService';
 import NavigationBar from '../components/NavigationBar';
+import MediaIconBar from '../components/MediaIconBar';
 
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -296,41 +297,16 @@ const PhotoViewScreen = () => {
         </TouchableOpacity>
       </View>
       
-      <View style={styles.iconBar}>
-        <TouchableOpacity onPress={handleVisibilityChange}>
-          <Text style={styles.iconText}>
-            {tripMedia && tripMedia.length > 0 && currentIndex < tripMedia.length
-              ? getVisibilityIcon(tripMedia[currentIndex].mediaId.toString())
-              : '🔒'}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleFavoriteToggle}>
-          <Image 
-              source={
-                tripMedia && 
-                tripMedia.length > 0 && 
-                currentIndex < tripMedia.length &&
-                favoritedMedia[tripMedia[currentIndex].mediaId.toString()]
-                  ? require('../assets/filledFav_icon.png')
-                  : require('../assets/fav_icon.png')
-              }
-              style={styles.iconItem}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Image 
-                source={require('../assets/info_icon.png')}
-                style={styles.iconItem}
-          />
-        </TouchableOpacity>
-        {/* Then update the trash icon TouchableOpacity: */}
-        <TouchableOpacity onPress={handleDeleteMedia}>
-          <Image 
-                source={require('../assets/delete_icon.png')}
-                style={styles.iconItem}
-          />
-        </TouchableOpacity>
-      </View>
+      <MediaIconBar
+        tripMedia={tripMedia}
+        currentIndex={currentIndex}
+        favoritedMedia={favoritedMedia}
+        mediaVisibility={mediaVisibility}
+        onVisibilityChange={handleVisibilityChange}
+        onFavoriteToggle={handleFavoriteToggle}
+        onInfoPress={() => { } } onDeletePress={function (): void {
+          throw new Error('Function not implemented.');
+        } } screenType={'profile'}        />
 
       <View style={styles.dateContainer}>
         <Text style={styles.dateText}>

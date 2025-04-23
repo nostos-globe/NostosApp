@@ -14,6 +14,8 @@ import Globe3DView from './src/screens/Globe3DView';
 import CreateGlobeScreen from './src/screens/CreateGlobeScreen';
 import GlobesList from './src/screens/GlobesList';
 import AddContentScreen from './src/screens/AddContentScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import CreateProfileScreen from './src/screens/CreateProfileScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +25,7 @@ function App(): JSX.Element {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
+        <Stack.Screen name="CreateProfile" component={CreateProfileScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Globe3DView" component={Globe3DView}/>
         <Stack.Screen name="GlobesList" component={GlobesList} options={{ headerShown: false }}/>
@@ -31,7 +34,7 @@ function App(): JSX.Element {
         <Stack.Screen name="PhotoView" component={PhotoViewScreen} />
         <Stack.Screen name="AddTrip" component={AddTripScreen} />
         <Stack.Screen name="AddContent" component={AddContentScreen} />
-
+        <Stack.Screen name='Settings' component={SettingsScreen}/>
         <Stack.Screen name="CreateGlobe" component={CreateGlobeScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="OtherProfile" component={OtherProfileScreen}/>

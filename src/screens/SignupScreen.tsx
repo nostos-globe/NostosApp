@@ -32,13 +32,7 @@ const SignupScreen = () => {
         try {
             const response = await authService.signup({ email, password });
             console.log('Signup successful:', response);
-            // In handleSignup success:
-            Alert.alert('Success', 'Account created successfully', [
-                {
-                    text: 'OK',
-                    onPress: () => navigation.navigate('Home' as never)
-                }
-            ]);
+            navigation.navigate('CreateProfile' as never);
         } catch (error: any) {
             Alert.alert('Error', error.message);
         } finally {
@@ -84,7 +78,7 @@ const SignupScreen = () => {
           <TouchableOpacity style={[styles.socialButton, { backgroundColor: '#4267B2' }]} />
         </View>
 
-        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
+        <TouchableOpacity style={styles.signUpButton} onPress={handleSignup}>
           <Text style={styles.signUpText}>Sign Up</Text>
         </TouchableOpacity>
 

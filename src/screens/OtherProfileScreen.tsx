@@ -12,6 +12,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useRoute } from '@react-navigation/native';
 import NavigationBar from '../components/NavigationBar';
+import ProfileCategories from '../components/ProfileCategories';
 
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -31,10 +32,17 @@ const OtherProfileScreen = () => {
   const [trips, setTrips] = useState<TripWithMedia[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const { userId } = route.params as { userId: string };
+  const [selectedCategory, setSelectedCategory] = useState('trips');
+
 
   useEffect(() => {
     loadProfileData();
   }, []);
+
+  const handleCategoryPress = (category: string) => {
+    // Handle category selection here
+    console.log('Selected category:', category);
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -190,17 +198,10 @@ const OtherProfileScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.tripCategories}>
-        <TouchableOpacity style={styles.categoryButton}>
-          <Text>🧳</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.categoryButton}>
-          <Text>🎬</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.categoryButton}>
-          <Text>❤️</Text>
-        </TouchableOpacity>
-      </View>
+      <ProfileCategories 
+        onCategoryPress={(category) => setSelectedCategory(category)}
+        selectedCategory={selectedCategory}
+      />
     </View>
 
       // In the return statement, update the ScrollView and TabBar sections:

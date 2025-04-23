@@ -27,6 +27,8 @@ export type RootStackParamList = {
   CreateMedia: undefined;
   CreateTrip: undefined;
   CreateGlobe: undefined;
+  Settings: undefined;
+  CreateProfile: undefined;
   AddTrip: {
     globeId: number | string;
   };
