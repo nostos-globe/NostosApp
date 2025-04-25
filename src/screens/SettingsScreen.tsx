@@ -14,6 +14,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { authService } from '../services/authService';
+import { requestNotificationPermission } from '../utils/permissions';
+import { useNtfyNotifications } from '../services/notificationService';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -109,6 +111,22 @@ const SettingsScreen = () => {
     </TouchableOpacity>
   );
 
+  // Add this hook to handle notifications
+  useNtfyNotifications(notificationsEnabled);
+
+  const handleNotificationToggle = async (value: boolean) => {
+    if (value) {
+      const hasPermission = await requestNotificationPermission();
+      if (hasPermission) {
+        setNotificationsEnabled(true);
+      } else {
+        setNotificationsEnabled(false);
+      }
+    } else {
+      setNotificationsEnabled(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -138,7 +156,7 @@ const SettingsScreen = () => {
           {renderSettingItem('🔔', 'Notifications', () => {}, false,
             <Switch
               value={notificationsEnabled}
-              onValueChange={setNotificationsEnabled}
+              onValueChange={handleNotificationToggle}
               trackColor={{ false: '#767577', true: '#8BB8E8' }}
               thumbColor={notificationsEnabled ? '#fff' : '#f4f3f4'}
             />

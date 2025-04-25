@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { configurePushNotifications } from './src/config/notificationConfig';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 import HomeScreen from './src/screens/HomeScreen';
@@ -20,6 +21,17 @@ import CreateProfileScreen from './src/screens/CreateProfileScreen';
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
+  useEffect(() => {
+    // Delay push notification setup to ensure it doesn't block initial render
+    setTimeout(() => {
+      try {
+        configurePushNotifications();
+      } catch (error) {
+        console.log('Push notification configuration error:', error);
+      }
+    }, 1000);
+  }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
