@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { authService } from '../services/authService';
@@ -48,20 +49,26 @@ const SignupScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
+        <Image 
+          source={require('../assets/nostos_logo.png')}
+          style={styles.logoItem}
+        />
         <Text style={styles.title}>Let's Get Started</Text>
         <Text style={styles.subtitle}>
           Start your journey with Nostos and share all your trip moments with the world
         </Text>
 
+        <Text style={styles.inputText}>Your email address</Text>
         <TextInput
           style={styles.input}
-          placeholder="Your Email Address"
+          placeholder="example@gmail.com"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
         />
 
+        <Text style={styles.inputText}>Choose a password</Text>
         <TextInput
           style={styles.input}
           placeholder="8 characters min."
@@ -69,14 +76,16 @@ const SignupScreen = () => {
           onChangeText={setPassword}
           secureTextEntry
         />
-
+        
+      {/* 
         <Text style={styles.orText}>OR</Text>
 
         <View style={styles.socialButtons}>
           <TouchableOpacity style={[styles.socialButton, { backgroundColor: '#fff' }]} />
           <TouchableOpacity style={[styles.socialButton, { backgroundColor: '#DD4B39' }]} />
           <TouchableOpacity style={[styles.socialButton, { backgroundColor: '#4267B2' }]} />
-        </View>
+        </View> 
+      */}
 
         <TouchableOpacity style={styles.signUpButton} onPress={handleSignup}>
           <Text style={styles.signUpText}>Sign Up</Text>
@@ -101,19 +110,17 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
-    alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: 'bold',
     color: '#8BB8E8',
     marginBottom: 10,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
-    textAlign: 'center',
     marginBottom: 30,
   },
   input: {
@@ -149,6 +156,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 20,
     marginBottom: 20,
   },
   signUpText: {
@@ -158,6 +166,7 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     flexDirection: 'row',
+    justifyContent: 'center',
   },
   loginText: {
     color: '#666',
@@ -166,6 +175,18 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: 'bold',
   },
+  logoItem: {
+    width: 215,
+    height: 180,
+    marginBottom: 20, 
+    justifyContent: 'center',
+    alignSelf: 'center', 
+  },
+  inputText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 2, 
+  }
 });
 
 export default SignupScreen;

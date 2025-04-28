@@ -18,6 +18,7 @@ import { RootStackParamList } from '../navigation/types';
 import { globesService, Globe } from '../services/globesService';
 import { likesService } from '../services/likesService';
 import NavigationBar from '../components/NavigationBar';
+import { authService } from '../services/authService';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -30,7 +31,8 @@ const HomeScreen = () => {
   const [loadingGlobes, setLoadingGlobes] = useState(true);
   const [tripLikes, setTripLikes] = useState<{[key: string]: number}>({});
   const [likedTrips, setLikedTrips] = useState<{[key: string]: boolean}>({});
-
+  const [likeProfiles, setLikeProfiles] = useState<{[key: string]: {UserID: number, ProfilePicture: string}[]}>({});
+  
   const fetchUserProfile = async (userId: string) => {
     try {
       const profile = await profileService.getProfileById(userId);
@@ -76,16 +78,30 @@ const HomeScreen = () => {
   const fetchTripLikes = async (tripId: string) => {
     try {
       const likesData = await likesService.getLikes(tripId);
-      console.log('Likes data for trip', tripId, ':', likesData);
+      const currentUser = await authService.getProfile();
+      const currentUserId = currentUser?.user.user_id;
       
-      // Update total likes count
+      // Filter out current user from profiles
+      const filteredProfiles = likesData.profiles?.filter(
+        (profile: { UserID: number }) => profile.UserID !== currentUserId
+      ) || [];
+      
       setTripLikes(prev => ({
         ...prev,
         [tripId]: likesData.total_likes || 0
       }));
       
-      // Check if the current user has liked this trip by checking if their profile is in the profiles array
-      const hasUserLiked = likesData.profiles && likesData.profiles.length > 0;
+      if (Array.isArray(filteredProfiles)) {
+        setLikeProfiles(prev => ({
+          ...prev,
+          [tripId]: filteredProfiles
+        }));
+      }
+      
+      const hasUserLiked = currentUserId && likesData.profiles && 
+        likesData.profiles.some((profile: { UserID: number }) => {
+          return profile.UserID === currentUserId;
+        }) || false;
       
       setLikedTrips(prev => ({
         ...prev,
@@ -237,6 +253,38 @@ const HomeScreen = () => {
                           </Text>
                         </View>
                       </TouchableOpacity>
+                      
+                      {/* Display users who liked the post */}
+                      {likeProfiles[post.trip.TripID.toString()] && 
+                       likeProfiles[post.trip.TripID.toString()].length > 0 && (
+                        <View style={styles.likeProfilesContainer}>
+                          <View style={styles.profilesAndTextContainer}>
+                            <ScrollView 
+                              horizontal 
+                              showsHorizontalScrollIndicator={false}
+                              style={styles.profilesScrollView}
+                            >
+                              {likeProfiles[post.trip.TripID.toString()].slice(0, 2).map((profile, index) => (
+                                <Image 
+                                  key={`${post.trip.TripID}-like-${index}`}
+                                  source={{ uri: profile.ProfilePicture || 'https://via.placeholder.com/30' }}
+                                  style={styles.likeProfilePic}
+                                />
+                              ))}
+                              {likeProfiles[post.trip.TripID.toString()].length > 5 && (
+                                <View style={styles.moreProfilesIndicator}>
+                                  <Text style={styles.moreProfilesText}>+{likeProfiles[post.trip.TripID.toString()].length - 5}</Text>
+                                </View>
+                              )}
+                            </ScrollView>
+                            <Text style={styles.likedByText}>
+                              {likeProfiles[post.trip.TripID.toString()][0]?.Username> 1 ? 
+                                ` and ${likeProfiles[post.trip.TripID.toString()].length - 1} others liked this post` : 
+                                ' liked this post'}
+                            </Text>
+                          </View>
+                        </View>
+                      )}
                     </View>
                   </View>
                 )}
@@ -365,7 +413,6 @@ const styles = StyleSheet.create({
     padding: 5,
     width: '100%',
     backgroundColor: 'rgba(255, 255, 255, 1)',
-
   },
   location: {
     fontSize: 12,
@@ -460,6 +507,42 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: '500',
   },
+  likeProfilesContainer: {
+    marginTop: 5,
+  },
+  profilesAndTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  profilesScrollView: {
+    flexGrow: 0,
+  },
+  likeProfilePic: {
+    width: 20,
+    height: 20,
+    borderRadius: 15,
+    
+  },
+  likedByText: {
+    fontSize: 12,
+    color: '#333',
+    fontWeight: '500',
+    marginLeft: 10,
+  },
+  moreProfilesIndicator: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  moreProfilesText: {
+    fontSize: 10,
+    color: '#333',
+    fontWeight: 'bold',
+  },
+
 });
 
 export default HomeScreen;

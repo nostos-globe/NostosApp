@@ -204,36 +204,49 @@ const OtherProfileScreen = () => {
       />
     </View>
 
-      // In the return statement, update the ScrollView and TabBar sections:
+      {/* Content based on selected category */}
+{selectedCategory === 'trips' && (
       <View style={styles.gridContainer}>
-  {trips?.map((trip) => (
-    <TouchableOpacity 
-      key={trip.trip.TripID} 
-      style={styles.gridItem}
-      onPress={() => {
-        navigation.navigate('ExplorePhotoView', {
-          imageUrl: trip.media?.[0]?.url,
-          tripMedia: trip.media || [],
-          initialIndex: 0,
-          trip: trip.trip
-        });
-      }}
-    >
-      <View style={styles.gridItemContent}>
-        <Image 
-          source={{ uri: trip.media?.[0]?.url || 'https://via.placeholder.com/150' }}
-          style={styles.photoPlaceholder}
-          resizeMode="cover"
-        />
-        <View style={styles.tripOverlay}>
-          <Text style={styles.tripName} numberOfLines={1}>{trip.trip.name}</Text>
-          <Text style={styles.mediaCount}>{trip.media?.length || 0} photos</Text>
-        </View>
-
+        {trips?.map((trip) => (
+          <TouchableOpacity 
+            key={trip.trip.TripID} 
+            style={styles.gridItem}
+            onPress={() => {
+              navigation.navigate('PhotoView', {
+                imageUrl: trip.media?.[0]?.url,
+                tripMedia: trip.media || [],
+                initialIndex: 0,
+                trip: trip.trip
+              });
+            }}
+          >
+            <View style={styles.gridItemContent}>
+              <Image 
+                source={{ uri: trip.media?.[0]?.url || 'https://via.placeholder.com/150' }}
+                style={styles.photoPlaceholder}
+                resizeMode="cover"
+              />
+              <View style={styles.tripOverlay}>
+                <Text style={styles.tripName} numberOfLines={1}>{trip.trip.name}</Text>
+                <Text style={styles.mediaCount}>{trip.media?.length || 0} photos</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
       </View>
-    </TouchableOpacity>
-  ))}
-</View>
+    )}
+
+    {selectedCategory === 'favorites' && (
+      <View style={styles.gridContainer}>
+        <Text style={styles.emptyStateText}>Liked trips will appear here</Text>
+      </View>
+    )}
+
+    {selectedCategory === 'globes' && (
+      <View style={styles.gridContainer}>
+        <Text style={styles.emptyStateText}>Globes will appear here</Text>
+      </View>
+    )}
       </ScrollView>
       
       <NavigationBar />
@@ -396,8 +409,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   tripOverlay: {
-    position: 'absolute', // Changed from relative to absolute
-    bottom: 0, // Changed from 33 to 0
+    position: 'absolute',
+    bottom: 0, 
     left: 0,
     right: 0,
     backgroundColor: 'rgba(255, 255, 255, 0.69)',
@@ -430,6 +443,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#ddd',
+  },
+  emptyStateText: {
+    textAlign: 'center',
+    color: '#666',
+    fontSize: 16,
+    padding: 20,
+    width: '100%',
   },
 });
 

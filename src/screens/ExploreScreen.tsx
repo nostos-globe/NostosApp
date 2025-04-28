@@ -42,7 +42,7 @@ const ExploreScreen = () => {
     try {
       setLoading(true);
       const trips = await mediaService.getPublicTrips();
-      console.log('Public trips from API:', JSON.stringify(trips));
+      console.log(`Retrieved ${trips?.length || 0} public trips`);
       setPublicTrips(trips || []);
     } catch (error) {
       console.error('Error loading public trips:', error);
@@ -64,16 +64,12 @@ const ExploreScreen = () => {
     setShowSearchResults(true);
     
     try {
-      console.log('Starting search for:', query);
       
       // Call your API endpoints for searching trips and profiles
       const [tripsResults, profilesResults] = await Promise.all([
         mediaService.searchTrips(query),
         profileService.searchProfiles(query)
       ]);
-      
-      console.log('Search Results - Trips:', JSON.stringify(tripsResults, null, 2));
-      console.log('Search Results - Profiles:', JSON.stringify(profilesResults, null, 2));
       
       setSearchResults({
         trips: tripsResults || [],

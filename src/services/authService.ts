@@ -19,7 +19,6 @@ api.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        console.log('API Request:', config.url);
         return config;
     },
     (error: any) => {
@@ -285,7 +284,6 @@ export const authService = {
                     Cookie: `auth_token=${token}`
                 }
             });
-            console.log('Profile Response:', response.data);
             return response.data;
         } catch (error: any) {
             if (error.response) {

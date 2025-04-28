@@ -46,7 +46,6 @@ export interface FollowResponse {
 const checkToken = async (): Promise<string | null> => {
     try {
         const token = await AsyncStorage.getItem(AUTH_STORAGE.TOKEN);
-        console.log('Current token:', token ? 'exists' : 'not found');
         return token;
     } catch (error) {
         console.error('Error checking token:', error);

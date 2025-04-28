@@ -262,6 +262,15 @@ const AddTripScreen = () => {
             {isLoading ? 'Creating...' : 'Create Trip'}
           </Text>
         </TouchableOpacity>
+        
+        {globeIdFromNav && (
+          <TouchableOpacity
+            style={[styles.notNowButton]}
+            onPress={() => navigation.navigate('Home')}
+          >
+            <Text style={styles.notNowText}>Not now</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
       <NavigationBar />
     </SafeAreaView>
@@ -347,13 +356,26 @@ const styles = StyleSheet.create({
   dateButtonText: {
     fontSize: 16,
   },
+  notNowButton: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
+    alignItems: 'center',
+    marginTop: 0,
+    marginBottom: 40,
+
+  },
+  notNowText: {
+    color: '#666',
+    fontSize: 12,
+    fontWeight: '500',
+  },
   createButton: {
     backgroundColor: '#8BB8E8',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
     marginTop: 20,
-    marginBottom: 40,
   },
   disabledButton: {
     backgroundColor: '#cccccc',

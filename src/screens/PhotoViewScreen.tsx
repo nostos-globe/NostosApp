@@ -189,39 +189,48 @@ const PhotoViewScreen = () => {
 
   const handleImageUpload = async () => {
     try {
-      // Use react-native-image-picker instead of expo-image-picker
-      launchImageLibrary({
+      const result = await launchImageLibrary({
         mediaType: 'photo',
         quality: 1,
+        selectionLimit: 1,
+        presentationStyle: 'fullScreen',
         includeBase64: false,
-      }, async (response) => {
-        if (response.didCancel) {
-          return;
-        }
-        
-        if (response.errorCode) {
-          console.error('ImagePicker Error: ', response.errorMessage);
-          return;
-        }
-        
-        if (response.assets && response.assets.length > 0) {
-          const selectedImage = response.assets[0];
-          
-          // Call the upload endpoint with the selected image and trip
-          await uploadMediaToTrip(trip.TripID.toString(), selectedImage.uri || '');
-          
-          // Refresh the screen or navigate back to reload the images
-          navigation.goBack();
-          navigation.navigate('PhotoView', { 
-            imageUrl: tripMedia[0]?.url,
-            tripMedia, 
-            initialIndex, 
-            trip 
-          });
-        }
+        includeExtra: true,
       });
+
+      if (result.didCancel || !result.assets || result.assets.length === 0) {
+        return;
+      }
+
+      const selectedImage = result.assets[0];
+      if (!selectedImage.uri) {
+        throw new Error('No image URI available');
+      }
+
+      // Show loading state
+      Alert.alert('Uploading...', 'Please wait while we upload your photo');
+
+      // Upload the image
+      await uploadMediaToTrip(trip.TripID.toString(), selectedImage.uri);
+
+      // Fetch updated media list
+      const updatedMedia = await mediaService.getTripMedia(trip.TripID.toString());
+      
+      // Update the screen with new media
+      navigation.setParams({
+        tripMedia: updatedMedia,
+        initialIndex: updatedMedia.length - 1, // Show the new image
+        trip
+      });
+
+      // Refresh favorites and visibility
+      await fetchMediaFavorites();
+      await fetchMediaVisibility();
+
+      Alert.alert('Success', 'Photo uploaded successfully');
     } catch (error) {
       console.error('Error uploading image:', error);
+      Alert.alert('Error', 'Failed to upload photo. Please try again.');
     }
   };
 
@@ -304,9 +313,7 @@ const PhotoViewScreen = () => {
         mediaVisibility={mediaVisibility}
         onVisibilityChange={handleVisibilityChange}
         onFavoriteToggle={handleFavoriteToggle}
-        onInfoPress={() => { } } onDeletePress={function (): void {
-          throw new Error('Function not implemented.');
-        } } screenType={'profile'}        />
+        onInfoPress={() => { } } onDeletePress={handleDeleteMedia} screenType={'profile'}        />
 
       <View style={styles.dateContainer}>
         <Text style={styles.dateText}>

@@ -24,9 +24,9 @@ const ProfileCategories: React.FC<ProfileCategoriesProps> = ({ onCategoryPress, 
       <TouchableOpacity 
         style={[
           styles.categoryButton,
-          selectedCategory === 'media' && styles.selectedCategory
+          selectedCategory === 'globes' && styles.selectedCategory
         ]}
-        onPress={() => onCategoryPress?.('media')}
+        onPress={() => onCategoryPress?.('globes')}
       >
           <Image 
             source={require('../assets/globe_icon.png')}

@@ -17,12 +17,16 @@ import GlobesList from './src/screens/GlobesList';
 import AddContentScreen from './src/screens/AddContentScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import CreateProfileScreen from './src/screens/CreateProfileScreen';
+import GlobalFont from 'react-native-global-font'; 
+
 
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
   useEffect(() => {
-    // Delay push notification setup to ensure it doesn't block initial render
+    const fontName = 'Outfit'; 
+    GlobalFont.applyGlobal(fontName); 
+
     setTimeout(() => {
       try {
         configurePushNotifications();
