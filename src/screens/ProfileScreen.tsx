@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, SafeAreaView, ScrollView,
+  View, Text, TextInput, StyleSheet, SafeAreaView, ScrollView,
   TouchableOpacity, Dimensions, Alert,
   Image, ImageBackground, RefreshControl
 } from 'react-native';
@@ -12,6 +12,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import NavigationBar from '../components/NavigationBar';
 import ProfileCategories from '../components/ProfileCategories';
+import { globesService, Globe, GlobeWithTrips } from '../services/globesService'
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -27,6 +28,10 @@ const ProfileScreen = () => {
   const [trips, setTrips] = useState<TripWithMedia[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('trips');
+  const [globes, setGlobes] = useState<Globe[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedUsername, setEditedUsername] = useState('');
+  const [editedBio, setEditedBio] = useState('');
 
   useEffect(() => {
     loadProfileData();
@@ -45,6 +50,15 @@ const ProfileScreen = () => {
     console.log('Selected category:', category);
   };
 
+  const getRandomColor = () => {
+    const colors = [
+      '#98D8B9', '#FFE5B4', '#B4E4FF', '#FFB4B4', '#B4FFD8',
+      '#FFD1DC', '#E6E6FA', '#F0E68C', '#98FB98', '#DDA0DD',
+      '#F0FFF0', '#E0FFFF', '#FFE4E1', '#F5F5DC', '#E6E6FA'
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
     try {
@@ -55,6 +69,9 @@ const ProfileScreen = () => {
       setRefreshing(false);
     }
   };
+
+  // Add this with other state declarations
+  const [likedTrips, setLikedTrips] = useState<TripWithMedia[]>([]);
 
   const loadProfileData = async () => {
     console.log('ProfileScreen: Loading profile data...');
@@ -88,7 +105,15 @@ const ProfileScreen = () => {
       
       setFollowers(followersData);
       setFollowing(followingData);
+
+      const userGlobes = await globesService.getMyGlobes();
+      console.log('ProfileScreen: Globes loaded:', userGlobes?.length || 0, 'globes');
+      setGlobes(userGlobes || []);
       
+      const likedTripsData = await mediaService.getLikedTrips();
+      console.log('ProfileScreen: Liked trips loaded:', likedTripsData?.length || 0, 'trips');
+      setLikedTrips(likedTripsData || []);
+
     } catch (error) {
       console.error('ProfileScreen: Error loading profile:', error);
       Alert.alert(
@@ -98,17 +123,17 @@ const ProfileScreen = () => {
     }
   };
 
-
-  const handleLogout = async () => {
+  const handleSaveProfile = async () => {
     try {
-      await authService.logout();
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Login' as never }],
+      await profileService.updateProfile({
+        Username: editedUsername,
+        Bio: editedBio
       });
+      await loadProfileData(); // Refresh profile data
+      setIsEditing(false);
     } catch (error) {
-      console.error('Logout failed:', error);
-      Alert.alert('Error', 'Failed to logout. Please try again.');
+      console.error('Error updating profile:', error);
+      Alert.alert('Error', 'Failed to update profile');
     }
   };
 
@@ -144,30 +169,105 @@ const ProfileScreen = () => {
         source={{ uri: profile?.ProfilePicture || undefined }}
         style={styles.avatarPlaceholder}
       />
-      <Text style={styles.username}>{profile?.Username || 'Loading...'}</Text>
-      <Text style={styles.bio}>{profile?.Bio || 'No bio available'}</Text>
+      {isEditing ? (
+        <>
+          <TextInput
+            style={styles.editInput}
+            value={editedUsername}
+            onChangeText={setEditedUsername}
+            placeholder={profile?.Username || "Username"}
+          />
+          <TextInput
+            style={[styles.editInput, styles.bioInput]}
+            value={editedBio}
+            onChangeText={setEditedBio}
+            placeholder={profile?.Bio || "Bio"}
+            multiline
+          />
+        </>
+      ) : (
+        <>
+          <Text style={styles.username}>{profile?.Username || 'Loading...'}</Text>
+          <Text style={styles.bio}>{profile?.Bio || 'No bio available'}</Text>
+        </>
+      )}
       
+      // In the stats section, replace the existing stats View with this:
       <View style={styles.stats}>
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>{trips?.length || 0}</Text>
           <Text style={styles.statLabel}>Viajes Completados</Text>
         </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{followers.Follow.count}</Text>
-          <Text style={styles.statLabel}>Followers</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{following.Follow.count}</Text>
-          <Text style={styles.statLabel}>Following</Text>
-        </View>
+        {followers.Follow.count > 0 ? (
+          <TouchableOpacity 
+            style={styles.statItem}
+            onPress={() => {
+              if (profile?.UserID) {
+                navigation.navigate('FollowList', { 
+                  type: 'followers',
+                  userId: profile.UserID,
+                  profiles: followers.Follow.profiles
+                });
+              }
+            }}
+          >
+            <Text style={styles.statNumber}>{followers.Follow.count}</Text>
+            <Text style={styles.statLabel}>Followers</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>0</Text>
+            <Text style={styles.statLabel}>Followers</Text>
+          </View>
+        )}
+        {following.Follow.count > 0 ? (
+          <TouchableOpacity 
+            style={styles.statItem}
+            onPress={() => {
+              if (profile?.UserID) {
+                navigation.navigate('FollowList', { 
+                  type: 'following',
+                  userId: profile.UserID,
+                  profiles: following.Follow.profiles
+                });
+              }
+            }}
+          >
+            <Text style={styles.statNumber}>{following.Follow.count}</Text>
+            <Text style={styles.statLabel}>Following</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>0</Text>
+            <Text style={styles.statLabel}>Following</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.actionButtons}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>Compartir</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>Editar</Text>
+        {isEditing ? (
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => {
+              setIsEditing(false);
+              setEditedUsername(profile?.Username || '');
+              setEditedBio(profile?.Bio || '');
+            }}
+          >
+            <Text style={styles.actionButtonText}>Cancelar</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.actionButton}>
+            <Text style={styles.actionButtonText}>Compartir</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => isEditing ? handleSaveProfile() : setIsEditing(true)}
+        >
+          <Text style={styles.actionButtonText}>
+            {isEditing ? 'Guardar' : 'Editar'}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -211,13 +311,63 @@ const ProfileScreen = () => {
 
     {selectedCategory === 'favorites' && (
       <View style={styles.gridContainer}>
-        <Text style={styles.emptyStateText}>Liked trips will appear here</Text>
+        {likedTrips.length > 0 ? (
+          likedTrips.map((trip) => (
+            <TouchableOpacity 
+              key={trip.trip.TripID} 
+              style={styles.gridItem}
+              onPress={() => {
+                navigation.navigate('PhotoView', {
+                  imageUrl: trip.media?.[0]?.url,
+                  tripMedia: trip.media || [],
+                  initialIndex: 0,
+                  trip: trip.trip
+                });
+              }}
+            >
+              <View style={styles.gridItemContent}>
+                <Image 
+                  source={{ uri: trip.media?.[0]?.url || 'https://via.placeholder.com/150' }}
+                  style={styles.photoPlaceholder}
+                  resizeMode="cover"
+                />
+                <View style={styles.tripOverlay}>
+                  <Text style={styles.tripName} numberOfLines={1}>{trip.trip.name}</Text>
+                  <Text style={styles.mediaCount}>{trip.media?.length || 0} photos</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text style={styles.emptyStateText}>No liked trips yet</Text>
+        )}
       </View>
     )}
 
     {selectedCategory === 'globes' && (
-      <View style={styles.gridContainer}>
-        <Text style={styles.emptyStateText}>Globes will appear here</Text>
+      <View style={styles.globesGrid}>
+      {globes.length > 0 ? (
+        globes.map((globe) => (
+          <TouchableOpacity 
+            key={globe.AlbumID}
+            style={styles.globeCard}
+            onPress={() => navigation.navigate('Globe3DView', { globe })}
+          >
+            <View style={[styles.globePlaceholder, { backgroundColor: getRandomColor() }]}>
+              <View style={styles.globeContent}>
+                <Text style={styles.globeEmoji}>🌍</Text>
+                <View style={styles.globeInfo}>
+                  <Text style={styles.globeName}>{globe.name}</Text>
+                </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))
+      ) : (
+          <View style={styles.emptyStateText}>
+            <Text style={styles.emptyStateText}>No globes created yet</Text>
+          </View>
+        )}
       </View>
     )}
       </ScrollView>
@@ -411,6 +561,56 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 20,
     width: '100%',
+  },
+  globesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 0,
+    paddingRight: 5,
+    paddingBottom: 100,
+  },
+  globeCard: {
+    width: '33%',
+    aspectRatio: 0.8,
+    marginBottom: 16,
+  },
+  globePlaceholder: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 0,
+    padding: 16,
+  },
+  globeContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  globeEmoji: {
+    fontSize: 50,
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  globeInfo: {
+    marginTop: 'auto',
+  },
+  globeName: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 4,
+  },
+  editInput: {
+    width: '80%',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    marginBottom: 12,
+    backgroundColor: '#fff',
+  },
+  bioInput: {
+    height: 80,
+    textAlignVertical: 'top',
   },
 });
 

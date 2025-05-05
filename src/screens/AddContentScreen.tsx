@@ -24,19 +24,7 @@ const AddContentScreen = () => {
       </View>
 
       <View style={styles.content}>
-        <TouchableOpacity 
-          style={styles.option}
-          onPress={() => navigation.navigate('CreateMedia')}
-        >
-          <View style={styles.optionIcon}>
-            <Image 
-              source={require('../assets/media_icon.png')}
-              style={styles.icon}
-            />
-          </View>
-          <Text style={styles.optionTitle}>Add Media</Text>
-          <Text style={styles.optionDescription}>Upload photos or videos</Text>
-        </TouchableOpacity>
+
 
         <TouchableOpacity 
           style={styles.option}

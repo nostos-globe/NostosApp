@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { configurePushNotifications } from './src/config/notificationConfig';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 import HomeScreen from './src/screens/HomeScreen';
@@ -18,6 +17,7 @@ import AddContentScreen from './src/screens/AddContentScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import CreateProfileScreen from './src/screens/CreateProfileScreen';
 import GlobalFont from 'react-native-global-font'; 
+import FollowListScreen from './src/screens/FollowListScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -27,13 +27,6 @@ function App(): JSX.Element {
     const fontName = 'Outfit'; 
     GlobalFont.applyGlobal(fontName); 
 
-    setTimeout(() => {
-      try {
-        configurePushNotifications();
-      } catch (error) {
-        console.log('Push notification configuration error:', error);
-      }
-    }, 1000);
   }, []);
 
   return (
@@ -54,6 +47,8 @@ function App(): JSX.Element {
         <Stack.Screen name="CreateGlobe" component={CreateGlobeScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="OtherProfile" component={OtherProfileScreen}/>
+        <Stack.Screen name="FollowList" component={FollowListScreen}/>
+
       </Stack.Navigator>
     </NavigationContainer>
   );

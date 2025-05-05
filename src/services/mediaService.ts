@@ -169,6 +169,12 @@ export const mediaService = {
         const response = await mediaApi.get('/api/trips/myTrips', config);
         return response.data;
     },
+    
+    async getLikedTrips(): Promise<TripWithMedia[]> {
+        const config = await getTokenHeader();
+        const response = await mediaApi.get('/api/trips/myLikedTrips', config);
+        return response.data;
+    },
 
     async searchTrips(query: string): Promise<TripWithMedia[]> {
         const config = await getTokenHeader();
@@ -202,6 +208,7 @@ export const mediaService = {
         });
         return response.data;
     },
+    
 
     async createTrip(tripData: {
         name: string;

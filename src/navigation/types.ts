@@ -32,4 +32,13 @@ export type RootStackParamList = {
   AddTrip: {
     globeId: number | string;
   };
+  FollowList: {
+    type: 'followers' | 'following' | 'likes';
+    userId: number;
+    profiles: Array<{
+      UserID: number;
+      Username: string;
+      ProfilePicture: string;
+    }>;
+  };
 };

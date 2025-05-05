@@ -31,7 +31,11 @@ const HomeScreen = () => {
   const [loadingGlobes, setLoadingGlobes] = useState(true);
   const [tripLikes, setTripLikes] = useState<{[key: string]: number}>({});
   const [likedTrips, setLikedTrips] = useState<{[key: string]: boolean}>({});
-  const [likeProfiles, setLikeProfiles] = useState<{[key: string]: {UserID: number, ProfilePicture: string}[]}>({});
+  const [likeProfiles, setLikeProfiles] = useState<{[key: string]: {
+      UserID: number,
+      ProfilePicture: string,
+      username: string
+    }[]}>({});
   
   const fetchUserProfile = async (userId: string) => {
     try {
@@ -224,12 +228,16 @@ const HomeScreen = () => {
                       />
                     </TouchableOpacity>
                     <View style={styles.locationHeader}>
-                      <Image 
-                        source={{ 
-                          uri: userProfiles[post.trip.user_id?.toString()] || 'https://via.placeholder.com/40'
-                        }}
-                        style={styles.profilePic}
-                      />
+                      <TouchableOpacity
+                        onPress={() => navigation.navigate('OtherProfile', { userId: post.trip.user_id })}
+                      >
+                        <Image 
+                          source={{ 
+                            uri: userProfiles[post.trip.user_id?.toString()] || 'https://via.placeholder.com/40'
+                          }}
+                          style={styles.profilePic}
+                        />
+                      </TouchableOpacity>
                       <View style={styles.locationContainer}>
                         <Text style={styles.location}>{post.trip.name}</Text>
                       </View>
@@ -277,11 +285,23 @@ const HomeScreen = () => {
                                 </View>
                               )}
                             </ScrollView>
-                            <Text style={styles.likedByText}>
-                              {likeProfiles[post.trip.TripID.toString()][0]?.Username> 1 ? 
-                                ` and ${likeProfiles[post.trip.TripID.toString()].length - 1} others liked this post` : 
-                                ' liked this post'}
-                            </Text>
+                            <TouchableOpacity
+                              onPress={() => navigation.navigate('FollowList', {
+                                type: 'likes',
+                                userId: post.trip.user_id,
+                                profiles: likeProfiles[post.trip.TripID.toString()].map(profile => ({
+                                  profileId: profile.UserID,
+                                  username: profile.username,
+                                  profilePicture: profile.ProfilePicture
+                                }))
+                              })}
+                            >
+                              <Text style={[styles.likedByText, styles.clickableText]}>
+                                {likeProfiles[post.trip.TripID.toString()].length > 1 ? 
+                                  `${likeProfiles[post.trip.TripID.toString()][0].username} and ${likeProfiles[post.trip.TripID.toString()].length} others liked this post` : 
+                                  `${likeProfiles[post.trip.TripID.toString()][0].username} liked this post`}
+                              </Text>
+                            </TouchableOpacity>
                           </View>
                         </View>
                       )}
@@ -541,6 +561,9 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#333',
     fontWeight: 'bold',
+  },
+  clickableText: {
+
   },
 
 });

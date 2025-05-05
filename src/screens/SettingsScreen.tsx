@@ -15,7 +15,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { authService } from '../services/authService';
 import { requestNotificationPermission } from '../utils/permissions';
-import { useNtfyNotifications } from '../services/notificationService';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -112,7 +111,6 @@ const SettingsScreen = () => {
   );
 
   // Add this hook to handle notifications
-  useNtfyNotifications(notificationsEnabled);
 
   const handleNotificationToggle = async (value: boolean) => {
     if (value) {

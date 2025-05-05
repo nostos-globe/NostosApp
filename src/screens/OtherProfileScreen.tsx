@@ -118,18 +118,8 @@ const OtherProfileScreen = () => {
   };
   
 
-  const handleLogout = async () => {
-    try {
-      await authService.logout();
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Login' as never }],
-      });
-    } catch (error) {
-      console.error('Logout failed:', error);
-      Alert.alert('Error', 'Failed to logout. Please try again.');
-    }
-  };
+
+  const shouldShowCategories = profile?.PrivacySettings?.profile_visibility === 'public' || isFollowing;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -149,8 +139,7 @@ const OtherProfileScreen = () => {
         <TouchableOpacity 
           style={styles.backButton}
           onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backButtonText}>←</Text>
+        >          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
 
         <ImageBackground 
@@ -197,56 +186,66 @@ const OtherProfileScreen = () => {
           </Text>
         </TouchableOpacity>
       </View>
-
-      <ProfileCategories 
-        onCategoryPress={(category) => setSelectedCategory(category)}
-        selectedCategory={selectedCategory}
-      />
-    </View>
-
-      {/* Content based on selected category */}
-{selectedCategory === 'trips' && (
-      <View style={styles.gridContainer}>
-        {trips?.map((trip) => (
-          <TouchableOpacity 
-            key={trip.trip.TripID} 
-            style={styles.gridItem}
-            onPress={() => {
-              navigation.navigate('PhotoView', {
-                imageUrl: trip.media?.[0]?.url,
-                tripMedia: trip.media || [],
-                initialIndex: 0,
-                trip: trip.trip
-              });
-            }}
-          >
-            <View style={styles.gridItemContent}>
-              <Image 
-                source={{ uri: trip.media?.[0]?.url || 'https://via.placeholder.com/150' }}
-                style={styles.photoPlaceholder}
-                resizeMode="cover"
-              />
-              <View style={styles.tripOverlay}>
-                <Text style={styles.tripName} numberOfLines={1}>{trip.trip.name}</Text>
-                <Text style={styles.mediaCount}>{trip.media?.length || 0} photos</Text>
-              </View>
+      </View>
+      {shouldShowCategories && (
+        <>
+          <ProfileCategories 
+            onCategoryPress={(category) => setSelectedCategory(category)}
+            selectedCategory={selectedCategory}
+          />
+          
+          {/* Content based on selected category */}
+          {selectedCategory === 'trips' && (
+            <View style={styles.gridContainer}>
+              {trips?.map((trip) => (
+                <TouchableOpacity 
+                  key={trip.trip.TripID} 
+                  style={styles.gridItem}
+                  onPress={() => {
+                    navigation.navigate('PhotoView', {
+                      imageUrl: trip.media?.[0]?.url,
+                      tripMedia: trip.media || [],
+                      initialIndex: 0,
+                      trip: trip.trip
+                    });
+                  }}
+                >
+                  <View style={styles.gridItemContent}>
+                    <Image 
+                      source={{ uri: trip.media?.[0]?.url || 'https://via.placeholder.com/150' }}
+                      style={styles.photoPlaceholder}
+                      resizeMode="cover"
+                    />
+                    <View style={styles.tripOverlay}>
+                      <Text style={styles.tripName} numberOfLines={1}>{trip.trip.name}</Text>
+                      <Text style={styles.mediaCount}>{trip.media?.length || 0} photos</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
             </View>
-          </TouchableOpacity>
-        ))}
-      </View>
-    )}
+          )}
 
-    {selectedCategory === 'favorites' && (
-      <View style={styles.gridContainer}>
-        <Text style={styles.emptyStateText}>Liked trips will appear here</Text>
-      </View>
-    )}
+          {selectedCategory === 'favorites' && (
+            <View style={styles.gridContainer}>
+              <Text style={styles.emptyStateText}>Liked trips will appear here</Text>
+            </View>
+          )}
 
-    {selectedCategory === 'globes' && (
-      <View style={styles.gridContainer}>
-        <Text style={styles.emptyStateText}>Globes will appear here</Text>
-      </View>
-    )}
+          {selectedCategory === 'globes' && (
+            <View style={styles.gridContainer}>
+              <Text style={styles.emptyStateText}>Globes will appear here</Text>
+            </View>
+          )}
+        </>
+      )}
+
+      {!shouldShowCategories && (
+        <View style={styles.gridContainer}>
+          <Text style={styles.emptyStateText}>This profile is private</Text>
+        </View>
+      )}
+
       </ScrollView>
       
       <NavigationBar />
@@ -431,11 +430,20 @@ const styles = StyleSheet.create({
     top: 16,
     left: 16,
     zIndex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    backgroundColor: 'rgba(255, 255, 255, 1)',
     borderRadius: 20,
-    padding: 8,
+    margin:0,
+    padding:0,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   backButtonText: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    top: -5,
     fontSize: 24,
     color: '#000',
   },
