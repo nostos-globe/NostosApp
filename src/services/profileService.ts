@@ -89,9 +89,39 @@ const getTokenHeader = async () => {
 };
 
 export const profileService = {
-    async createProfile(profileData: Partial<Profile>): Promise<Profile> {
-        const config = await getTokenHeader();
-        const response = await profileApi.post('/api/profiles', profileData, config);
+    async createProfile(profileData: Partial<Profile> & { profilePicture?: any }): Promise<Profile> {
+        const token = await checkToken();
+        if (!token) throw new Error('No token available');
+        
+        const formData = new FormData();
+        
+        console.log('Creating profile with data:', profileData);
+        
+        Object.keys(profileData).forEach(key => {
+            if (key === 'ProfilePicture' && profileData[key]) {
+                const fileData = {
+                    uri: profileData.ProfilePicture,
+                    name: 'profile.jpg',
+                    type: 'image/jpeg'
+                };
+                console.log('Appending file:', fileData);
+                formData.append('ProfilePicture', fileData);
+            } else {
+                console.log(`Appending field ${key}:`, profileData[key as keyof typeof profileData]);
+                formData.append(key, profileData[key as keyof typeof profileData]);
+            }
+        });
+    
+        console.log('Final FormData:', formData);
+        
+        const response = await axios.post(`${PROFILE_API_URL}/api/profiles`, formData, {
+            headers: {
+                Cookie: `auth_token=${token}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        
+        console.log('Profile creation response:', response.data);
         return response.data;
     },
 

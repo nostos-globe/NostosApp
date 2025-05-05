@@ -137,8 +137,6 @@ const SettingsScreen = () => {
       <ScrollView style={styles.content}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account</Text>
-          {renderSettingItem('👤', 'Edit Profile', () => navigation.navigate('Profile'))}
-          {renderSettingItem('🔒', 'Privacy', () => {}, true)}
           {renderSettingItem('🔐', 'Private Account', () => {}, false,
             <Switch
               value={privateAccount}
@@ -151,14 +149,6 @@ const SettingsScreen = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preferences</Text>
-          {renderSettingItem('🔔', 'Notifications', () => {}, false,
-            <Switch
-              value={notificationsEnabled}
-              onValueChange={handleNotificationToggle}
-              trackColor={{ false: '#767577', true: '#8BB8E8' }}
-              thumbColor={notificationsEnabled ? '#fff' : '#f4f3f4'}
-            />
-          )}
           {renderSettingItem('🌍', `Language (${selectedLanguage})`, () => setShowLanguageModal(true))}
           {renderSettingItem('🎨', `Theme (${selectedTheme})`, () => setShowThemeModal(true))}
           {renderSettingItem('🕐', `Time Format (${selectedTimeFormat})`, () => setShowTimeFormatModal(true))}
@@ -181,6 +171,36 @@ const SettingsScreen = () => {
           </View>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Language Selection Modal */}
+      {renderModal(
+        showLanguageModal,
+        setShowLanguageModal,
+        'Select Language',
+        languages,
+        selectedLanguage,
+        (lang) => setSelectedLanguage(lang)
+      )}
+
+      {/* Theme Selection Modal */}
+      {renderModal(
+        showThemeModal,
+        setShowThemeModal,
+        'Select Theme',
+        themes,
+        selectedTheme,
+        (theme) => setSelectedTheme(theme)
+      )}
+
+      {/* Time Format Selection Modal */}
+      {renderModal(
+        showTimeFormatModal,
+        setShowTimeFormatModal,
+        'Select Time Format',
+        timeFormats,
+        selectedTimeFormat,
+        (format) => setSelectedTimeFormat(format)
+      )}
     </SafeAreaView>
   );
 };
