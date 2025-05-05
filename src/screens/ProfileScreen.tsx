@@ -78,17 +78,17 @@ const ProfileScreen = () => {
     try {
       const currentUser = await authService.getProfile();
       console.log('ProfileScreen: Current user data:', currentUser);
-
+  
       const userId = currentUser?.user?.user_id;
       if (!userId) {
         console.error('ProfileScreen: No user ID found');
         throw new Error('No user ID found');
       }
-
+  
       const tripsData = await mediaService.getMyTrips();
       console.log('ProfileScreen: Trips data loaded:', tripsData?.length || 0, 'trips');
       setTrips(tripsData || []); // Set empty array if tripsData is null
-
+  
       const profileData = await profileService.getProfileById(userId);
       console.log('ProfileScreen: Profile data loaded:', profileData);
       setProfile(profileData);
@@ -98,14 +98,26 @@ const ProfileScreen = () => {
           profileService.getFollowing(profileData.UserID.toString())
       ]);
       
-      console.log('ProfileScreen: Followers/Following data loaded:', {
-        followers: followersData.Follow.count,
-        following: followingData.Follow.count
+      // Add detailed logging for followers and following
+      console.log('ProfileScreen: Followers data:', {
+        count: followersData.Follow.count,
+        profiles: followersData.Follow.profiles.map(p => ({
+          id: p.userID,
+          username: p.username
+        }))
       });
       
+      console.log('ProfileScreen: Following data:', {
+        count: followingData.Follow.count,
+        profiles: followingData.Follow.profiles.map(p => ({
+          id: p.userID,
+          username: p.username
+        }))
+      });
+  
       setFollowers(followersData);
       setFollowing(followingData);
-
+  
       const userGlobes = await globesService.getMyGlobes();
       console.log('ProfileScreen: Globes loaded:', userGlobes?.length || 0, 'globes');
       setGlobes(userGlobes || []);
@@ -113,7 +125,7 @@ const ProfileScreen = () => {
       const likedTripsData = await mediaService.getLikedTrips();
       console.log('ProfileScreen: Liked trips loaded:', likedTripsData?.length || 0, 'trips');
       setLikedTrips(likedTripsData || []);
-
+  
     } catch (error) {
       console.error('ProfileScreen: Error loading profile:', error);
       Alert.alert(
@@ -206,7 +218,11 @@ const ProfileScreen = () => {
                 navigation.navigate('FollowList', { 
                   type: 'followers',
                   userId: profile.UserID,
-                  profiles: followers.Follow.profiles
+                  profiles: followers.Follow.profiles.map(profile => ({
+                    UserID: profile.userID,
+                    Username: profile.username,
+                    ProfilePicture: profile.profilePicture
+                  }))
                 });
               }
             }}
@@ -228,7 +244,11 @@ const ProfileScreen = () => {
                 navigation.navigate('FollowList', { 
                   type: 'following',
                   userId: profile.UserID,
-                  profiles: following.Follow.profiles
+                  profiles: followers.Follow.profiles.map(profile => ({
+                    UserID: profile.userID,
+                    Username: profile.username,
+                    ProfilePicture: profile.profilePicture
+                  }))
                 });
               }
             }}

@@ -32,7 +32,7 @@ const FollowListScreen = () => {
   const renderItem = ({ item }: { item: RouteParams['profiles'][0] }) => (
     <TouchableOpacity 
       style={styles.userItem}
-      onPress={() => navigation.navigate('UserProfile', { userId: item.profileId })}
+      onPress={() => navigation.navigate('OtherProfile', { userId: item.profileId })}
     >
       <Image
         source={{ uri: item.profilePicture || 'https://via.placeholder.com/50' }}

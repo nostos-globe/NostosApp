@@ -28,7 +28,7 @@ const AddContentScreen = () => {
 
         <TouchableOpacity 
           style={styles.option}
-          onPress={() => navigation.navigate('AddTrip')}
+          onPress={() => navigation.navigate('AddTrip', { globeId: '' })}
         >
           <View style={styles.optionIcon}>
             <Image 

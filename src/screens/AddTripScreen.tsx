@@ -137,8 +137,11 @@ const AddTripScreen = () => {
         <Text style={styles.headerTitle}>Create New Trip</Text>
         <View style={{ width: 24 }} />
       </View>
-
-      <ScrollView style={styles.content}>
+      <ScrollView 
+      contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View style={styles.content}>
         <View style={styles.formGroup}>
           <Text style={styles.label}>Trip Name</Text>
           <TextInput
@@ -271,6 +274,7 @@ const AddTripScreen = () => {
             <Text style={styles.notNowText}>Not now</Text>
           </TouchableOpacity>
         )}
+      </View>
       </ScrollView>
       <NavigationBar />
     </SafeAreaView>
@@ -281,7 +285,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingBottom: 60,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 80, 
+  },
+  content: {
+    padding: 16,
   },
   header: {
     flexDirection: 'row',
@@ -300,10 +310,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
+
   formGroup: {
     marginBottom: 20,
   },

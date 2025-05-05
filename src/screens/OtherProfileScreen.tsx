@@ -71,13 +71,14 @@ const OtherProfileScreen = () => {
       const currentUserId = await authService.getProfile();
       const loggedUserProfile = await profileService.getProfileById(currentUserId.user.user_id);
       
-      const isUserFollowing = followersData.Follow.profiles.some(
-        follower => follower.profileId.toString() === loggedUserProfile.ProfileID.toString()
-      );
+      // Add null check for followersData.Follow.profiles
+      const isUserFollowing = followersData?.Follow?.profiles?.some(
+        follower => follower?.profileId?.toString() === loggedUserProfile?.ProfileID?.toString()
+      ) || false;
       
       setIsFollowing(isUserFollowing);
-      setFollowers(followersData);
-      setFollowing(followingData);
+      setFollowers(followersData || { Follow: { count: 0, profiles: [] } });
+      setFollowing(followingData || { Follow: { count: 0, profiles: [] } });
       
     } catch (error) {
       console.error('ProfileScreen: Error loading profile:', error);

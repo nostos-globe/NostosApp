@@ -30,6 +30,7 @@ export interface Profile {
 }
 
 export interface FollowerFollowing {
+    userID: any;
     profileId: number;
     username: string;
     profilePicture: string;

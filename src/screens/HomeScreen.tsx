@@ -290,9 +290,9 @@ const HomeScreen = () => {
                                 type: 'likes',
                                 userId: post.trip.user_id,
                                 profiles: likeProfiles[post.trip.TripID.toString()].map(profile => ({
-                                  profileId: profile.UserID,
-                                  username: profile.username,
-                                  profilePicture: profile.ProfilePicture
+                                  UserID: profile.UserID,
+                                  Username: profile.username,
+                                  ProfilePicture: profile.ProfilePicture
                                 }))
                               })}
                             >
