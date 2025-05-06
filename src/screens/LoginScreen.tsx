@@ -38,12 +38,13 @@ const LoginScreen = () => {
                 } catch (storageError) {
                     console.error('Failed to store token:', storageError);
                 }
-            }
+            } 
 
             // Navigate to Home screen after successful login
             navigation.navigate('Home' as never);
-        } catch (error: any) {
-            Alert.alert('Error', error.message || 'Login failed');
+        } 
+        catch (error: any) {
+            Alert.alert('Login failed', "Invalid credentials");
         } finally {
             setIsLoading(false);
         }

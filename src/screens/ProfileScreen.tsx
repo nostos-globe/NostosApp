@@ -74,23 +74,18 @@ const ProfileScreen = () => {
   const [likedTrips, setLikedTrips] = useState<TripWithMedia[]>([]);
 
   const loadProfileData = async () => {
-    console.log('ProfileScreen: Loading profile data...');
     try {
       const currentUser = await authService.getProfile();
-      console.log('ProfileScreen: Current user data:', currentUser);
   
       const userId = currentUser?.user?.user_id;
       if (!userId) {
-        console.error('ProfileScreen: No user ID found');
         throw new Error('No user ID found');
       }
   
       const tripsData = await mediaService.getMyTrips();
-      console.log('ProfileScreen: Trips data loaded:', tripsData?.length || 0, 'trips');
-      setTrips(tripsData || []); // Set empty array if tripsData is null
+      setTrips(tripsData || []); 
   
       const profileData = await profileService.getProfileById(userId);
-      console.log('ProfileScreen: Profile data loaded:', profileData);
       setProfile(profileData);
       
       const [followersData, followingData] = await Promise.all([
@@ -98,32 +93,27 @@ const ProfileScreen = () => {
           profileService.getFollowing(profileData.UserID.toString())
       ]);
       
-      // Add detailed logging for followers and following
-      console.log('ProfileScreen: Followers data:', {
-        count: followersData.Follow.count,
-        profiles: followersData.Follow.profiles.map(p => ({
-          id: p.userID,
-          username: p.username
-        }))
-      });
+      const safeFollowersData = {
+        Follow: {
+          count: followersData?.Follow?.count || 0,
+          profiles: followersData?.Follow?.profiles || []
+        }
+      };
       
-      console.log('ProfileScreen: Following data:', {
-        count: followingData.Follow.count,
-        profiles: followingData.Follow.profiles.map(p => ({
-          id: p.userID,
-          username: p.username
-        }))
-      });
+      const safeFollowingData = {
+        Follow: {
+          count: followingData?.Follow?.count || 0,
+          profiles: followingData?.Follow?.profiles || []
+        }
+      };
   
-      setFollowers(followersData);
-      setFollowing(followingData);
+      setFollowers(safeFollowersData);
+      setFollowing(safeFollowingData);
   
       const userGlobes = await globesService.getMyGlobes();
-      console.log('ProfileScreen: Globes loaded:', userGlobes?.length || 0, 'globes');
       setGlobes(userGlobes || []);
       
       const likedTripsData = await mediaService.getLikedTrips();
-      console.log('ProfileScreen: Liked trips loaded:', likedTripsData?.length || 0, 'trips');
       setLikedTrips(likedTripsData || []);
   
     } catch (error) {
@@ -204,7 +194,7 @@ const ProfileScreen = () => {
         </>
       )}
       
-      // In the stats section, replace the existing stats View with this:
+      {/* Stats section */}
       <View style={styles.stats}>
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>{trips?.length || 0}</Text>

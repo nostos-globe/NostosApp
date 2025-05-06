@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { mediaService, TripWithMedia } from '../services/mediaService';
@@ -31,12 +32,23 @@ const HomeScreen = () => {
   const [loadingGlobes, setLoadingGlobes] = useState(true);
   const [tripLikes, setTripLikes] = useState<{[key: string]: number}>({});
   const [likedTrips, setLikedTrips] = useState<{[key: string]: boolean}>({});
+  const [refreshing, setRefreshing] = useState(false);
   const [likeProfiles, setLikeProfiles] = useState<{[key: string]: {
       UserID: number,
       ProfilePicture: string,
       username: string
     }[]}>({});
   
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    Promise.all([
+      fetchMyGlobes(),
+      fetchFollowingTrips()
+    ]).finally(() => {
+      setRefreshing(false);
+    });
+  }, []);
+
   const fetchUserProfile = async (userId: string) => {
     try {
       const profile = await profileService.getProfileById(userId);
@@ -53,7 +65,11 @@ const HomeScreen = () => {
     try {
       setLoading(true);
       const trips = await mediaService.getFollowingTrips();
+      console.log('Fetched trips:', trips);
+      
       const filteredTrips = trips?.filter(trip => trip.trip.user_id !== 1) || [];
+      console.log('Filtered trips:', filteredTrips);
+      
       setFollowingTrips(filteredTrips);
     } catch (error) {
       console.error('Error fetching following trips:', error);
@@ -148,17 +164,28 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Your Globes</Text>
-        <TouchableOpacity>
+      <ScrollView 
+        style={styles.content}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#8BB8E8']}
+            tintColor="#8BB8E8"
+          />
+        }
+      >
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Your Globes</Text>
+        {/* <TouchableOpacity>
           <Image 
             source={require('../assets/notifications_icon.png')}
             style={styles.tabItem}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       
-      <ScrollView style={styles.content}>
+      
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
@@ -272,16 +299,25 @@ const HomeScreen = () => {
                               showsHorizontalScrollIndicator={false}
                               style={styles.profilesScrollView}
                             >
-                              {likeProfiles[post.trip.TripID.toString()].slice(0, 2).map((profile, index) => (
-                                <Image 
-                                  key={`${post.trip.TripID}-like-${index}`}
-                                  source={{ uri: profile.ProfilePicture || 'https://via.placeholder.com/30' }}
-                                  style={styles.likeProfilePic}
-                                />
+                              {likeProfiles[post.trip.TripID.toString()].slice(0, 2).map((profile) => (
+                                <View 
+                                  key={`${post.trip.TripID}-${profile.UserID}-container`}
+                                  style={{ marginRight: 5 }}
+                                >
+                                  <Image 
+                                    source={{ uri: profile.ProfilePicture || 'https://via.placeholder.com/30' }}
+                                    style={styles.likeProfilePic}
+                                  />
+                                </View>
                               ))}
                               {likeProfiles[post.trip.TripID.toString()].length > 5 && (
-                                <View style={styles.moreProfilesIndicator}>
-                                  <Text style={styles.moreProfilesText}>+{likeProfiles[post.trip.TripID.toString()].length - 5}</Text>
+                                <View 
+                                  key={`${post.trip.TripID}-more-indicator`}
+                                  style={styles.moreProfilesIndicator}
+                                >
+                                  <Text style={styles.moreProfilesText}>
+                                    +{likeProfiles[post.trip.TripID.toString()].length - 5}
+                                  </Text>
                                 </View>
                               )}
                             </ScrollView>
