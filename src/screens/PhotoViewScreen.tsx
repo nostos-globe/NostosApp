@@ -248,9 +248,6 @@ const PhotoViewScreen = () => {
         throw new Error('No image URI available');
       }
 
-      // Show loading state
-      Alert.alert('Uploading...', 'Please wait while we upload your photo');
-
       // Upload the image and log the response
       await uploadMediaToTrip(trip.TripID.toString(), selectedImage.uri);
 
@@ -279,8 +276,6 @@ const PhotoViewScreen = () => {
     // Refresh favorites and visibility
     await fetchMediaFavorites();
     await fetchMediaVisibility();
-
-    Alert.alert('Success', 'Photo uploaded successfully');
   };
 
   const handleDeleteMedia = async () => {
