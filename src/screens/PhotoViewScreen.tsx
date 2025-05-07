@@ -236,9 +236,7 @@ const PhotoViewScreen = () => {
         mediaType: 'photo',
         quality: 1,
         selectionLimit: 1,
-        presentationStyle: 'fullScreen',
         includeBase64: false,
-        includeExtra: true,
       });
 
       if (result.didCancel || !result.assets || result.assets.length === 0) {
