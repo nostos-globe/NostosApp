@@ -13,6 +13,7 @@ import { RootStackParamList } from '../navigation/types';
 import { useRoute } from '@react-navigation/native';
 import NavigationBar from '../components/NavigationBar';
 import ProfileCategories from '../components/ProfileCategories';
+import { Globe, globesService } from '../services/globesService';
 
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -33,6 +34,8 @@ const OtherProfileScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const { userId } = route.params as { userId: string };
   const [selectedCategory, setSelectedCategory] = useState('trips');
+  const [globes, setGlobes] = useState<Globe[]>([]);
+
 
 
   useEffect(() => {
@@ -54,6 +57,18 @@ const OtherProfileScreen = () => {
       setRefreshing(false);
     }
   };
+
+  const getRandomColor = () => {
+    const colors = [
+      '#98D8B9', '#FFE5B4', '#B4E4FF', '#FFB4B4', '#B4FFD8',
+      '#FFD1DC', '#E6E6FA', '#F0E68C', '#98FB98', '#DDA0DD',
+      '#F0FFF0', '#E0FFFF', '#FFE4E1', '#F5F5DC', '#E6E6FA'
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+  
+  const [likedTrips, setLikedTrips] = useState<TripWithMedia[]>([]);
+
 
   const loadProfileData = async () => {
     try {
@@ -80,6 +95,9 @@ const OtherProfileScreen = () => {
       setFollowers(followersData || { Follow: { count: 0, profiles: [] } });
       setFollowing(followingData || { Follow: { count: 0, profiles: [] } });
       
+      const userGlobes = await globesService.getGlobesByUserId(userId);
+      setGlobes(userGlobes || []);
+
     } catch (error) {
       console.error('ProfileScreen: Error loading profile:', error);
       Alert.alert(
@@ -228,17 +246,67 @@ const OtherProfileScreen = () => {
             </View>
           )}
 
-          {selectedCategory === 'favorites' && (
-            <View style={styles.gridContainer}>
-              <Text style={styles.emptyStateText}>Liked trips will appear here</Text>
-            </View>
-          )}
+{selectedCategory === 'favorites' && (
+      <View style={styles.gridContainer}>
+        {likedTrips.length > 0 ? (
+          likedTrips.map((trip) => (
+            <TouchableOpacity 
+              key={trip.trip.TripID} 
+              style={styles.gridItem}
+              onPress={() => {
+                navigation.navigate('ExplorePhotoView', {
+                  imageUrl: trip.media?.[0]?.url,
+                  tripMedia: trip.media || [],
+                  initialIndex: 0,
+                  trip: trip.trip
+                });
+              }}
+            >
+              <View style={styles.gridItemContent}>
+                <Image 
+                  source={{ uri: trip.media?.[0]?.url || 'https://via.placeholder.com/150' }}
+                  style={styles.photoPlaceholder}
+                  resizeMode="cover"
+                />
+                <View style={styles.tripOverlay}>
+                  <Text style={styles.tripName} numberOfLines={1}>{trip.trip.name}</Text>
+                  <Text style={styles.mediaCount}>{trip.media?.length || 0} photos</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text style={styles.emptyStateText}>No liked trips yet</Text>
+        )}
+      </View>
+    )}
 
-          {selectedCategory === 'globes' && (
-            <View style={styles.gridContainer}>
-              <Text style={styles.emptyStateText}>Globes will appear here</Text>
+    {selectedCategory === 'globes' && (
+      <View style={styles.globesGrid}>
+      {globes.length > 0 ? (
+        globes.map((globe) => (
+          <TouchableOpacity 
+            key={globe.AlbumID}
+            style={styles.globeCard}
+            onPress={() => navigation.navigate('Globe3DView', { globe })}
+          >
+            <View style={[styles.globePlaceholder, { backgroundColor: getRandomColor() }]}>
+              <View style={styles.globeContent}>
+                <Text style={styles.globeEmoji}>🌍</Text>
+                <View style={styles.globeInfo}>
+                  <Text style={styles.globeName}>{globe.name}</Text>
+                </View>
+              </View>
             </View>
-          )}
+          </TouchableOpacity>
+        ))
+      ) : (
+          <View style={styles.emptyStateText}>
+            <Text style={styles.emptyStateText}>No globes created yet</Text>
+          </View>
+        )}
+      </View>
+    )}
         </>
       )}
 
@@ -460,6 +528,43 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 20,
     width: '100%',
+  },
+  globesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 0,
+    paddingRight: 5,
+    paddingBottom: 100,
+  },
+  globeCard: {
+    width: '33%',
+    aspectRatio: 0.8,
+    marginBottom: 16,
+  },
+  globePlaceholder: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 0,
+    padding: 16,
+  },
+  globeContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  globeEmoji: {
+    fontSize: 50,
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  globeInfo: {
+    marginTop: 'auto',
+  },
+  globeName: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 4,
   },
 });
 
