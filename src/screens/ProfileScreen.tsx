@@ -118,10 +118,6 @@ const ProfileScreen = () => {
   
     } catch (error) {
       console.error('ProfileScreen: Error loading profile:', error);
-      Alert.alert(
-        'Error',
-        'Failed to load profile data. Please check your connection and try again.'
-      );
     }
   };
 
@@ -135,7 +131,6 @@ const ProfileScreen = () => {
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating profile:', error);
-      Alert.alert('Error', 'Failed to update profile');
     }
   };
 

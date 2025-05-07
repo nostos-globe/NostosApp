@@ -152,7 +152,7 @@ export const globesService = {
 
     async getGlobesByUserId(userId: string): Promise<Globe[]> {
         const config = await getTokenHeader();
-        const response = await mediaApi.get(`/api/albums/userID/${userId}`, config);
+        const response = await mediaApi.get(`/api/albums/user/${userId}`, config);
         return response.data;
       },
 

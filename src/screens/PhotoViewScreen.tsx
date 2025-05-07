@@ -257,7 +257,6 @@ const PhotoViewScreen = () => {
       await refreshMediaAfterUpload();
     } catch (error) {
       console.error('Error uploading image:', error);
-      Alert.alert('Error', 'Failed to upload photo. Please try again.');
     }
   };
 

@@ -100,10 +100,7 @@ const OtherProfileScreen = () => {
 
     } catch (error) {
       console.error('ProfileScreen: Error loading profile:', error);
-      Alert.alert(
-        'Error',
-        'Failed to load profile data. Please check your connection and try again.'
-      );
+
     }
   };
 
@@ -129,10 +126,7 @@ const OtherProfileScreen = () => {
       setIsFollowing(!isFollowing);
     } catch (error) {
       console.error('Error toggling follow:', error);
-      Alert.alert(
-        'Error',
-        'Failed to update follow status. Please try again.'
-      );
+
     }
   };
   
@@ -143,8 +137,7 @@ const OtherProfileScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView 
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl
@@ -155,6 +148,7 @@ const OtherProfileScreen = () => {
           />
         }
       >
+        {/* Back button should be inside ScrollView */}
         <TouchableOpacity 
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -318,6 +312,7 @@ const OtherProfileScreen = () => {
 
       </ScrollView>
       
+      {/* NavigationBar stays outside ScrollView to remain fixed */}
       <NavigationBar />
     </SafeAreaView>
   );
@@ -328,9 +323,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  scrollView: {
+    flex: 1,
+  },
   scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 0, 
+    paddingBottom: 100, // Add space for NavigationBar
   },
   gridItemContent: {
     flex: 1,
