@@ -95,6 +95,8 @@ const PhotoViewScreen = () => {
     setFavoritedMedia(favoritesMap);
   };
   
+  
+
   // Update the useEffect to also fetch favorites
   useEffect(() => {
     if (scrollViewRef.current) {

@@ -35,7 +35,7 @@ const MapPickerScreen = () => {
       <body>
         <div id="map"></div>
         <script>
-          const map = L.map('map').setView([40.4168, -3.7038], 13);
+          const map = L.map('map').setView([40.4168, -3.7038], 5);
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
           }).addTo(map);

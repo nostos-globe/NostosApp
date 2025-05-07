@@ -198,7 +198,7 @@ const ProfileScreen = () => {
       <View style={styles.stats}>
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>{trips?.length || 0}</Text>
-          <Text style={styles.statLabel}>Viajes Completados</Text>
+          <Text style={styles.statLabel}>Trips</Text>
         </View>
         {followers.Follow.count > 0 ? (
           <TouchableOpacity 

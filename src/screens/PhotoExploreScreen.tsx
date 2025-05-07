@@ -19,6 +19,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import NavigationBar from '../components/NavigationBar';
 import MediaIconBar from '../components/MediaIconBar';
 import { likesService } from '../services/likesService';
+import WebView from 'react-native-webview';
 
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -35,6 +36,32 @@ const PhotoExploreScreen = () => {  // Changed component name to match file name
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [mediaVisibility, setMediaVisibility] = useState<Record<string, string>>({});
   const scrollViewRef = React.useRef<ScrollView>(null);
+  const [showMap, setShowMap] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState<{latitude: number, longitude: number} | null>(null);
+
+  const getMapHTML = (lat: number, lng: number) => `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <style>
+          #map { height: 100vh; width: 100vw; }
+          body { margin: 0; }
+        </style>
+      </head>
+      <body>
+        <div id="map"></div>
+        <script>
+          const map = L.map('map').setView([${lat}, ${lng}], 5); // Changed zoom level from 13 to 8
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(map);
+          L.marker([${lat}, ${lng}]).addTo(map);
+        </script>
+      </body>
+    </html>
+  `;
 
   useEffect(() => {
     if (scrollViewRef.current) {
@@ -213,7 +240,35 @@ const PhotoExploreScreen = () => {  // Changed component name to match file name
         mediaVisibility={mediaVisibility}
         onVisibilityChange={handleVisibilityChange}
         onFavoriteToggle={handleFavoriteToggle}
-        onInfoPress={() => { } } onDeletePress={function (): void {
+        onInfoPress={async () => {
+          if (tripMedia && tripMedia.length > 0) {
+            if (showMap) {
+              setShowMap(false);
+              return;
+            }
+      
+            const mediaId = tripMedia[currentIndex].mediaId.toString();
+            try {
+              const mediaData = await mediaService.getMediaById(mediaId);
+              
+              if (mediaData.gps_latitude && mediaData.gps_longitude) {
+                setCurrentLocation({
+                  latitude: mediaData.gps_latitude,
+                  longitude: mediaData.gps_longitude
+                });
+              } else {
+                setCurrentLocation({
+                  latitude: 0,
+                  longitude: 0
+                });
+              }
+              setShowMap(true);
+            } catch (error) {
+              console.error('Error fetching location:', error);
+              Alert.alert('Error', 'Failed to fetch location data.');
+            }
+          }
+        } } onDeletePress={function (): void {
           throw new Error('Function not implemented.');
         } } screenType={'explore'}        />
 
@@ -271,7 +326,22 @@ const PhotoExploreScreen = () => {  // Changed component name to match file name
           ))}
         </ScrollView>
       </View>
-
+      {showMap && currentLocation && (
+        <View style={styles.mapOverlay}>
+          <View style={styles.mapButtons}>
+            <TouchableOpacity 
+              style={styles.closeMapButton}
+              onPress={() => setShowMap(false)}
+            >
+              <Text style={styles.closeButtonText}>×</Text>
+            </TouchableOpacity>
+          </View>
+          <WebView
+            style={styles.miniMap}
+            source={{ html: getMapHTML(currentLocation.latitude, currentLocation.longitude) }}
+          />
+        </View>
+      )}
       <NavigationBar />
     </SafeAreaView>
   );
@@ -424,6 +494,57 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: '#fff',
     fontSize: 24,
+  },
+  mapOverlay: {
+    position: 'absolute',
+    bottom: '10%',
+    left: '0%',
+    width: "100%",
+    height: 200,
+    backgroundColor: 'white',
+    overflow: 'hidden',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  mapTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'black',
+    textAlign: 'center',
+    paddingVertical: 10,
+    backgroundColor: 'white',
+  },
+  miniMap: {
+    width: '100%',
+    flex: 1,
+  },
+  closeMapButton: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    zIndex: 1,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    fontSize: 20,
+    color: '#000',
+    fontWeight: 'bold',
+  },
+  mapButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    zIndex: 1,
   },
 });
 
