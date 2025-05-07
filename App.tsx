@@ -16,16 +16,14 @@ import GlobesList from './src/screens/GlobesList';
 import AddContentScreen from './src/screens/AddContentScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import CreateProfileScreen from './src/screens/CreateProfileScreen';
-import GlobalFont from 'react-native-global-font'; 
 import FollowListScreen from './src/screens/FollowListScreen';
+import MapPickerScreen from './src/screens/MapPickerScreen';
 
 
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
   useEffect(() => {
-    const fontName = 'Outfit'; 
-    GlobalFont.applyGlobal(fontName); 
 
   }, []);
 
@@ -41,6 +39,7 @@ function App(): JSX.Element {
         <Stack.Screen name="Explore" component={ExploreScreen} />
         <Stack.Screen name="ExplorePhotoView" component={PhotoExploreScreen} />
         <Stack.Screen name="PhotoView" component={PhotoViewScreen} />
+        <Stack.Screen name="MapPicker" component={MapPickerScreen}/>
         <Stack.Screen name="AddTrip" component={AddTripScreen} />
         <Stack.Screen name="AddContent" component={AddContentScreen} />
         <Stack.Screen name='Settings' component={SettingsScreen}/>

@@ -41,4 +41,7 @@ export type RootStackParamList = {
       ProfilePicture: string;
     }>;
   };
+  MapPicker: {
+    mediaId: string;
+  };
 };

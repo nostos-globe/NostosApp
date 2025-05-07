@@ -4,10 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AUTH_STORAGE } from '../config/variables';
 
 export interface MediaMetadata {
-    location?: string;
-    caption?: string;
-    tags?: string[];
-    date?: string;
+    latitude: number;
+    longitude: number;
+    altitude: number;
 }
 
 export interface Location {
@@ -16,6 +15,7 @@ export interface Location {
 }
 
 export interface MediaItem {
+    requiresManualLocation: any;
     media_id: string;
     trip_id: string;
     url: string;
@@ -133,8 +133,9 @@ export const mediaService = {
     },
 
     async addMetadataToMedia(mediaId: string, metadata: MediaMetadata): Promise<MediaItem> {
-        const response = await mediaApi.post(`/api/media/${mediaId}/metadata`, metadata);
-        return response.data;
+        const config = await getTokenHeader();
+        const response = await mediaApi.post(`/api/media/${mediaId}/metadata`, metadata, config);
+        return response.data; 
     },
 
     async getTripsLocations(tripId: string): Promise<TripWithMedia> {
@@ -192,13 +193,19 @@ export const mediaService = {
         const config = await getTokenHeader();
         const response = await mediaApi.get(`/api/trips/user/${userId}`, config);
         return response.data;
-      },
+    },
+
+    async getMediaById(mediaId: string): Promise<MediaItem> {
+        const config = await getTokenHeader();
+        const response = await mediaApi.get(`/api/media/id/${mediaId}`, config);
+        return response.data;
+    },
 
     async getFollowingTrips(): Promise<TripWithMedia[]> {
         const config = await getTokenHeader();
         const response = await mediaApi.get('/api/trips/following', config);
         return response.data;
-      },
+    },
 
     async uploadTripMedia(tripId: string, file: FormData): Promise<TripMedia> {
         const response = await mediaApi.post(`/api/media/trip/${tripId}`, file, {

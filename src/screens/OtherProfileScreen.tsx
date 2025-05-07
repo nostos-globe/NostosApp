@@ -140,7 +140,8 @@ const OtherProfileScreen = () => {
         <TouchableOpacity 
           style={styles.backButton}
           onPress={() => navigation.goBack()}
-        >          <Text style={styles.backButtonText}>←</Text>
+        >
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
 
         <ImageBackground 
@@ -203,7 +204,7 @@ const OtherProfileScreen = () => {
                   key={trip.trip.TripID} 
                   style={styles.gridItem}
                   onPress={() => {
-                    navigation.navigate('PhotoView', {
+                    navigation.navigate('ExplorePhotoView', {
                       imageUrl: trip.media?.[0]?.url,
                       tripMedia: trip.media || [],
                       initialIndex: 0,
