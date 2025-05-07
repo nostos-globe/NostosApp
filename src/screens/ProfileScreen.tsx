@@ -327,7 +327,7 @@ const ProfileScreen = () => {
               key={trip.trip.TripID} 
               style={styles.gridItem}
               onPress={() => {
-                navigation.navigate('PhotoView', {
+                navigation.navigate('ExplorePhotoView', {
                   imageUrl: trip.media?.[0]?.url,
                   tripMedia: trip.media || [],
                   initialIndex: 0,
