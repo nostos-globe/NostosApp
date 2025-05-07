@@ -108,111 +108,188 @@ const Globe3DView = () => {
     // If no markers, show a message in the WebView
     if (markers.length === 0) {
       return `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <!-- ... existing head content ... -->
-      </head>
-      <body>
-        <div id="globe"></div>
-        <script>
-          // Debug logging function
-          const log = (message, data) => {
-            console.log(message, data);
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-              type: 'debug',
-              message: message,
-              data: data
-            }));
-          };
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+            <style>
+              body {
+                margin: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                font-family: Arial, sans-serif;
+                background-color: #f0f0f0;
+                color: #666;
+                text-align: center;
+                padding: 20px;
+              }
+            </style>
+          </head>
+          <body>
+            <div>
+              <h2>No trips or media available</h2>
+              <p>This globe doesn't have any trips with location data yet.</p>
+            </div>
+          </body>
+        </html>
+      `;
+    }
 
-          try {
-            const markers = ${JSON.stringify(markers)};
-            log('Initializing globe with markers:', markers);
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+          <style>
+            body { margin: 0; overflow: hidden; }
+            #globe { width: 100vw; height: 100vh; }
+            .marker-label {
+              padding: 6px 8px;
+              border-radius: 10px;
+              background: rgba(0,0,0,0.7);
+              color: white;
+              font-size: 14px;
+              text-align: center;
+              margin-top: 5px;
+              white-space: nowrap;
+            }
+            .marker-img {
+              width: 30px;
+              height: 40px;
+              border-radius: 12px;
+              border: 3px solid white;
+              box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+              object-fit: cover;
+              transition: transform 0.2s ease;
+              cursor: pointer;
+            }
+            .marker-container {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              transform: translate(-50%, -50%);
+              z-index: 1000; /* Added z-index to ensure markers are clickable */
+              pointer-events: all; /* Ensure click events are captured */
+            }
+            .marker-container:hover .marker-img {
+              transform: scale(1.1);
+            }
+          </style>
+          <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.26.3/dist/globe.gl.min.js"></script>
+        </head>
+        <body>
+          <div id="globe"></div>
+          <script>
+            // Debug logging function.
+            const log = (message, data) => {
+              console.log(message, data);
+              window.ReactNativeWebView.postMessage(JSON.stringify({
+                type: 'debug',
+                message: message,
+                data: data
+              }));
+            };
 
-            // Calculate center of all markers
-            const center = markers.reduce((acc, marker) => {
-              return {
-                lat: acc.lat + (marker.lat || 0),
-                lng: acc.lng + (marker.lng || 0),
-                count: acc.count + 1
-              };
-            }, { lat: 0, lng: 0, count: 0 });
+            try {
+              const markers = ${JSON.stringify(markers)};
+              log('Initializing globe with markers:', markers);
 
-            const centerLat = markers.length > 0 ? center.lat / center.count : 30;
-            const centerLng = markers.length > 0 ? center.lng / center.count : 0;
+              // Group markers by location
+              const markerGroups = {};
+              markers.forEach(marker => {
+                const key = \`\${marker.lat},\${marker.lng}\`;
+                if (!markerGroups[key]) markerGroups[key] = [];
+                markerGroups[key].push(marker);
+              });
 
-            // Initialize globe with proper dimensions
-            const globe = Globe()
-              .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-              .backgroundColor('#f0f0f0')
-              .htmlElementsData(markers)
-              .htmlElement(d => {
-                const el = document.createElement('div');
-                el.className = 'marker-container';
+              let currentZoom = 2.5;
+              
+              const globe = Globe()
+                .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+                .backgroundColor('#f0f0f0')
+                .htmlElementsData(markers)
+                .htmlElement(d => {
+                  const el = document.createElement('div');
+                  el.className = 'marker-container';
+                  
+                  const img = document.createElement('img');
+                  img.className = 'marker-img';
+                  img.src = d.imageUrl;
+                  
+                  img.addEventListener('click', () => {
+                    window.ReactNativeWebView.postMessage(JSON.stringify({
+                      type: 'markerClick',
+                      tripId: d.tripId,
+                      mediaId: d.mediaId,
+                      lat: d.lat,
+                      lng: d.lng
+                    }));
+                  });
+                  
+                  el.appendChild(img);
+                  return el;
+                })
+                .htmlAltitude(0.02)
+                .htmlTransitionDuration(1000);
+
+              const globeInstance = globe(document.getElementById('globe'));
+              
+              // Handle zoom changes
+              globeInstance.controls().addEventListener('change', () => {
+                const newZoom = globeInstance.camera().position.z;
+                if (Math.abs(newZoom - currentZoom) > 50) {
+                  currentZoom = newZoom;
+                  updateMarkerPositions(newZoom);
+                }
+              });
+
+              function updateMarkerPositions(zoom) {
+                const spreadFactor = Math.max(0.01, 1 - zoom / 1000);
                 
-                const img = document.createElement('img');
-                img.className = 'marker-img';
-                img.src = d.imageUrl;
-                
-                img.addEventListener('click', () => {
-                  window.ReactNativeWebView.postMessage(JSON.stringify({
-                    type: 'markerClick',
-                    tripId: d.tripId,
-                    mediaId: d.mediaId,
-                    lat: d.lat,
-                    lng: d.lng
-                  }));
+                const updatedMarkers = markers.map(marker => {
+                  const group = markerGroups[\`\${marker.lat},\${marker.lng}\`];
+                  if (group.length <= 1) return marker;
+
+                  const idx = group.indexOf(marker);
+                  const angle = (2 * Math.PI * idx) / group.length;
+                  
+                  return {
+                    ...marker,
+                    lat: marker.lat + Math.cos(angle) * spreadFactor,
+                    lng: marker.lng + Math.sin(angle) * spreadFactor
+                  };
                 });
-                
-                el.appendChild(img);
-                return el;
-              })
-              .htmlAltitude(0.02)
-              .htmlTransitionDuration(1000)
-              .width(window.innerWidth)
-              .height(window.innerHeight);
 
-            // Set initial viewpoint to center of markers or default
-            globe.pointOfView(
-              { 
-                lat: centerLat, 
-                lng: centerLng, 
-                altitude: markers.length > 1 ? 1.5 : 2.2 
-              }, 
-              0
-            );
+                globeInstance.htmlElementsData(updatedMarkers);
+              }
 
-            // Configure controls
-            globe.controls().enableZoom = true;
-            globe.controls().autoRotate = true;
-            globe.controls().autoRotateSpeed = 0.3;
-            globe.controls().enableDamping = true;
-            globe.controls().dampingFactor = 0.2;
-            globe.controls().minDistance = 200;
-            globe.controls().maxDistance = 1000;
+              // Initial setup
+              globeInstance.pointOfView({ lat: 30, lng: 0, altitude: 2.2 });
+              globeInstance.controls().enableZoom = true;
+              globeInstance.controls().autoRotate = true;
+              globeInstance.controls().autoRotateSpeed = 0.3;
+              globeInstance.controls().enableDamping = true;
+              globeInstance.controls().dampingFactor = 0.2;
+              
+              // Initial marker positions
+              updateMarkerPositions(currentZoom);
+              
+              setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
 
-            // Handle window resize
-            window.addEventListener('resize', () => {
-              globe.width(window.innerWidth).height(window.innerHeight);
-            });
-
-            // Render globe
-            const globeInstance = globe(document.getElementById('globe'));
-
-            // ... rest of your existing globe initialization code ...
-
-          } catch (error) {
-            console.error('Globe initialization error:', error);
-            window.ReactNativeWebView.postMessage(JSON.stringify({ 
-              type: 'error', 
-              message: error.message 
-            }));
-          }
-        </script>
-      </body>
-    </html>
-  `;
+            } catch (error) {
+              console.error('Globe initialization error:', error);
+              window.ReactNativeWebView.postMessage(JSON.stringify({ 
+                type: 'error', 
+                message: error.message 
+              }));
+            }
+          </script>
+        </body>
+      </html>
+    `;
   };
   const [isListView, setIsListView] = useState(false);
   // Update the handleMessage function to use the fetched trips
