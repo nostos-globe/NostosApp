@@ -84,15 +84,12 @@ Project Structure
 ```bash
 NostosApp/
 ├── src/
+│   ├── config/      # Configuration files
 │   ├── screens/
 │   │   ├── LoginScreen.tsx
 │   │   ├── SignupScreen.tsx
-│   │   ├── HomeScreen.tsx
-│   │   ├── ExploreScreen.tsx
-│   │   ├── PhotoViewScreen.tsx
-│   │   └── ProfileScreen.tsx
-│   └── [other source directories]
-├── android/
-├── ios/
-└── __tests__/
+│   │   └── Other Screens...
+│   ├── services/    # API and business logic
+│   └── utils/       # Utility functions
+
 ```
