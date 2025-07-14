@@ -35,6 +35,8 @@ const HomeScreen = () => {
   const [tripLikes, setTripLikes] = useState<{[key: string]: number}>({});
   const [likedTrips, setLikedTrips] = useState<{[key: string]: boolean}>({});
   const [refreshing, setRefreshing] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
   const [likeProfiles, setLikeProfiles] = useState<{[key: string]: {
       UserID: number,
       ProfilePicture: string,
@@ -275,25 +277,37 @@ const HomeScreen = () => {
                       </View>
                     </View>
                     <View style={styles.locationBottom}>
-                      <TouchableOpacity 
-                        style={styles.likeButton}
-                        onPress={() => handleLikeToggle(post.trip.TripID.toString())}
-                      >
-                        <View style={styles.likeContainer}>
-                          <Image 
-                            source={
-                              likedTrips[post.trip.TripID.toString()]
-                              ? require('../assets/filledLike_icon.png')
-                              : require('../assets/like_icon.png')
-                            } 
-                            style={styles.iconItem}
-                          />
-                          <CustomTextRegular style={styles.likeCount}>
-                            {tripLikes[post.trip.TripID.toString()] || 0}
-                          </CustomTextRegular>
-                        </View>
-                      </TouchableOpacity>
-                      
+                      <View style={styles.rowContainer}>
+                        <TouchableOpacity
+                          style={styles.likeButton}
+                          onPress={() => handleLikeToggle(post.trip.TripID.toString())}
+                        >
+                          <View style={styles.likeContainer}>
+                            <Image
+                              source={
+                                likedTrips[post.trip.TripID.toString()]
+                                  ? require('../assets/filledLike_icon.png')
+                                  : require('../assets/like_icon.png')
+                              }
+                              style={styles.iconItem}
+                            />
+                            <CustomTextRegular style={styles.likeCount}>
+                              {tripLikes[post.trip.TripID.toString()] || 0}
+                            </CustomTextRegular>
+                          </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => setExpanded(prev => !prev)}>
+                            <CustomTextRegular
+                              style={styles.descriptionText}
+                              numberOfLines={expanded ? undefined : 2}
+                              ellipsizeMode="tail"
+                            >
+                              {post.trip.description}
+                            </CustomTextRegular>
+                        </TouchableOpacity>
+                      </View>
+
                       {/* Display users who liked the post */}
                       {likeProfiles[post.trip.TripID.toString()] && 
                        likeProfiles[post.trip.TripID.toString()].length > 0 && (
@@ -594,6 +608,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
+  descriptionText: {
+    fontSize: 12,
+    float:'right',
+    marginRight: 50,
+    color: '#333',
+  },
   likeProfilesContainer: {
     marginTop: 5,
   },
@@ -627,9 +647,11 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#333',
   },
-  clickableText: {
-
-  },
+    rowContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8
+    },
 
 });
 
