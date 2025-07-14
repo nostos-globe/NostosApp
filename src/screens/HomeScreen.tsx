@@ -20,6 +20,8 @@ import { globesService, Globe } from '../services/globesService';
 import { likesService } from '../services/likesService';
 import NavigationBar from '../components/NavigationBar';
 import { authService } from '../services/authService';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -176,7 +178,7 @@ const HomeScreen = () => {
         }
       >
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Your Globes</Text>
+          <CustomTextRegular style={styles.headerTitle}>Your Globes</CustomTextRegular>
         {/* <TouchableOpacity>
           <Image 
             source={require('../assets/notifications_icon.png')}
@@ -199,9 +201,9 @@ const HomeScreen = () => {
             <View style={styles.createGlobePlaceholder}>
               <View style={styles.createGlobeContent}>
                 <View style={styles.createGlobeIconWrapper}>
-                  <Text style={styles.createGlobeIcon}>+</Text>
+                  <CustomTextRegular style={styles.createGlobeIcon}>+</CustomTextRegular>
                 </View>
-                <Text style={styles.createGlobeText}>Create a new Globe</Text>
+                <CustomTextRegular style={styles.createGlobeText}>Create a new Globe</CustomTextRegular>
               </View>
             </View>
           </TouchableOpacity>
@@ -218,11 +220,14 @@ const HomeScreen = () => {
                 <View style={[styles.globePlaceholder, { backgroundColor: getRandomColor() }]}>
                   <View style={styles.globeContent}>
                     <View style={styles.globeIconWrapper}>
-                      <Text style={styles.globeIcon}>🌍</Text>
+                        <Image
+                            source={require('../assets/globeview.png')}
+                            style={styles.globeIcon}
+                        />
                     </View>
                     <View style={styles.globeTextContainer}>
-                      <Text style={styles.globeText}>{globe.name}</Text>
-                      <Text style={styles.completionText}>{globe.visibility}</Text>
+                      <CustomTextRegular style={styles.globeText}>{globe.name}</CustomTextRegular>
+                      <CustomTextRegular style={styles.completionText}>{globe.visibility}</CustomTextRegular>
                     </View>
                   </View>
                 </View>
@@ -266,7 +271,7 @@ const HomeScreen = () => {
                         />
                       </TouchableOpacity>
                       <View style={styles.locationContainer}>
-                        <Text style={styles.location}>{post.trip.name}</Text>
+                        <CustomTextRegular style={styles.location}>{post.trip.name}</CustomTextRegular>
                       </View>
                     </View>
                     <View style={styles.locationBottom}>
@@ -283,9 +288,9 @@ const HomeScreen = () => {
                             } 
                             style={styles.iconItem}
                           />
-                          <Text style={styles.likeCount}>
+                          <CustomTextRegular style={styles.likeCount}>
                             {tripLikes[post.trip.TripID.toString()] || 0}
-                          </Text>
+                          </CustomTextRegular>
                         </View>
                       </TouchableOpacity>
                       
@@ -315,9 +320,9 @@ const HomeScreen = () => {
                                   key={`${post.trip.TripID}-more-indicator`}
                                   style={styles.moreProfilesIndicator}
                                 >
-                                  <Text style={styles.moreProfilesText}>
+                                  <CustomTextRegular style={styles.moreProfilesText}>
                                     +{likeProfiles[post.trip.TripID.toString()].length - 5}
-                                  </Text>
+                                  </CustomTextRegular>
                                 </View>
                               )}
                             </ScrollView>
@@ -332,11 +337,24 @@ const HomeScreen = () => {
                                 }))
                               })}
                             >
-                              <Text style={[styles.likedByText, styles.clickableText]}>
-                                {likeProfiles[post.trip.TripID.toString()].length > 1 ? 
-                                  `${likeProfiles[post.trip.TripID.toString()][0].username} and ${likeProfiles[post.trip.TripID.toString()].length} others liked this post` : 
-                                  `${likeProfiles[post.trip.TripID.toString()][0].username} liked this post`}
-                              </Text>
+                              <CustomTextRegular style={styles.likedByText}>
+                                {likeProfiles[post.trip.TripID.toString()].length > 1 ? (
+                                  <>
+                                    <CustomTextBold style={styles.clickableText}>
+                                      {likeProfiles[post.trip.TripID.toString()][0].username}
+                                    </CustomTextBold>
+                                    {` and ${likeProfiles[post.trip.TripID.toString()].length} others liked this post`}
+                                  </>
+                                ) : (
+                                  <>
+                                    <CustomTextBold style={styles.clickableText}>
+                                      {likeProfiles[post.trip.TripID.toString()][0].username}
+                                    </CustomTextBold>
+                                    {` liked this post`}
+                                  </>
+                                )}
+                              </CustomTextRegular>
+
                             </TouchableOpacity>
                           </View>
                         </View>
@@ -361,13 +379,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+
   },
   notificationIcon: {
     fontSize: 24,
@@ -412,7 +430,6 @@ const styles = StyleSheet.create({
   createGlobeText: {
     fontSize: 14,
     color: '#000',
-    fontWeight: '600',
     textAlign: 'center',
   },
   globePlaceholder: {
@@ -431,20 +448,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   globeIcon: {
-    fontSize: 90,
+    width: 100,
+    height: 100,
   },
   globeTextContainer: {
     gap: 4,
   },
   globeText: {
-    fontSize: 10,
+    fontSize: 12,
+    lineHeight: 12,
     color: '#000000',
-    fontWeight: '600',
   },
   completionText: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#000000',
-    opacity: 0.6,
+    opacity: 1,
   },
   locationHeader: {
     position: 'absolute',
@@ -472,7 +490,6 @@ const styles = StyleSheet.create({
   },
   location: {
     fontSize: 12,
-    fontWeight: '600',
     color: '#000000',
     textAlign: 'center',
   },
@@ -508,7 +525,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    marginTop: 30,
+    marginBottom: -10,
   },
   content: {
     flex: 1,
@@ -561,7 +579,6 @@ const styles = StyleSheet.create({
   likeCount: {
     fontSize: 14,
     color: '#333',
-    fontWeight: '500',
   },
   likeProfilesContainer: {
     marginTop: 5,
@@ -582,7 +599,6 @@ const styles = StyleSheet.create({
   likedByText: {
     fontSize: 12,
     color: '#333',
-    fontWeight: '500',
     marginLeft: 10,
   },
   moreProfilesIndicator: {
@@ -596,7 +612,6 @@ const styles = StyleSheet.create({
   moreProfilesText: {
     fontSize: 10,
     color: '#333',
-    fontWeight: 'bold',
   },
   clickableText: {
 

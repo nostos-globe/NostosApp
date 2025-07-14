@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Trip, TripMedia } from '../services/mediaService';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 interface MediaIconBarProps {
   tripMedia: TripMedia[];
@@ -70,11 +72,11 @@ const MediaIconBar = ({
         return (
           <>
             <TouchableOpacity onPress={onVisibilityChange}>
-              <Text style={styles.iconText}>
+              <CustomTextRegular style={styles.iconText}>
                 {tripMedia && tripMedia.length > 0 && currentIndex < tripMedia.length
                   ? getVisibilityIcon(tripMedia[currentIndex].mediaId.toString())
                   : '🔒'}
-              </Text>
+              </CustomTextRegular>
             </TouchableOpacity>
             <TouchableOpacity onPress={onFavoriteToggle}>
               <Image 

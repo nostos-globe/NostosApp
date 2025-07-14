@@ -52,7 +52,7 @@ const FollowListScreen = () => {
           {type === 'followers' 
             ? 'Followers' 
             : type === 'following' 
-              ? 'Following' 
+              ? 'Following'
               : 'Likes'}
         </Text>
         <View style={styles.placeholder} />

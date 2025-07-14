@@ -20,6 +20,8 @@ import NavigationBar from '../components/NavigationBar';
 import MediaIconBar from '../components/MediaIconBar';
 import { likesService } from '../services/likesService';
 import WebView from 'react-native-webview';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -228,9 +230,9 @@ const PhotoExploreScreen = () => {  // Changed component name to match file name
     <SafeAreaView style={styles.container}>
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>←</Text>
+          <CustomTextRegular style={styles.backButton}>←</CustomTextRegular>
         </TouchableOpacity>
-        <Text style={styles.title}>{trip?.name || "Personal Globe"}</Text>
+        <CustomTextRegular style={styles.title}>{trip?.name || "Personal Globe"}</CustomTextRegular>
       </View>
       
         <MediaIconBar
@@ -273,13 +275,13 @@ const PhotoExploreScreen = () => {  // Changed component name to match file name
         } } screenType={'explore'}        />
 
       <View style={styles.dateContainer}>
-        <Text style={styles.dateText}>
+        <CustomTextRegular style={styles.dateText}>
           {trip?.start_date ? new Date(trip.start_date).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'long',
             year: 'numeric'
           }) : "10 March 2024"}
-        </Text>
+        </CustomTextRegular>
       </View>
 
       <ScrollView 
@@ -333,7 +335,7 @@ const PhotoExploreScreen = () => {  // Changed component name to match file name
               style={styles.closeMapButton}
               onPress={() => setShowMap(false)}
             >
-              <Text style={styles.closeButtonText}>×</Text>
+              <CustomTextRegular style={styles.closeButtonText}>×</CustomTextRegular>
             </TouchableOpacity>
           </View>
           <WebView
@@ -384,17 +386,15 @@ const styles = StyleSheet.create({
   backButton: {
     color: '#000',
     fontSize: 22,
-    fontWeight: 'bold',
   },
   title: {
     color: '#000',
     fontSize: 16,
-    fontWeight: '500',
+    lineHeight:35,
   },
   addButton2: {
     color: '#000',
     fontSize: 22,
-    fontWeight: 'bold',
     width: 34,
     height: 34,
     backgroundColor: 'rgb(255, 255, 255)',
@@ -405,7 +405,6 @@ const styles = StyleSheet.create({
   addButton: {
     color: '#000',
     fontSize: 22,
-    fontWeight: 'bold',
     width: 50,
     height: 50,
     backgroundColor: '#8BB8E8',
@@ -447,7 +446,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 9,
     fontSize: 14,
-    fontWeight: '500',
     overflow: 'hidden',
   },
   thumbnailContainer: {
@@ -511,7 +509,6 @@ const styles = StyleSheet.create({
   },
   mapTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
     color: 'black',
     textAlign: 'center',
     paddingVertical: 10,
@@ -536,7 +533,6 @@ const styles = StyleSheet.create({
   closeButtonText: {
     fontSize: 20,
     color: '#000',
-    fontWeight: 'bold',
   },
   mapButtons: {
     flexDirection: 'row',

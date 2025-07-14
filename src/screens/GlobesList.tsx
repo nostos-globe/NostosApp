@@ -14,6 +14,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { globesService, Globe } from '../services/globesService';
 import NavigationBar from '../components/NavigationBar';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -41,7 +43,7 @@ const GlobesList = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Globes</Text>
+        <CustomTextBold style={styles.headerTitle}>My Globes</CustomTextBold>
       </View>
 
       {loading ? (
@@ -57,10 +59,13 @@ const GlobesList = () => {
               >
                 <View style={[styles.globePlaceholder, { backgroundColor: getRandomColor() }]}>
                   <View style={styles.globeContent}>
-                    <Text style={styles.globeEmoji}>🌍</Text>
+                    <Image
+                        source={require('../assets/globeview.png')}
+                        style={styles.globeIcon}
+                    />
                     <View style={styles.globeInfo}>
-                      <Text style={styles.globeName}>{globe.name}</Text>
-                      <Text style={styles.globeVisibility}>{globe.visibility}</Text>
+                      <CustomTextRegular style={styles.globeName}>{globe.name}</CustomTextRegular>
+                      <CustomTextRegular style={styles.globeVisibility}>{globe.visibility}</CustomTextRegular>
                     </View>
                   </View>
                 </View>
@@ -82,16 +87,13 @@ const styles = StyleSheet.create({
     paddingBottom: 70,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    textAlign:'center',
   },
   createButton: {
     width: 40,
@@ -104,7 +106,6 @@ const styles = StyleSheet.create({
   createButtonText: {
     color: '#fff',
     fontSize: 24,
-    fontWeight: 'bold',
   },
   content: {
     flex: 1,
@@ -137,17 +138,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  globeEmoji: {
-    fontSize: 50,
-    textAlign: 'center',
-    marginTop: 20,
+  globeIcon: {
+    alignItems:'center',
+    width:140,
+    height:140
   },
   globeInfo: {
     marginTop: 'auto',
   },
   globeName: {
     fontSize: 16,
-    fontWeight: '600',
     color: '#000',
     marginBottom: 4,
   },

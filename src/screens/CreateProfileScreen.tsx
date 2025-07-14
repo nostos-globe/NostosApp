@@ -13,7 +13,9 @@ import { profileService } from '../services/profileService';
 import { launchImageLibrary } from 'react-native-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Modal, TouchableWithoutFeedback, Image } from 'react-native';
-import { ScrollView } from 'react-native'; // Add this import
+import { ScrollView } from 'react-native';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 const CreateProfileScreen = () => {
   const navigation = useNavigation();
@@ -90,10 +92,10 @@ const CreateProfileScreen = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
-          <Text style={styles.title}>Create Your Profile</Text>
-          <Text style={styles.subtitle}>
+          <CustomTextBold style={styles.title}>Create Your Profile</CustomTextBold>
+          <CustomTextRegular style={styles.subtitle}>
             Tell us a little about yourself
-          </Text>
+          </CustomTextRegular>
   
           {/* Move profile picture selector to top */}
           <TouchableOpacity onPress={handleImageUpload} style={styles.avatarContainer}>
@@ -101,7 +103,7 @@ const CreateProfileScreen = () => {
               <Image source={{ uri: profilePicture }} style={styles.avatar} />
             ) : (
               <View style={styles.avatarPlaceholder}>
-                <Text style={styles.avatarPlaceholderText}>+</Text>
+                <CustomTextBold style={styles.avatarPlaceholderText}>+</CustomTextBold>
               </View>
             )}
           </TouchableOpacity>
@@ -109,6 +111,7 @@ const CreateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Choose a username"
+            placeholderTextColor="#B3B3B3"
             value={username}
             onChangeText={setUsername}
             autoCapitalize="none"
@@ -117,6 +120,7 @@ const CreateProfileScreen = () => {
           <TextInput
             style={[styles.input, styles.bioInput]}
             placeholder="Write something about yourself..."
+            placeholderTextColor="#B3B3B3"
             value={bio}
             onChangeText={setBio}
             multiline
@@ -126,6 +130,7 @@ const CreateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Location"
+            placeholderTextColor="#B3B3B3"
             value={location}
             onChangeText={setLocation}
           />
@@ -133,6 +138,7 @@ const CreateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Website URL"
+            placeholderTextColor="#B3B3B3"
             value={website}
             onChangeText={setWebsite}
             keyboardType="url"
@@ -142,7 +148,7 @@ const CreateProfileScreen = () => {
       style={styles.input} 
       onPress={() => setShowDatePicker(true)}
     >
-      <Text style={!birthdate ? styles.placeholderText : styles.selectedText} >{birthdate || 'Select Birthdate'}</Text>
+      <CustomTextRegular style={!birthdate ? styles.placeholderText : styles.selectedText} >{birthdate || 'Select Birthdate'}</CustomTextRegular>
     </TouchableOpacity>
     {showDatePicker && (
       <DateTimePicker
@@ -165,7 +171,7 @@ const CreateProfileScreen = () => {
       style={styles.input} 
       onPress={() => setShowLanguageModal(true)}
     >
-      <Text style={language === 'en' ? styles.placeholderText : styles.selectedText}>{language || 'Select Language'}</Text>
+      <CustomTextRegular style={language === 'en' ? styles.placeholderText : styles.selectedText}>{language || 'Select Language'}</CustomTextRegular>
     </TouchableOpacity>
   
   <Modal
@@ -186,7 +192,7 @@ const CreateProfileScreen = () => {
                 setShowLanguageModal(false);
               }}
             >
-              <Text>{lang}</Text>
+              <CustomTextRegular>{lang}</CustomTextRegular>
             </TouchableOpacity>
           ))}
         </View>
@@ -199,9 +205,9 @@ const CreateProfileScreen = () => {
             onPress={handleCreateProfile}
             disabled={isLoading}
           >
-            <Text style={styles.buttonText}>
+            <CustomTextBold style={styles.buttonText}>
               {isLoading ? 'Creating Profile...' : 'Continue'}
-            </Text>
+            </CustomTextBold>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -227,18 +233,18 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#8BB8E8',
+    color: '#A7C7E7',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#000',
     textAlign: 'center',
     marginBottom: 30,
   },
   input: {
     width: '100%',
+    fontFamily:'OutfitRegular',
     height: 50,
     borderWidth: 1,
     borderColor: '#ddd',
@@ -267,7 +273,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
   },
   previewImage: {
     width: 50,

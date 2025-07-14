@@ -11,6 +11,8 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { authService } from '../services/authService';
 import { Alert } from 'react-native';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 const SignupScreen = () => {
     const navigation = useNavigation();
@@ -53,25 +55,27 @@ const SignupScreen = () => {
           source={require('../assets/nostos_logo.png')}
           style={styles.logoItem}
         />
-        <Text style={styles.title}>Let's Get Started</Text>
-        <Text style={styles.subtitle}>
+        <CustomTextBold style={styles.title}>Let's Get Started</CustomTextBold>
+        <CustomTextRegular style={styles.subtitle}>
           Start your journey with Nostos and share all your trip moments with the world
-        </Text>
+        </CustomTextRegular>
 
-        <Text style={styles.inputText}>Your email address</Text>
+        <CustomTextRegular style={styles.inputText}>Your email address</CustomTextRegular>
         <TextInput
           style={styles.input}
           placeholder="example@gmail.com"
+          placeholderTextColor="#B3B3B3"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
         />
 
-        <Text style={styles.inputText}>Choose a password</Text>
+        <CustomTextRegular style={styles.inputText}>Choose a password</CustomTextRegular>
         <TextInput
           style={styles.input}
           placeholder="8 characters min."
+          placeholderTextColor="#B3B3B3"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -88,13 +92,13 @@ const SignupScreen = () => {
       */}
 
         <TouchableOpacity style={styles.signUpButton} onPress={handleSignup}>
-          <Text style={styles.signUpText}>Sign Up</Text>
+          <CustomTextBold style={styles.signUpText}>Sign Up</CustomTextBold>
         </TouchableOpacity>
 
         <View style={styles.loginContainer}>
-          <Text style={styles.loginText}>Do you have an account? </Text>
+          <CustomTextRegular style={styles.loginText}>Do you have an account? </CustomTextRegular>
           <TouchableOpacity onPress={() => navigation.navigate('Login' as never)}>
-            <Text style={styles.loginLink}>Log In</Text>
+            <CustomTextBold style={styles.loginLink}>Log In</CustomTextBold>
           </TouchableOpacity>
         </View>
       </View>
@@ -114,20 +118,20 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 30,
-    fontWeight: 'bold',
-    color: '#8BB8E8',
+    color: '#A7C7E7',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
+    color: '#000',
     marginBottom: 30,
   },
   input: {
     width: '100%',
     height: 50,
+    fontFamily:'OutfitRegular',
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#8E8E8E',
     borderRadius: 8,
     paddingHorizontal: 15,
     marginBottom: 15,

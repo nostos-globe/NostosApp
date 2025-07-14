@@ -14,6 +14,8 @@ import { useRoute } from '@react-navigation/native';
 import NavigationBar from '../components/NavigationBar';
 import ProfileCategories from '../components/ProfileCategories';
 import { Globe, globesService } from '../services/globesService';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -153,7 +155,7 @@ const OtherProfileScreen = () => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <CustomTextBold style={styles.backButtonText}>←</CustomTextBold>
         </TouchableOpacity>
 
         <ImageBackground 
@@ -166,27 +168,27 @@ const OtherProfileScreen = () => {
         source={{ uri: profile?.ProfilePicture || undefined }}
         style={styles.avatarPlaceholder}
       />
-      <Text style={styles.username}>{profile?.Username || 'Loading...'}</Text>
-      <Text style={styles.bio}>{profile?.Bio || 'No bio available'}</Text>
+      <CustomTextBold style={styles.username}>{profile?.Username || 'Loading...'}</CustomTextBold>
+      <CustomTextRegular style={styles.bio}>{profile?.Bio || 'No bio available'}</CustomTextRegular>
       
       <View style={styles.stats}>
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{trips?.length || 0}</Text>
-          <Text style={styles.statLabel}>Viajes Completados</Text>
+          <CustomTextRegular style={styles.statNumber}>{trips?.length || 0}</CustomTextRegular>
+          <CustomTextRegular style={styles.statLabel}>Viajes Completados</CustomTextRegular>
         </View>
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{followers.Follow.count}</Text>
-          <Text style={styles.statLabel}>Followers</Text>
+          <CustomTextRegular style={styles.statNumber}>{followers.Follow.count}</CustomTextRegular>
+          <CustomTextRegular style={styles.statLabel}>Followers</CustomTextRegular>
         </View>
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{following.Follow.count}</Text>
-          <Text style={styles.statLabel}>Following</Text>
+          <CustomTextRegular style={styles.statNumber}>{following.Follow.count}</CustomTextRegular>
+          <CustomTextRegular style={styles.statLabel}>Following</CustomTextRegular>
         </View>
       </View>
 
       <View style={styles.actionButtons}>
         <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>Compartir</Text>
+          <CustomTextRegular style={styles.actionButtonText}>Compartir</CustomTextRegular>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[
@@ -195,9 +197,9 @@ const OtherProfileScreen = () => {
           ]}
           onPress={handleFollowToggle}
         >
-          <Text style={styles.actionButtonText}>
+          <CustomTextRegular style={styles.actionButtonText}>
             {isFollowing ? 'Unfollow' : 'Follow'}
-          </Text>
+          </CustomTextRegular>
         </TouchableOpacity>
       </View>
       </View>
@@ -231,8 +233,8 @@ const OtherProfileScreen = () => {
                       resizeMode="cover"
                     />
                     <View style={styles.tripOverlay}>
-                      <Text style={styles.tripName} numberOfLines={1}>{trip.trip.name}</Text>
-                      <Text style={styles.mediaCount}>{trip.media?.length || 0} photos</Text>
+                      <CustomTextRegular style={styles.tripName} numberOfLines={1}>{trip.trip.name}</CustomTextRegular>
+                      <CustomTextRegular style={styles.mediaCount}>{trip.media?.length || 0} photos</CustomTextRegular>
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -263,14 +265,14 @@ const OtherProfileScreen = () => {
                   resizeMode="cover"
                 />
                 <View style={styles.tripOverlay}>
-                  <Text style={styles.tripName} numberOfLines={1}>{trip.trip.name}</Text>
-                  <Text style={styles.mediaCount}>{trip.media?.length || 0} photos</Text>
+                  <CustomTextRegular style={styles.tripName} numberOfLines={1}>{trip.trip.name}</CustomTextRegular>
+                  <CustomTextRegular style={styles.mediaCount}>{trip.media?.length || 0} photos</CustomTextRegular>
                 </View>
               </View>
             </TouchableOpacity>
           ))
         ) : (
-          <Text style={styles.emptyStateText}>No liked trips yet</Text>
+          <CustomTextRegular style={styles.emptyStateText}>No liked trips yet</CustomTextRegular>
         )}
       </View>
     )}
@@ -286,9 +288,12 @@ const OtherProfileScreen = () => {
           >
             <View style={[styles.globePlaceholder, { backgroundColor: getRandomColor() }]}>
               <View style={styles.globeContent}>
-                <Text style={styles.globeEmoji}>🌍</Text>
+                <Image
+                    source={require('../assets/globeview.png')}
+                    style={styles.globeIcon}
+                />
                 <View style={styles.globeInfo}>
-                  <Text style={styles.globeName}>{globe.name}</Text>
+                  <CustomTextRegular style={styles.globeName}>{globe.name}</CustomTextRegular>
                 </View>
               </View>
             </View>
@@ -296,7 +301,7 @@ const OtherProfileScreen = () => {
         ))
       ) : (
           <View style={styles.emptyStateText}>
-            <Text style={styles.emptyStateText}>No globes created yet</Text>
+            <CustomTextRegular style={styles.emptyStateText}>No globes created yet</CustomTextRegular>
           </View>
         )}
       </View>
@@ -306,7 +311,7 @@ const OtherProfileScreen = () => {
 
       {!shouldShowCategories && (
         <View style={styles.gridContainer}>
-          <Text style={styles.emptyStateText}>This profile is private</Text>
+          <CustomTextRegular style={styles.emptyStateText}>This profile is private</CustomTextRegular>
         </View>
       )}
 
@@ -374,7 +379,6 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 24,
-    fontWeight: 'bold',
     marginBottom: 4,
   },
   bio: {
@@ -393,7 +397,7 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: 20,
-    fontWeight: 'bold',
+
   },
   statLabel: {
     color: '#666',
@@ -413,7 +417,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     color: '#000',
-    fontWeight: '500',
+
   },
   tripCategories: {
     flexDirection: 'row',
@@ -486,11 +490,14 @@ const styles = StyleSheet.create({
   tripName: {
     color: '#000',
     fontSize: 11,
-    fontWeight: 'bold',
+    paddingLeft:5,
+    lineHeight:12,
   },
   mediaCount: {
     color: '#000',
     fontSize: 9,
+    paddingLeft:5,
+    lineHeight:12,
   },
   backButton: {
     position: 'absolute',
@@ -549,17 +556,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  globeEmoji: {
-    fontSize: 50,
-    textAlign: 'center',
-    marginTop: 20,
+  globeIcon: {
+    width:100,
+    height:100,
   },
   globeInfo: {
     marginTop: 'auto',
   },
   globeName: {
     fontSize: 12,
-    fontWeight: '600',
+
     color: '#000',
     marginBottom: 4,
   },

@@ -15,6 +15,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { authService } from '../services/authService';
 import { requestNotificationPermission } from '../utils/permissions';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -49,7 +51,7 @@ const SettingsScreen = () => {
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>{title}</Text>
+          <CustomTextBold style={styles.modalTitle}>{title}</CustomTextBold>
           {options.map((option) => (
             <TouchableOpacity
               key={option}
@@ -62,19 +64,19 @@ const SettingsScreen = () => {
                 setVisible(false);
               }}
             >
-              <Text style={[
+              <CustomTextRegular style={[
                 styles.modalOptionText,
                 selectedValue === option && styles.selectedOptionText
               ]}>
                 {option}
-              </Text>
+              </CustomTextRegular>
             </TouchableOpacity>
           ))}
           <TouchableOpacity
             style={styles.modalCloseButton}
             onPress={() => setVisible(false)}
           >
-            <Text style={styles.modalCloseText}>Cancel</Text>
+            <CustomTextRegular style={styles.modalCloseText}>Cancel</CustomTextRegular>
           </TouchableOpacity>
         </View>
       </View>
@@ -103,10 +105,10 @@ const SettingsScreen = () => {
   ) => (
     <TouchableOpacity style={styles.settingItem} onPress={onPress}>
       <View style={styles.settingContent}>
-        <Text style={styles.settingIcon}>{icon}</Text>
-        <Text style={styles.settingText}>{title}</Text>
+        <CustomTextRegular style={styles.settingIcon}>{icon}</CustomTextRegular>
+        <CustomTextRegular style={styles.settingText}>{title}</CustomTextRegular>
       </View>
-      {rightElement || (showArrow && <Text style={styles.arrowIcon}>→</Text>)}
+      {rightElement || (showArrow && <CustomTextRegular style={styles.arrowIcon}>→</CustomTextRegular>)}
     </TouchableOpacity>
   );
 
@@ -128,15 +130,18 @@ const SettingsScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← Back</Text>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <CustomTextBold style={styles.backButtonText}>←</CustomTextBold>
         </TouchableOpacity>
-        <Text style={styles.title}>Settings</Text>
+        <CustomTextBold style={styles.title}>Settings</CustomTextBold>
       </View>
 
       <ScrollView style={styles.content}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account</Text>
+          <CustomTextRegular style={styles.sectionTitle}>Account</CustomTextRegular>
           {renderSettingItem('🔐', 'Private Account', () => {}, false,
             <Switch
               value={privateAccount}
@@ -148,14 +153,14 @@ const SettingsScreen = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Preferences</Text>
+          <CustomTextRegular style={styles.sectionTitle}>Preferences</CustomTextRegular>
           {renderSettingItem('🌍', `Language (${selectedLanguage})`, () => setShowLanguageModal(true))}
           {renderSettingItem('🎨', `Theme (${selectedTheme})`, () => setShowThemeModal(true))}
           {renderSettingItem('🕐', `Time Format (${selectedTimeFormat})`, () => setShowTimeFormatModal(true))}
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Support</Text>
+          <CustomTextRegular style={styles.sectionTitle}>Support</CustomTextRegular>
           {renderSettingItem('❓', 'Help Center', () => {})}
           {renderSettingItem('📝', 'Terms of Service', () => {})}
           {renderSettingItem('🔏', 'Privacy Policy', () => {})}
@@ -166,8 +171,8 @@ const SettingsScreen = () => {
           onPress={handleLogout}
         >
           <View style={styles.settingContent}>
-            <Text style={styles.settingIcon}>🚪</Text>
-            <Text style={styles.logoutText}>Logout</Text>
+            <CustomTextRegular style={styles.settingIcon}>🚪</CustomTextRegular>
+            <CustomTextRegular style={styles.logoutText}>Logout</CustomTextRegular>
           </View>
         </TouchableOpacity>
       </ScrollView>
@@ -219,12 +224,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButton: {
-    fontSize: 16,
+    fontSize: 30,
     color: '#8BB8E8',
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
     marginLeft: 16,
   },
   content: {
@@ -235,7 +239,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
     color: '#666',
     marginLeft: 16,
     marginTop: 16,
@@ -285,7 +288,6 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -303,7 +305,6 @@ const styles = StyleSheet.create({
   },
   selectedOptionText: {
     color: '#8BB8E8',
-    fontWeight: 'bold',
   },
   modalCloseButton: {
     marginTop: 20,
@@ -313,7 +314,6 @@ const styles = StyleSheet.create({
   modalCloseText: {
     color: '#FF3B30',
     fontSize: 16,
-    fontWeight: '600',
   },
 });
 
