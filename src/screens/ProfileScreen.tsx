@@ -159,7 +159,10 @@ const ProfileScreen = () => {
         style={styles.settingsButton}
         onPress={() => navigation.navigate('Settings')}
       >
-        <CustomTextRegular>⚙️</CustomTextRegular>
+          <Image
+              source={require('../assets/settings_icon.png')}
+              style={styles.settingsIcon}
+          />
       </TouchableOpacity>
     </ImageBackground>
     
@@ -424,6 +427,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 16,
     right: 16,
+    backgroundColor:'#fff',
+    borderRadius:20,
     padding: 8,
   },
   profileContainer: {
@@ -471,11 +476,11 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     paddingHorizontal: 50,
-    paddingVertical: 7,
+    paddingVertical: 4,
     borderRadius: 9,
     borderWidth: 1,
-    borderColor: '#ddd',
-    marginHorizontal: 5,
+    borderColor: '#000000',
+    marginHorizontal: 10,
   },
   actionButtonText: {
     color: '#000',

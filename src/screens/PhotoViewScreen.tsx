@@ -514,8 +514,8 @@ const styles = StyleSheet.create({
   },
   photoContainer: {
     width: Dimensions.get('window').width,
-    marginTop: 140,
-    height: "66%",
+    marginTop: 130,
+    height: "70%",
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -305,9 +305,9 @@ const HomeScreen = () => {
                               style={styles.profilesScrollView}
                             >
                               {likeProfiles[post.trip.TripID.toString()].slice(0, 2).map((profile) => (
-                                <View 
+                                <View
                                   key={`${post.trip.TripID}-${profile.UserID}-container`}
-                                  style={{ marginRight: 5 }}
+                                  style={{ marginRight: 0, borderWidth:1,borderColor:'#fff',}}
                                 >
                                   <Image 
                                     source={{ uri: profile.ProfilePicture || 'https://via.placeholder.com/30' }}
@@ -471,20 +471,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 1)',
-    borderColor: '#ddd',
-    borderWidth: 1,
+    backgroundColor: 'transparent',
     padding: 5,
   },
   locationContainer: {
-    width: '100%',
-    flex: 1,
+    width: '26%',
+    borderRadius: 10,
+    marginRight:'2%',
+    padding: 2,
+    float:'right',
+    backgroundColor:'rgba(255, 255, 255, 0.7)',
   },
   locationBottom : {
     position: 'absolute',
     bottom: 0,
     left: 0,
     padding: 5,
+    borderBottomLeftRadius: 9,
+    borderBottomRightRadius: 9,
+    borderLeftWidth:.5,
+    borderBottomWidth:.5,
+    borderRightWidth:.5,
+    borderColor:"#000",
     width: '100%',
     backgroundColor: 'rgba(255, 255, 255, 1)',
   },
@@ -502,6 +510,8 @@ const styles = StyleSheet.create({
   },
   profilePic: {
     width: 35,
+    marginTop:'5%',
+    marginLeft:'5%',
     height: 35,
     borderRadius: 20,
   },
@@ -511,6 +521,9 @@ const styles = StyleSheet.create({
   postCard: {
     backgroundColor: '#fff',
     overflow: 'hidden',
+    borderRadius:9,
+    width:'90%'
+
   },
   postImage: {
     width: '100%',
@@ -521,7 +534,8 @@ const styles = StyleSheet.create({
 
   postsContainer: {
     paddingBottom: 80,
-    gap: 10, 
+    gap: 10,
+    alignItems: 'center'
   },
   headerTitle: {
     fontSize: 20,
@@ -591,15 +605,15 @@ const styles = StyleSheet.create({
     flexGrow: 0,
   },
   likeProfilePic: {
-    width: 20,
-    height: 20,
+    width: 15,
+    height: 15,
     borderRadius: 15,
-    
+
   },
   likedByText: {
     fontSize: 12,
+    marginLeft: 3,
     color: '#333',
-    marginLeft: 10,
   },
   moreProfilesIndicator: {
     width: 30,

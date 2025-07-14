@@ -142,7 +142,7 @@ const SettingsScreen = () => {
       <ScrollView style={styles.content}>
         <View style={styles.section}>
           <CustomTextRegular style={styles.sectionTitle}>Account</CustomTextRegular>
-          {renderSettingItem('🔐', 'Private Account', () => {}, false,
+          {renderSettingItem('', 'Private Account', () => {}, false,
             <Switch
               value={privateAccount}
               onValueChange={setPrivateAccount}
@@ -154,16 +154,16 @@ const SettingsScreen = () => {
 
         <View style={styles.section}>
           <CustomTextRegular style={styles.sectionTitle}>Preferences</CustomTextRegular>
-          {renderSettingItem('🌍', `Language (${selectedLanguage})`, () => setShowLanguageModal(true))}
-          {renderSettingItem('🎨', `Theme (${selectedTheme})`, () => setShowThemeModal(true))}
-          {renderSettingItem('🕐', `Time Format (${selectedTimeFormat})`, () => setShowTimeFormatModal(true))}
+          {renderSettingItem('', `Language (${selectedLanguage})`, () => setShowLanguageModal(true))}
+          {renderSettingItem('', `Theme (${selectedTheme})`, () => setShowThemeModal(true))}
+          {renderSettingItem('', `Time Format (${selectedTimeFormat})`, () => setShowTimeFormatModal(true))}
         </View>
 
         <View style={styles.section}>
           <CustomTextRegular style={styles.sectionTitle}>Support</CustomTextRegular>
-          {renderSettingItem('❓', 'Help Center', () => {})}
-          {renderSettingItem('📝', 'Terms of Service', () => {})}
-          {renderSettingItem('🔏', 'Privacy Policy', () => {})}
+          {renderSettingItem('', 'Help Center', () => {})}
+          {renderSettingItem('', 'Terms of Service', () => {})}
+          {renderSettingItem('', 'Privacy Policy', () => {})}
         </View>
 
         <TouchableOpacity 
@@ -171,7 +171,6 @@ const SettingsScreen = () => {
           onPress={handleLogout}
         >
           <View style={styles.settingContent}>
-            <CustomTextRegular style={styles.settingIcon}>🚪</CustomTextRegular>
             <CustomTextRegular style={styles.logoutText}>Logout</CustomTextRegular>
           </View>
         </TouchableOpacity>
