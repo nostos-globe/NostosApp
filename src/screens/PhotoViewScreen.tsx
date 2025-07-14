@@ -348,7 +348,7 @@ const PhotoViewScreen = () => {
         <CustomTextRegular style={styles.title}>{trip?.name || "Personal Globe"}</CustomTextRegular>
 
         <TouchableOpacity onPress={handleImageUpload}>
-          <CustomTextRegular style={styles.addButton2}>+</CustomTextRegular>
+          <Text style={styles.addButton2}>+</Text>
         </TouchableOpacity>
       </View>
       

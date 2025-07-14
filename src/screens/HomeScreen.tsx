@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 1)',
   },
   location: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#000000',
     textAlign: 'center',
   },
