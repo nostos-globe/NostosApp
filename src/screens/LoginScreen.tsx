@@ -13,6 +13,9 @@ import { authService } from '../services/authService';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AUTH_STORAGE } from '../config/variables';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
+
 
 const LoginScreen = () => {
     const navigation = useNavigation();
@@ -29,7 +32,6 @@ const LoginScreen = () => {
         setIsLoading(true);
         try {
             const response = await authService.login({ email, password });
-            console.log('Login successful:', response);
             
             // Store the token safely
             if (response.token) {
@@ -57,22 +59,24 @@ const LoginScreen = () => {
           source={require('../assets/nostos_logo.png')}
           style={styles.logoItem}
         />
-        <Text style={styles.title}>Log In</Text>
-        <Text style={styles.subtitle}>Nice to see you again!</Text>
-        <Text style={styles.inputText}>Email Address</Text>
+        <CustomTextBold style={styles.title}>Log In</CustomTextBold>
+        <CustomTextRegular style={styles.subtitle}>Nice to see you again !</CustomTextRegular>
+        <CustomTextRegular style={styles.inputText}>Email Address</CustomTextRegular>
         <TextInput
           style={styles.input}
           placeholder="example@gmail.com"
+          placeholderTextColor="#B3B3B3"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
         />
 
-        <Text style={styles.inputText}>Password</Text>
+        <CustomTextRegular style={styles.inputText}>Password</CustomTextRegular>
         <TextInput
           style={styles.input}
           placeholder="8 characters min."
+          placeholderTextColor="#B3B3B3"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -88,13 +92,13 @@ const LoginScreen = () => {
       */}
   
         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <Text style={styles.loginText}>Log In</Text>
+          <CustomTextBold style={styles.loginText}>Log In</CustomTextBold>
         </TouchableOpacity>
 
         <View style={styles.signUpContainer}>
-          <Text style={styles.signUpText}>Don't have an account? </Text>
+          <CustomTextRegular style={styles.signUpText}>Don't have an account? </CustomTextRegular>
           <TouchableOpacity onPress={() => navigation.navigate('Signup' as never)}>
-            <Text style={styles.signUpLink}>Sign Up</Text>
+            <CustomTextBold style={styles.signUpLink}>Sign Up</CustomTextBold>
           </TouchableOpacity>
         </View>
       </View>
@@ -103,93 +107,99 @@ const LoginScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: '#8BB8E8',
-    marginBottom: 10,
-    textAlign: 'left',
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'left',
-    marginBottom: 30,
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-  },
-  orText: {
-    color: '#666',
-    marginVertical: 20,
-  },
-  socialButtons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 30,
-  },
-  socialButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginHorizontal: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  logoItem: {
-    width: 215,
-    height: 180,
-    marginBottom: 20, 
-    justifyContent: 'center',
-    alignSelf: 'center', 
-  },
-  loginButton: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#8BB8E8',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  loginText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  signUpContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  signUpText: {
-    color: '#666',
-  },
-  signUpLink: {
-    color: '#000',
-    fontWeight: 'bold',
-  },
-  inputText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 2, 
-  }
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    content: {
+        flex: 1,
+        padding: 20,
+        justifyContent: 'center',
+    },
+    title: {
+        fontSize: 30,
+        color: '#A7C7E7',
+        marginBottom: 10,
+        lineHeight: 35,
+        textAlign: 'left',
+    },
+    subtitle: {
+        fontSize: 14,
+        color: '#000000',
+        textAlign: 'left',
+        lineHeight: 18,
+        marginBottom: 30,
+    },
+    inputText: {
+        fontSize: 14,
+        color: '#000000',
+        marginBottom: 2,
+    },
+    input: {
+        fontFamily:'OutfitRegular',
+        width: '100%',
+        height: 50,
+        borderWidth: 1,
+        borderColor: '#B3B3B3',
+        borderRadius: 8,
+        paddingHorizontal: 15,
+        marginBottom: 15,
+    },
+    orText: {
+        color: '#666',
+        marginVertical: 20,
+    },
+    socialButtons: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginBottom: 30,
+    },
+    socialButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        marginHorizontal: 10,
+        borderWidth: 1,
+        borderColor: '#ddd',
+    },
+    logoItem: {
+        width: 215,
+        height: 180,
+        marginBottom: 20,
+        justifyContent: 'center',
+        alignSelf: 'center',
+    },
+    loginButton: {
+        width: '100%',
+        height: 50,
+        backgroundColor: '#8BB8E8',
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 20,
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 6,
+    },
+    loginText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    signUpContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    signUpText: {
+        color: '#666',
+    },
+    signUpLink: {
+        color: '#000',
+    }
 });
 
 export default LoginScreen;

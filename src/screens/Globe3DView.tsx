@@ -8,6 +8,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { mediaService, Trip, TripMedia } from '../services/mediaService';
 import NavigationBar from '../components/NavigationBar';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -21,7 +23,7 @@ const Globe3DView = () => {
   const [showGlobesList, setShowGlobesList] = useState(false);
   const [userGlobes, setUserGlobes] = useState<Globe[]>([]);
   const [isLoadingGlobes, setIsLoadingGlobes] = useState(false);
-  const { globe } = route.params as { 
+  const { globe } = route.params as {
     globe: Globe,
   };
   // Fetch trips when component mounts
@@ -48,7 +50,6 @@ const Globe3DView = () => {
     try {
       setIsLoadingGlobes(true);
       const response = await globesService.getMyGlobes();
-      console.log('User globes:', response);
       setUserGlobes(response || []);  // Add fallback to empty array
       setIsLoadingGlobes(false);
     } catch (error) {
@@ -61,9 +62,6 @@ const Globe3DView = () => {
   const fetchTrips = async () => {
     try {
       const response = await globesService.getGlobeByIDWithTrips(globe.AlbumID.toString());
-      console.log('Full API Response:', JSON.stringify(response, null, 2));
-      console.log('Trips array:', response.trips);
-      console.log('First trip details:', response.trips?.[0]);
       setGlobeWithTrips(response);
       setIsLoading(false);
     } catch (error) {
@@ -75,17 +73,14 @@ const Globe3DView = () => {
 
   const fetchTripLocations = async (tripId: string) => {
     try {
-      console.log(`Fetching locations for trip ID: ${tripId}`);
       const response = await mediaService.getTripsLocations(tripId);
-      console.log(`Locations received for trip ${tripId}:`, response);
-      
+
       setTripLocations(prev => {
         const updated = {
           ...prev,
           [tripId]: response || []
         };
-        console.log('Updated trip locations state:', updated);
-        return updated as Record<string, string[]>;
+          return updated as Record<string, string[]>;
       });
     } catch (error) {
       console.error(`Error fetching trip locations for trip ${tripId}:`, error);
@@ -94,7 +89,7 @@ const Globe3DView = () => {
 
   // Update the generateHtml function to use the fetched trips
   const generateHtml = () => {
-    const markers = globeWithTrips?.trips?.flatMap(tripWithMedia => 
+    const markers = globeWithTrips?.trips?.flatMap(tripWithMedia =>
       tripWithMedia.media?.map(media => ({
         lat: media.latitude || 0,
         lng: media.longitude || 0,
@@ -185,7 +180,6 @@ const Globe3DView = () => {
           <script>
             // Debug logging function.
             const log = (message, data) => {
-              console.log(message, data);
               window.ReactNativeWebView.postMessage(JSON.stringify({
                 type: 'debug',
                 message: message,
@@ -206,7 +200,7 @@ const Globe3DView = () => {
               });
 
               let currentZoom = 2.5;
-              
+
               const globe = Globe()
                 .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
                 .backgroundColor('#f0f0f0')
@@ -214,11 +208,11 @@ const Globe3DView = () => {
                 .htmlElement(d => {
                   const el = document.createElement('div');
                   el.className = 'marker-container';
-                  
+
                   const img = document.createElement('img');
                   img.className = 'marker-img';
                   img.src = d.imageUrl;
-                  
+
                   img.addEventListener('click', () => {
                     window.ReactNativeWebView.postMessage(JSON.stringify({
                       type: 'markerClick',
@@ -228,7 +222,7 @@ const Globe3DView = () => {
                       lng: d.lng
                     }));
                   });
-                  
+
                   el.appendChild(img);
                   return el;
                 })
@@ -236,7 +230,7 @@ const Globe3DView = () => {
                 .htmlTransitionDuration(1000);
 
               const globeInstance = globe(document.getElementById('globe'));
-              
+
               // Handle zoom changes
               globeInstance.controls().addEventListener('change', () => {
                 const newZoom = globeInstance.camera().position.z;
@@ -248,14 +242,14 @@ const Globe3DView = () => {
 
               function updateMarkerPositions(zoom) {
                 const spreadFactor = Math.max(0.01, 1 - zoom / 1000);
-                
+
                 const updatedMarkers = markers.map(marker => {
                   const group = markerGroups[\`\${marker.lat},\${marker.lng}\`];
                   if (group.length <= 1) return marker;
 
                   const idx = group.indexOf(marker);
                   const angle = (2 * Math.PI * idx) / group.length;
-                  
+
                   return {
                     ...marker,
                     lat: marker.lat + Math.cos(angle) * spreadFactor,
@@ -273,17 +267,17 @@ const Globe3DView = () => {
               globeInstance.controls().autoRotateSpeed = 0.3;
               globeInstance.controls().enableDamping = true;
               globeInstance.controls().dampingFactor = 0.2;
-              
+
               // Initial marker positions
               updateMarkerPositions(currentZoom);
-              
+
               setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
 
             } catch (error) {
               console.error('Globe initialization error:', error);
-              window.ReactNativeWebView.postMessage(JSON.stringify({ 
-                type: 'error', 
-                message: error.message 
+              window.ReactNativeWebView.postMessage(JSON.stringify({
+                type: 'error',
+                message: error.message
               }));
             }
           </script>
@@ -294,17 +288,15 @@ const Globe3DView = () => {
   const [isListView, setIsListView] = useState(false);
   // Update the handleMessage function to use the fetched trips
   const handleMessage = (event: { nativeEvent: { data: string; }; }) => {
-    console.log('Message received from WebView:', event.nativeEvent.data);
-    
+
     try {
       const data = JSON.parse(event.nativeEvent.data);
-      
+
       if (data.type === 'error' || data.type === 'debug') {
-        const message = data.type === 'debug' 
+        const message = data.type === 'debug'
           ? `Debug: ${data.message} ${data.data ? JSON.stringify(data.data) : ''}`
           : `Error: ${data.message}`;
         setDebugMessage(message);
-        console.log('WebView message:', message);
         return;
       }
 
@@ -312,11 +304,10 @@ const Globe3DView = () => {
         // Find the trip in the trips array
         const tripWithMedia = globeWithTrips?.trips
           .find(t => t.trip.TripID === data.tripId);
-        
+
         if (tripWithMedia) {
           const message = `Clicked: ${tripWithMedia.trip.name} (ID: ${data.tripId})`;
           setDebugMessage(message);
-          console.log('Navigating to trip:', tripWithMedia.trip.name);
           navigation.navigate('ExplorePhotoView', {
             imageUrl: tripWithMedia.media[0]?.url,
             tripMedia: tripWithMedia.media,
@@ -340,20 +331,20 @@ const Globe3DView = () => {
 
   const groupTripsByMonth = () => {
     if (!globeWithTrips?.trips) return [];
-    
+
     const grouped: Record<string, any[]> = {};
-    
+
     globeWithTrips.trips.forEach(tripWithMedia => {
       const date = new Date(tripWithMedia.trip.start_date);
       const monthYear = `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
-      
+
       if (!grouped[monthYear]) {
         grouped[monthYear] = [];
       }
-      
+
       grouped[monthYear].push(tripWithMedia);
     });
-    
+
     return Object.entries(grouped).map(([monthYear, trips]) => ({
       monthYear,
       trips,
@@ -373,9 +364,9 @@ const Globe3DView = () => {
             <Text style={styles.headerText}>{globe.name}</Text>
           </View>
         </TouchableOpacity>
-        
+
         {/* Add delete button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.deleteButton}
           onPress={() => {
             Alert.alert(
@@ -402,37 +393,37 @@ const Globe3DView = () => {
             );
           }}
         >
-          <Image 
+          <Image
             source={require('../assets/delete_icon.png')}
             style={styles.deleteIcon}
           />
         </TouchableOpacity>
       </View>
-      
+
       {showGlobesList ? (
         <View style={styles.globesListContainer}>
           {isLoadingGlobes ? (
-            <Text style={styles.loadingText}>Loading globes...</Text>
+            <CustomTextRegular style={styles.loadingText}>Loading globes...</CustomTextRegular>
           ) : (
             <ScrollView style={styles.globesList}>
-              <Text style={styles.globesListTitle}>Your Globes</Text>
-              
+              <CustomTextRegular style={styles.globesListTitle}>Your Globes</CustomTextRegular>
+
               {/* Current globe */}
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.globeItem, { backgroundColor: '#E8F4F8' }]}
                 onPress={() => {
                   setShowGlobesList(false);
                 }}
               >
-                <Text style={styles.globeName}>{globe.name}</Text>
-                <Text style={styles.globeDescription}>Current globe</Text>
+                <CustomTextRegular style={styles.globeName}>{globe.name}</CustomTextRegular>
+                <CustomTextRegular style={styles.globeDescription}>Current globe</CustomTextRegular>
               </TouchableOpacity>
-              
+
               {/* Map through all user globes from API */}
               {userGlobes && userGlobes.length > 0 ? (
                 userGlobes.map((userGlobe) => (
                   userGlobe.AlbumID !== globe.AlbumID && (
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       key={userGlobe.AlbumID}
                       style={styles.globeItem}
                       onPress={() => {
@@ -440,30 +431,30 @@ const Globe3DView = () => {
                         // Navigate to the selected globe with a reset action to ensure data is refreshed
                         navigation.reset({
                           index: 0,
-                          routes: [{ 
-                            name: 'Globe3DView', 
-                            params: { globe: userGlobe } 
+                          routes: [{
+                            name: 'Globe3DView',
+                            params: { globe: userGlobe }
                           }],
                         });
                       }}
                     >
-                      <Text style={styles.globeName}>{userGlobe.name}</Text>
-                      <Text style={styles.globeDescription}>{userGlobe.description || 'No description'}</Text>
+                      <CustomTextRegular style={styles.globeName}>{userGlobe.name}</CustomTextRegular>
+                      <CustomTextRegular style={styles.globeDescription}>{userGlobe.description || 'No description'}</CustomTextRegular>
                     </TouchableOpacity>
                   )
                 ))
               ) : (
-                <Text style={styles.emptyListText}>No other globes available</Text>
+                <CustomTextRegular style={styles.emptyListText}>No other globes available</CustomTextRegular>
               )}
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={styles.createGlobeButton}
                 onPress={() => {
                   setShowGlobesList(false);
                   navigation.navigate('CreateGlobe');
                 }}
               >
-                <Text style={styles.createGlobeButtonText}>+ Create New Globe</Text>
+                <CustomTextRegular style={styles.createGlobeButtonText}>+ Create New Globe</CustomTextRegular>
               </TouchableOpacity>
             </ScrollView>
           )}
@@ -480,12 +471,12 @@ const Globe3DView = () => {
       ) : (
         <View style={styles.listContainer}>
           {isLoading ? (
-            <Text style={styles.loadingText}>Loading trips...</Text>
+            <CustomTextRegular style={styles.loadingText}>Loading trips...</CustomTextRegular>
           ) : globeWithTrips?.trips && globeWithTrips.trips.length > 0 ? (
             <ScrollView style={styles.tripsList}>
               {groupTripsByMonth().map(group => (
                 <View key={group.monthYear} style={styles.monthGroup}>
-                  <Text style={styles.monthHeader}>{group.monthYear}</Text>
+                  <CustomTextRegular style={styles.monthHeader}>{group.monthYear}</CustomTextRegular>
                   {group.trips.map((tripWithMedia) => (
                     <TouchableOpacity
                       key={tripWithMedia.trip.TripID}
@@ -503,12 +494,12 @@ const Globe3DView = () => {
                       />
                       <View style={styles.tripDetails}>
                         <View style={styles.tripHeader}>
-                          <Text style={styles.tripName}>{tripWithMedia.trip.name}</Text>
+                          <CustomTextRegular style={styles.tripName}>{tripWithMedia.trip.name}</CustomTextRegular>
                           <TouchableOpacity style={styles.favoriteButton}>
                             <Text>★</Text>
                           </TouchableOpacity>
                         </View>
-                        <Text style={styles.photoCount}>{tripWithMedia.media?.length || 0} Photos</Text>
+                        <CustomTextRegular style={styles.photoCount}>{tripWithMedia.media?.length || 0} Photos</CustomTextRegular>
                         <View style={styles.locationTags}>
                           {tripLocations[tripWithMedia.trip.TripID] && tripLocations[tripWithMedia.trip.TripID].length > 0 ? (
                             <>
@@ -521,20 +512,20 @@ const Globe3DView = () => {
                               })))
                               .slice(0, 3)
                               .map((locationText, index) => (
-                                <View 
-                                  key={index} 
+                                <View
+                                  key={index}
                                   style={[
-                                    styles.locationTag, 
+                                    styles.locationTag,
                                     { backgroundColor: getTagColor(index) }
                                   ]}
                                 >
-                                  <Text style={styles.locationText}>{locationText}</Text>
+                                  <CustomTextRegular style={styles.locationText}>{locationText}</CustomTextRegular>
                                 </View>
                               ))}
                             </>
                           ) : (
                             <View style={styles.locationTag}>
-                              <Text style={styles.locationText}>Unknown</Text>
+                              <CustomTextRegular style={styles.locationText}>Unknown</CustomTextRegular>
                             </View>
                           )}
                         </View>
@@ -545,13 +536,13 @@ const Globe3DView = () => {
               ))}
             </ScrollView>
           ) : (
-            <Text style={styles.emptyListText}>No trips available</Text>
+            <CustomTextRegular style={styles.emptyListText}>No trips available</CustomTextRegular>
           )}
         </View>
       )}
-      
+
       <View style={styles.listViewContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.listViewButton}
           onPress={() => setIsListView(!isListView)}
         >
@@ -560,14 +551,14 @@ const Globe3DView = () => {
             isListView ? styles.toggleBackgroundActive : {}
           ]}>
             <View style={[
-              styles.toggleCircle, 
+              styles.toggleCircle,
               isListView ? styles.toggleCircleActive : {}
             ]}></View>
           </View>
-          <Text style={styles.listViewText}>List View</Text>
+          <CustomTextRegular style={styles.listViewText}>List View</CustomTextRegular>
         </TouchableOpacity>
       </View>
-      
+
       <NavigationBar />
     </View>
   );
@@ -601,7 +592,6 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 16,
-    fontWeight: '600',
   },
   headerPill: {
     backgroundColor: '#f0f0f0',
@@ -665,7 +655,6 @@ const styles = StyleSheet.create({
   },
   listViewText: {
     fontSize: 10,
-    fontWeight: '600',
     marginLeft: 10,
   },
   tabBar: {
@@ -756,7 +745,6 @@ const styles = StyleSheet.create({
   },
   tripName: {
     fontSize: 16,
-    fontWeight: '600',
     marginBottom: 5,
   },
   tripDate: {
@@ -768,7 +756,6 @@ const styles = StyleSheet.create({
   },
   monthHeader: {
     fontSize: 16,
-    fontWeight: '600',
     marginBottom: 10,
     color: '#333',
   },
@@ -776,7 +763,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#fff',
     borderColor: '#ddd',
-    borderWidth: 1, 
+    borderWidth: 1,
     borderRadius: 16,
     marginBottom: 15,
     overflow: 'hidden',
@@ -830,7 +817,6 @@ const styles = StyleSheet.create({
   },
   globesListTitle: {
     fontSize: 20,
-    fontWeight: '700',
     marginBottom: 20,
     color: '#333',
   },
@@ -844,7 +830,6 @@ const styles = StyleSheet.create({
   },
   globeName: {
     fontSize: 16,
-    fontWeight: '600',
     marginBottom: 4,
   },
   globeDescription: {
@@ -861,7 +846,6 @@ const styles = StyleSheet.create({
   createGlobeButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
   },
 });
 

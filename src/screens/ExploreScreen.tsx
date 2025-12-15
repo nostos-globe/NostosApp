@@ -18,6 +18,8 @@ import { profileService, Profile } from '../services/profileService';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import NavigationBar from '../components/NavigationBar';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -42,7 +44,6 @@ const ExploreScreen = () => {
     try {
       setLoading(true);
       const trips = await mediaService.getPublicTrips();
-      console.log(`Retrieved ${trips?.length || 0} public trips`);
       setPublicTrips(trips || []);
     } catch (error) {
       console.error('Error loading public trips:', error);
@@ -54,23 +55,23 @@ const ExploreScreen = () => {
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
-    
+
     if (query.trim().length === 0) {
       setShowSearchResults(false);
       return;
     }
-    
+
     setIsSearching(true);
     setShowSearchResults(true);
-    
+
     try {
-      
+
       // Call your API endpoints for searching trips and profiles
       const [tripsResults, profilesResults] = await Promise.all([
         mediaService.searchTrips(query),
         profileService.searchProfiles(query)
       ]);
-      
+
       setSearchResults({
         trips: tripsResults || [],
         profiles: profilesResults || []
@@ -91,7 +92,7 @@ const ExploreScreen = () => {
     { height: 220, flex: 1 },
     { height: 160, flex: 1 },
   ];
-  
+
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     loadPublicTrips().finally(() => setRefreshing(false));
@@ -110,18 +111,18 @@ const ExploreScreen = () => {
       <ScrollView style={styles.searchResultsContainer}>
         {searchResults.profiles.length > 0 && (
           <View>
-            <Text style={styles.searchSectionTitle}>Profiles</Text>
+            <CustomTextBold style={styles.searchSectionTitle}>Profiles</CustomTextBold>
             {searchResults.profiles.map(profile => (
-              <TouchableOpacity 
+              <TouchableOpacity
                 key={profile.UserID}
                 style={styles.searchResultItem}
                 onPress={() => navigation.navigate('OtherProfile', { userId: profile.UserID })}
               >
-                <Image 
+                <Image
                   source={{ uri: profile.ProfilePicture || 'https://via.placeholder.com/40' }}
                   style={styles.searchResultAvatar}
                 />
-                <Text style={styles.searchResultText}>{profile.Username}</Text>
+                <CustomTextRegular style={styles.searchResultText}>{profile.Username}</CustomTextRegular>
               </TouchableOpacity>
             ))}
           </View>
@@ -129,9 +130,9 @@ const ExploreScreen = () => {
 
         {searchResults.trips.length > 0 && (
           <View>
-            <Text style={styles.searchSectionTitle}>Trips</Text>
+            <CustomTextBold style={styles.searchSectionTitle}>Trips</CustomTextBold>
             {searchResults.trips.map(trip => (
-              <TouchableOpacity 
+              <TouchableOpacity
                 key={trip.trip.TripID}
                 style={styles.searchResultItem}
                 onPress={() => navigation.navigate('ExplorePhotoView', {
@@ -141,18 +142,18 @@ const ExploreScreen = () => {
                   trip: trip.trip
                 })}
               >
-                <Image 
+                <Image
                   source={{ uri: trip.media?.[0]?.url || 'https://via.placeholder.com/50' }}
                   style={styles.searchResultThumbnail}
                 />
-                <Text style={styles.searchResultText}>{trip.trip.name}</Text>
+                <CustomTextRegular style={styles.searchResultText}>{trip.trip.name}</CustomTextRegular>
               </TouchableOpacity>
             ))}
           </View>
         )}
 
         {searchResults.profiles.length === 0 && searchResults.trips.length === 0 && (
-          <Text style={styles.noResultsText}>No results found</Text>
+          <CustomTextRegular style={styles.noResultsText}>No results found</CustomTextRegular>
         )}
       </ScrollView>
     );
@@ -162,7 +163,7 @@ const ExploreScreen = () => {
     if (publicTrips.length === 0) {
       return (
         <View style={styles.noTripsContainer}>
-          <Text style={styles.noTripsText}>No public trips found</Text>
+          <CustomTextRegular style={styles.noTripsText}>No public trips found</CustomTextRegular>
         </View>
       );
     }
@@ -174,7 +175,7 @@ const ExploreScreen = () => {
     });
 
     return (
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         refreshControl={
           <RefreshControl
@@ -189,10 +190,10 @@ const ExploreScreen = () => {
           {columns.map((column, columnIndex) => (
             <View key={columnIndex} style={styles.masonryColumn}>
               {column.map((trip, index) => (
-                <TouchableOpacity 
+                <TouchableOpacity
                   key={trip.trip.TripID}
                   style={[
-                    styles.masonryItem, 
+                    styles.masonryItem,
                     cardStyles[(index * columnIndex + index * 2) % cardStyles.length],
                     { backgroundColor: '#E0E0E0' }
                   ]}
@@ -204,14 +205,14 @@ const ExploreScreen = () => {
                   })}
                 >
                   {trip.media?.[0]?.url && (
-                    <Image 
+                    <Image
                       source={{ uri: trip.media[0].url }}
                       style={styles.tripImage}
                       resizeMode="cover"
                     />
                   )}
                   <View style={styles.tripOverlay}>
-                    <Text style={styles.tripName}>{trip.trip.name}</Text>
+                    <CustomTextRegular style={styles.tripName}>{trip.trip.name}</CustomTextRegular>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -225,16 +226,16 @@ const ExploreScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Explore</Text>
+        <CustomTextBold style={styles.headerTitle}>Explore</CustomTextBold>
       </View>
-      
+
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
           placeholder="Search trips or profiles..."
+          placeholderTextColor="#B3B3B3"
           value={searchQuery}
           onChangeText={handleSearch}
-          placeholderTextColor="#666"
         />
       </View>
 
@@ -257,7 +258,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingBottom: 60, 
+    paddingBottom: 60,
   },
   header: {
     padding: 16,
@@ -267,7 +268,6 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
   },
   loadingContainer: {
     flex: 1,
@@ -307,7 +307,6 @@ const styles = StyleSheet.create({
   tripName: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: 'bold',
   },
   mediaCount: {
     color: '#ddd',
@@ -358,6 +357,7 @@ const styles = StyleSheet.create({
   searchInput: {
     height: 40,
     backgroundColor: '#f5f5f5',
+    fontFamily:'OutfitRegular',
     borderRadius: 20,
     paddingHorizontal: 15,
     fontSize: 16,
@@ -370,7 +370,6 @@ const styles = StyleSheet.create({
   },
   searchSectionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
     marginVertical: 10,
     color: '#000',
   },

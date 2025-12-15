@@ -11,6 +11,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import NavigationBar from '../components/NavigationBar';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -20,7 +22,7 @@ const AddContentScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Add Content</Text>
+        <CustomTextRegular style={styles.headerTitle}>Add Content</CustomTextRegular>
       </View>
 
       <View style={styles.content}>
@@ -36,8 +38,8 @@ const AddContentScreen = () => {
               style={styles.icon}
             />
           </View>
-          <Text style={styles.optionTitle}>Create Trip</Text>
-          <Text style={styles.optionDescription}>Start a new journey</Text>
+          <CustomTextRegular style={styles.optionTitle}>Create Trip</CustomTextRegular>
+          <CustomTextRegular style={styles.optionDescription}>Start a new journey</CustomTextRegular>
         </TouchableOpacity>
 
         <TouchableOpacity 
@@ -50,8 +52,8 @@ const AddContentScreen = () => {
               style={styles.icon}
             />
           </View>
-          <Text style={styles.optionTitle}>Create Globe</Text>
-          <Text style={styles.optionDescription}>Create a new collection</Text>
+          <CustomTextRegular style={styles.optionTitle}>Create Globe</CustomTextRegular>
+          <CustomTextRegular style={styles.optionDescription}>Create a new collection</CustomTextRegular>
         </TouchableOpacity>
       </View>
       <NavigationBar />
@@ -71,7 +73,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    textAlign:'center',
     color: '#000',
   },
   content: {
@@ -102,7 +104,6 @@ const styles = StyleSheet.create({
   },
   optionTitle: {
     fontSize: 18,
-    fontWeight: '600',
     color: '#000',
   },
   optionDescription: {

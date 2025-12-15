@@ -13,6 +13,8 @@ import { RootStackParamList } from '../navigation/types';
 import NavigationBar from '../components/NavigationBar';
 import ProfileCategories from '../components/ProfileCategories';
 import { globesService, Globe, GlobeWithTrips } from '../services/globesService'
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -47,7 +49,6 @@ const ProfileScreen = () => {
 
   const handleCategoryPress = (category: string) => {
     // Handle category selection here
-    console.log('Selected category:', category);
   };
 
   const getRandomColor = () => {
@@ -157,7 +158,10 @@ const ProfileScreen = () => {
         style={styles.settingsButton}
         onPress={() => navigation.navigate('Settings')}
       >
-        <Text>⚙️</Text>
+          <Image
+              source={require('../assets/settings_icon.png')}
+              style={styles.settingsIcon}
+          />
       </TouchableOpacity>
     </ImageBackground>
     
@@ -184,16 +188,16 @@ const ProfileScreen = () => {
         </>
       ) : (
         <>
-          <Text style={styles.username}>{profile?.Username || 'Loading...'}</Text>
-          <Text style={styles.bio}>{profile?.Bio || 'No bio available'}</Text>
+          <CustomTextBold style={styles.username}>{profile?.Username || 'Loading...'}</CustomTextBold>
+          <CustomTextRegular style={styles.bio}>{profile?.Bio || 'No bio available'}</CustomTextRegular>
         </>
       )}
       
       {/* Stats section */}
       <View style={styles.stats}>
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{trips?.length || 0}</Text>
-          <Text style={styles.statLabel}>Trips</Text>
+          <CustomTextRegular style={styles.statNumber}>{trips?.length || 0}</CustomTextRegular>
+          <CustomTextRegular style={styles.statLabel}>Trips</CustomTextRegular>
         </View>
         {followers.Follow.count > 0 ? (
           <TouchableOpacity 
@@ -212,13 +216,13 @@ const ProfileScreen = () => {
               }
             }}
           >
-            <Text style={styles.statNumber}>{followers.Follow.count}</Text>
-            <Text style={styles.statLabel}>Followers</Text>
+            <CustomTextRegular style={styles.statNumber}>{followers.Follow.count}</CustomTextRegular>
+            <CustomTextRegular style={styles.statLabel}>Followers</CustomTextRegular>
           </TouchableOpacity>
         ) : (
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>0</Text>
-            <Text style={styles.statLabel}>Followers</Text>
+            <CustomTextRegular style={styles.statNumber}>0</CustomTextRegular>
+            <CustomTextRegular style={styles.statLabel}>Followers</CustomTextRegular>
           </View>
         )}
         {following.Follow.count > 0 ? (
@@ -238,13 +242,13 @@ const ProfileScreen = () => {
               }
             }}
           >
-            <Text style={styles.statNumber}>{following.Follow.count}</Text>
-            <Text style={styles.statLabel}>Following</Text>
+            <CustomTextRegular style={styles.statNumber}>{following.Follow.count}</CustomTextRegular>
+            <CustomTextRegular style={styles.statLabel}>Following</CustomTextRegular>
           </TouchableOpacity>
         ) : (
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>0</Text>
-            <Text style={styles.statLabel}>Following</Text>
+            <CustomTextRegular style={styles.statNumber}>0</CustomTextRegular>
+            <CustomTextRegular style={styles.statLabel}>Following</CustomTextRegular>
           </View>
         )}
       </View>
@@ -259,20 +263,20 @@ const ProfileScreen = () => {
               setEditedBio(profile?.Bio || '');
             }}
           >
-            <Text style={styles.actionButtonText}>Cancelar</Text>
+            <CustomTextRegular style={styles.actionButtonText}>Cancelar</CustomTextRegular>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionButtonText}>Compartir</Text>
+            <CustomTextRegular style={styles.actionButtonText}>Compartir</CustomTextRegular>
           </TouchableOpacity>
         )}
         <TouchableOpacity 
           style={styles.actionButton}
           onPress={() => isEditing ? handleSaveProfile() : setIsEditing(true)}
         >
-          <Text style={styles.actionButtonText}>
+          <CustomTextRegular style={styles.actionButtonText}>
             {isEditing ? 'Guardar' : 'Editar'}
-          </Text>
+          </CustomTextRegular>
         </TouchableOpacity>
       </View>
 
@@ -305,8 +309,8 @@ const ProfileScreen = () => {
                 resizeMode="cover"
               />
               <View style={styles.tripOverlay}>
-                <Text style={styles.tripName} numberOfLines={1}>{trip.trip.name}</Text>
-                <Text style={styles.mediaCount}>{trip.media?.length || 0} photos</Text>
+                <CustomTextRegular style={styles.tripName} numberOfLines={1}>{trip.trip.name}</CustomTextRegular>
+                <CustomTextRegular style={styles.mediaCount}>{trip.media?.length || 0} photos</CustomTextRegular>
               </View>
             </View>
           </TouchableOpacity>
@@ -337,14 +341,14 @@ const ProfileScreen = () => {
                   resizeMode="cover"
                 />
                 <View style={styles.tripOverlay}>
-                  <Text style={styles.tripName} numberOfLines={1}>{trip.trip.name}</Text>
-                  <Text style={styles.mediaCount}>{trip.media?.length || 0} photos</Text>
+                  <CustomTextRegular style={styles.tripName} numberOfLines={1}>{trip.trip.name}</CustomTextRegular>
+                  <CustomTextRegular style={styles.mediaCount}>{trip.media?.length || 0} photos</CustomTextRegular>
                 </View>
               </View>
             </TouchableOpacity>
           ))
         ) : (
-          <Text style={styles.emptyStateText}>No liked trips yet</Text>
+          <CustomTextRegular style={styles.emptyStateText}>No liked trips yet</CustomTextRegular>
         )}
       </View>
     )}
@@ -360,9 +364,12 @@ const ProfileScreen = () => {
           >
             <View style={[styles.globePlaceholder, { backgroundColor: getRandomColor() }]}>
               <View style={styles.globeContent}>
-                <Text style={styles.globeEmoji}>🌍</Text>
+                <Image
+                    source={require('../assets/globeview.png')}
+                    style={styles.globeIcon}
+                />
                 <View style={styles.globeInfo}>
-                  <Text style={styles.globeName}>{globe.name}</Text>
+                  <CustomTextRegular style={styles.globeName}>{globe.name}</CustomTextRegular>
                 </View>
               </View>
             </View>
@@ -370,7 +377,7 @@ const ProfileScreen = () => {
         ))
       ) : (
           <View style={styles.emptyStateText}>
-            <Text style={styles.emptyStateText}>No globes created yet</Text>
+            <CustomTextRegular style={styles.emptyStateText}>No globes created yet</CustomTextRegular>
           </View>
         )}
       </View>
@@ -419,7 +426,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 16,
     right: 16,
+    backgroundColor:'#fff',
+    borderRadius:20,
     padding: 8,
+  },
+  settingsIcon: {
+    width: 20,
+    height: 20,
+    tintColor: '#000',
   },
   profileContainer: {
     marginTop: -60,
@@ -437,7 +451,6 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 24,
-    fontWeight: 'bold',
     marginBottom: 4,
   },
   bio: {
@@ -456,7 +469,6 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: 20,
-    fontWeight: 'bold',
   },
   statLabel: {
     color: '#666',
@@ -468,15 +480,14 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     paddingHorizontal: 50,
-    paddingVertical: 7,
+    paddingVertical: 4,
     borderRadius: 9,
     borderWidth: 1,
-    borderColor: '#ddd',
-    marginHorizontal: 5,
+    borderColor: '#000000',
+    marginHorizontal: 10,
   },
   actionButtonText: {
     color: '#000',
-    fontWeight: '500',
   },
   categoryButton: {
     padding: 8,
@@ -554,11 +565,14 @@ const styles = StyleSheet.create({
   tripName: {
     color: '#000',
     fontSize: 11,
-    fontWeight: 'bold',
+    paddingLeft:5,
+    lineHeight:12,
   },
   mediaCount: {
     color: '#000',
     fontSize: 9,
+    paddingLeft:5,
+    lineHeight:12,
   },
   emptyStateText: {
     textAlign: 'center',
@@ -590,17 +604,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  globeEmoji: {
-    fontSize: 50,
-    textAlign: 'center',
-    marginTop: 20,
+  globeIcon: {
+      width:100,
+      height:100,
   },
   globeInfo: {
     marginTop: 'auto',
   },
   globeName: {
     fontSize: 12,
-    fontWeight: '600',
     color: '#000',
     marginBottom: 4,
   },

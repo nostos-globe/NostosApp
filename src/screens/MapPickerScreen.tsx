@@ -71,7 +71,6 @@ const MapPickerScreen = () => {
     try {
       // Get media data first
       const mediaData = await mediaService.getMediaById(mediaId);
-      console.log('Current media data:', JSON.stringify(mediaData, null, 2));
 
       // Add metadata
       const response = await mediaService.addMetadataToMedia(mediaId, {
@@ -79,7 +78,6 @@ const MapPickerScreen = () => {
         longitude: selectedLocation.longitude,
         altitude: 0,
       });
-        console.log('Update metadata response:', JSON.stringify(response, null, 2));
 
 
 navigation.goBack();

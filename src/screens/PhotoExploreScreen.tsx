@@ -20,6 +20,8 @@ import NavigationBar from '../components/NavigationBar';
 import MediaIconBar from '../components/MediaIconBar';
 import { likesService } from '../services/likesService';
 import WebView from 'react-native-webview';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -78,20 +80,18 @@ const PhotoExploreScreen = () => {  // Changed component name to match file name
   // Add more detailed logging to fetchMediaFavorites
   // Update the fetchMediaFavorites function to correctly parse the API response
   const fetchMediaFavorites = async () => {
-    console.log('Starting to fetch favorites for all media items');
     const favoritesMap: Record<string, boolean> = {};
     
     for (const media of tripMedia) {
       try {
         const mediaId = media.mediaId.toString();
-        console.log(`Fetching favorite status for media ID: ${mediaId}`);
         const response = await likesService.getMediaFavoriteStatus(mediaId);
-        console.log('API Response for favorite status:', JSON.stringify(response));
+         JSON.stringify(response);
         
         // Check if the response indicates this media is favorited
         // The API returns is_favorite instead of isFavorited
         const isFavorited = response.is_favourite || false;
-        console.log(`Media ${mediaId} favorite status: ${isFavorited}`);
+        `Media ${mediaId} favorite status: ${isFavorited}`;
         favoritesMap[mediaId] = isFavorited;
       } catch (error) {
         console.error('Error fetching favorite status for media', media.mediaId, error);
@@ -99,7 +99,7 @@ const PhotoExploreScreen = () => {  // Changed component name to match file name
       }
     }
     
-    console.log('Final favorites map:', favoritesMap);
+    favoritesMap;
     setFavoritedMedia(favoritesMap);
   };
   
@@ -190,28 +190,28 @@ const PhotoExploreScreen = () => {  // Changed component name to match file name
   // Add more logging to handleFavoriteToggle
   const handleFavoriteToggle = async () => {
     if (!tripMedia || tripMedia.length === 0 || currentIndex >= tripMedia.length) {
-      console.log('Cannot toggle favorite: invalid media or index');
+      'Cannot toggle favorite: invalid media or index';
       return;
     }
   
     const mediaId = tripMedia[currentIndex].mediaId.toString();
     const isFavorited = favoritedMedia[mediaId] || false;
-    console.log(`Toggling favorite for media ${mediaId}. Current status: ${isFavorited}`);
+    `Toggling favorite for media ${mediaId}. Current status: ${isFavorited}`;
     
     try {
       if (isFavorited) {
-        console.log(`Attempting to unfavorite media ${mediaId}`);
+        `Attempting to unfavorite media ${mediaId}`;
         const response = await likesService.unfavMedia(mediaId);
-        console.log('Unfavorite response:', response);
+         response;
       } else {
-        console.log(`Attempting to favorite media ${mediaId}`);
+        `Attempting to favorite media ${mediaId}`;
         const response = await likesService.favMedia(mediaId);
-        console.log('Favorite response:', response);
+         response;
       }
       
       // Update local state
       const newStatus = !isFavorited;
-      console.log(`Updating favorite status for media ${mediaId} to: ${newStatus}`);
+      `Updating favorite status for media ${mediaId} to: ${newStatus}`;
       setFavoritedMedia(prev => ({
         ...prev,
         [mediaId]: newStatus
@@ -228,9 +228,9 @@ const PhotoExploreScreen = () => {  // Changed component name to match file name
     <SafeAreaView style={styles.container}>
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>←</Text>
+          <CustomTextRegular style={styles.backButton}>←</CustomTextRegular>
         </TouchableOpacity>
-        <Text style={styles.title}>{trip?.name || "Personal Globe"}</Text>
+        <CustomTextRegular style={styles.title}>{trip?.name || "Personal Globe"}</CustomTextRegular>
       </View>
       
         <MediaIconBar
@@ -251,10 +251,10 @@ const PhotoExploreScreen = () => {  // Changed component name to match file name
             try {
               const mediaData = await mediaService.getMediaById(mediaId);
               
-              if (mediaData.gps_latitude && mediaData.gps_longitude) {
+              if (mediaData.metadata?.latitude && mediaData.metadata?.longitude) {
                 setCurrentLocation({
-                  latitude: mediaData.gps_latitude,
-                  longitude: mediaData.gps_longitude
+                  latitude: mediaData.metadata.latitude,
+                  longitude: mediaData.metadata.longitude
                 });
               } else {
                 setCurrentLocation({
@@ -273,13 +273,13 @@ const PhotoExploreScreen = () => {  // Changed component name to match file name
         } } screenType={'explore'}        />
 
       <View style={styles.dateContainer}>
-        <Text style={styles.dateText}>
+        <CustomTextRegular style={styles.dateText}>
           {trip?.start_date ? new Date(trip.start_date).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'long',
             year: 'numeric'
           }) : "10 March 2024"}
-        </Text>
+        </CustomTextRegular>
       </View>
 
       <ScrollView 
@@ -333,7 +333,7 @@ const PhotoExploreScreen = () => {  // Changed component name to match file name
               style={styles.closeMapButton}
               onPress={() => setShowMap(false)}
             >
-              <Text style={styles.closeButtonText}>×</Text>
+              <CustomTextRegular style={styles.closeButtonText}>×</CustomTextRegular>
             </TouchableOpacity>
           </View>
           <WebView
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
   photoContainer: {
     width: Dimensions.get('window').width,
     marginTop: 130,
-    height: "66%",
+    height: "70%",
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -384,17 +384,15 @@ const styles = StyleSheet.create({
   backButton: {
     color: '#000',
     fontSize: 22,
-    fontWeight: 'bold',
   },
   title: {
     color: '#000',
     fontSize: 16,
-    fontWeight: '500',
+    lineHeight:35,
   },
   addButton2: {
     color: '#000',
     fontSize: 22,
-    fontWeight: 'bold',
     width: 34,
     height: 34,
     backgroundColor: 'rgb(255, 255, 255)',
@@ -405,7 +403,6 @@ const styles = StyleSheet.create({
   addButton: {
     color: '#000',
     fontSize: 22,
-    fontWeight: 'bold',
     width: 50,
     height: 50,
     backgroundColor: '#8BB8E8',
@@ -447,7 +444,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 9,
     fontSize: 14,
-    fontWeight: '500',
     overflow: 'hidden',
   },
   thumbnailContainer: {
@@ -511,7 +507,6 @@ const styles = StyleSheet.create({
   },
   mapTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
     color: 'black',
     textAlign: 'center',
     paddingVertical: 10,
@@ -536,7 +531,6 @@ const styles = StyleSheet.create({
   closeButtonText: {
     fontSize: 20,
     color: '#000',
-    fontWeight: 'bold',
   },
   mapButtons: {
     flexDirection: 'row',

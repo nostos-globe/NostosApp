@@ -15,6 +15,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { globesService } from '../services/globesService';
 import NavigationBar from '../components/NavigationBar';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -37,13 +39,11 @@ const CreateGlobeScreen = () => {
         visibility
       };
 
-      console.log('Creating new globe:', newGlobe);
       const response = await globesService.createGlobe({
         name,
         description,
         visibility: visibility as 'PUBLIC' | 'PRIVATE' | 'FRIENDS'
       });
-      console.log('Globe created successfully:', response);
 
       // Navigate to the AddTrip screen after creating the globe
       navigation.navigate('AddTrip', { 
@@ -63,9 +63,9 @@ const CreateGlobeScreen = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>←</Text>
+          <CustomTextRegular style={styles.backButton}>←</CustomTextRegular>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Create New Globe</Text>
+        <CustomTextRegular style={styles.headerTitle}>Create New Globe</CustomTextRegular>
         <View style={{ width: 24 }} />
       </View>
 
@@ -73,34 +73,39 @@ const CreateGlobeScreen = () => {
         <View style={styles.formContainer}>
           <View style={styles.globeIconContainer}>
             <View style={styles.globeIconWrapper}>
-              <Text style={styles.globeIcon}>🌍</Text>
+              <Image
+                  source={require('../assets/globeview.png')}
+                  style={styles.globeIcon}
+              />
             </View>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Globe Name</Text>
+            <CustomTextRegular style={styles.label}>Globe Name</CustomTextRegular>
             <TextInput
               style={styles.input}
               value={name}
               onChangeText={setName}
               placeholder="Enter globe name"
+              placeholderTextColor="#B3B3B3"
             />
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Description</Text>
+            <CustomTextRegular style={styles.label}>Description</CustomTextRegular>
             <TextInput
               style={[styles.input, styles.textArea]}
               value={description}
               onChangeText={setDescription}
               placeholder="Enter description"
+              placeholderTextColor="#B3B3B3"
               multiline
               numberOfLines={4}
             />
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Visibility</Text>
+            <CustomTextRegular style={styles.label}>Visibility</CustomTextRegular>
             <TouchableOpacity 
               style={styles.visibilityToggle}
               onPress={toggleVisibility}
@@ -109,19 +114,19 @@ const CreateGlobeScreen = () => {
                 styles.toggleOption, 
                 visibility === 'PUBLIC' && styles.activeToggleOption
               ]}>
-                <Text style={[
+                <CustomTextRegular style={[
                   styles.toggleText,
                   visibility === 'PUBLIC' && styles.activeToggleText
-                ]}>Public</Text>
+                ]}>Public</CustomTextRegular>
               </View>
               <View style={[
                 styles.toggleOption, 
                 visibility === 'PRIVATE' && styles.activeToggleOption
               ]}>
-                <Text style={[
+                <CustomTextRegular style={[
                   styles.toggleText,
                   visibility === 'PRIVATE' && styles.activeToggleText
-                ]}>Private</Text>
+                ]}>Private</CustomTextRegular>
               </View>
             </TouchableOpacity>
           </View>
@@ -130,7 +135,7 @@ const CreateGlobeScreen = () => {
             style={styles.createButton}
             onPress={handleCreateGlobe}
           >
-            <Text style={styles.createButtonText}>Create Globe</Text>
+            <CustomTextBold style={styles.createButtonText}>Create Globe</CustomTextBold>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -154,11 +159,9 @@ const styles = StyleSheet.create({
   },
   backButton: {
     fontSize: 24,
-    fontWeight: 'bold',
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
   },
   content: {
     flex: 1,
@@ -180,14 +183,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   globeIcon: {
-    fontSize: 60,
+    width:'70%',
+    height:'70%',
   },
   inputGroup: {
     marginBottom: 20,
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
     marginBottom: 8,
     color: '#333',
   },
@@ -225,7 +228,6 @@ const styles = StyleSheet.create({
   },
   activeToggleText: {
     color: '#fff',
-    fontWeight: 'bold',
   },
   createButton: {
     backgroundColor: '#8BB8E8',
@@ -233,11 +235,15 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
     marginTop: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 6,
   },
   createButtonText: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: 'bold',
   },
 });
 

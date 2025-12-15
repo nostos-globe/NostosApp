@@ -18,6 +18,8 @@ import { mediaService } from '../services/mediaService';
 import NavigationBar from '../components/NavigationBar';
 import { globesService, Globe } from '../services/globesService';
 import { Picker } from '@react-native-picker/picker';
+import CustomTextRegular from '../components/CustomTextRegular';
+import CustomTextBold from '../components/CustomTextBold';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -134,7 +136,7 @@ const AddTripScreen = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backButton}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Create New Trip</Text>
+        <CustomTextRegular style={styles.headerTitle}>Create New Trip</CustomTextRegular>
         <View style={{ width: 24 }} />
       </View>
       <ScrollView 
@@ -143,31 +145,31 @@ const AddTripScreen = () => {
     >
       <View style={styles.content}>
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Trip Name</Text>
+          <CustomTextRegular style={styles.label}>Trip Name</CustomTextRegular>
           <TextInput
             style={styles.input}
             value={name}
             onChangeText={setName}
             placeholder="Enter trip name"
-            placeholderTextColor="#999"
+            placeholderTextColor="#B3B3B3"
           />
         </View>
 
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Description</Text>
+          <CustomTextRegular style={styles.label}>Description</CustomTextRegular>
           <TextInput
             style={[styles.input, styles.textArea]}
             value={description}
             onChangeText={setDescription}
             placeholder="Enter trip description"
-            placeholderTextColor="#999"
+            placeholderTextColor="#B3B3B3"
             multiline
             numberOfLines={4}
           />
         </View>
 
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Visibility</Text>
+          <CustomTextRegular style={styles.label}>Visibility</CustomTextRegular>
           <View style={styles.visibilityContainer}>
             <TouchableOpacity
               style={[
@@ -176,7 +178,7 @@ const AddTripScreen = () => {
               ]}
               onPress={() => setVisibility('PUBLIC')}
             >
-              <Text style={styles.visibilityText}>🌐 Public</Text>
+              <CustomTextRegular style={styles.visibilityText}>🌐 Public</CustomTextRegular>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -185,7 +187,7 @@ const AddTripScreen = () => {
               ]}
               onPress={() => setVisibility('FRIENDS')}
             >
-              <Text style={styles.visibilityText}>👥 Friends</Text>
+              <CustomTextRegular style={styles.visibilityText}>👥 Friends</CustomTextRegular>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -194,18 +196,18 @@ const AddTripScreen = () => {
               ]}
               onPress={() => setVisibility('PRIVATE')}
             >
-              <Text style={styles.visibilityText}>🔒 Private</Text>
+              <CustomTextRegular style={styles.visibilityText}>🔒 Private</CustomTextRegular>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Start Date</Text>
+          <CustomTextRegular style={styles.label}>Start Date</CustomTextRegular>
           <TouchableOpacity
             style={styles.dateButton}
             onPress={() => setShowStartDatePicker(true)}
           >
-            <Text style={styles.dateButtonText}>{formatDate(startDate)}</Text>
+            <CustomTextRegular style={styles.dateButtonText}>{formatDate(startDate)}</CustomTextRegular>
           </TouchableOpacity>
           {showStartDatePicker && (
             <DateTimePicker
@@ -218,12 +220,12 @@ const AddTripScreen = () => {
         </View>
 
         <View style={styles.formGroup}>
-          <Text style={styles.label}>End Date</Text>
+          <CustomTextRegular style={styles.label}>End Date</CustomTextRegular>
           <TouchableOpacity
             style={styles.dateButton}
             onPress={() => setShowEndDatePicker(true)}
           >
-            <Text style={styles.dateButtonText}>{formatDate(endDate)}</Text>
+            <CustomTextRegular style={styles.dateButtonText}>{formatDate(endDate)}</CustomTextRegular>
           </TouchableOpacity>
           {showEndDatePicker && (
             <DateTimePicker
@@ -237,11 +239,11 @@ const AddTripScreen = () => {
 
         {!globeIdFromNav && (
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Select Globe</Text>
+            <CustomTextRegular style={styles.label}>Select Globe</CustomTextRegular>
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={selectedGlobe}
-                onValueChange={(itemValue) => setSelectedGlobe(itemValue)}
+                onValueChange={(itemValue: React.SetStateAction<string>) => setSelectedGlobe(itemValue)}
                 style={styles.picker}
               >
                 {globes.map((globe) => (
@@ -261,9 +263,9 @@ const AddTripScreen = () => {
           onPress={handleCreateTrip}
           disabled={isLoading}
         >
-          <Text style={styles.createButtonText}>
+          <CustomTextBold style={styles.createButtonText}>
             {isLoading ? 'Creating...' : 'Create Trip'}
-          </Text>
+          </CustomTextBold>
         </TouchableOpacity>
         
         {globeIdFromNav && (
@@ -271,7 +273,7 @@ const AddTripScreen = () => {
             style={[styles.notNowButton]}
             onPress={() => navigation.navigate('Home')}
           >
-            <Text style={styles.notNowText}>Not now</Text>
+            <CustomTextRegular style={styles.notNowText}>Not now</CustomTextRegular>
           </TouchableOpacity>
         )}
       </View>
@@ -304,11 +306,9 @@ const styles = StyleSheet.create({
   },
   backButton: {
     fontSize: 24,
-    fontWeight: 'bold',
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
   },
 
   formGroup: {
@@ -316,12 +316,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: '500',
     marginBottom: 8,
     color: '#333',
   },
   input: {
     borderWidth: 1,
+    fontFamily:'OutfitRegular',
     borderColor: '#ddd',
     borderRadius: 8,
     padding: 12,
@@ -375,7 +375,6 @@ const styles = StyleSheet.create({
   notNowText: {
     color: '#666',
     fontSize: 12,
-    fontWeight: '500',
   },
   createButton: {
     backgroundColor: '#8BB8E8',
@@ -383,6 +382,11 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
     marginTop: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 6,
   },
   disabledButton: {
     backgroundColor: '#cccccc',
@@ -390,7 +394,6 @@ const styles = StyleSheet.create({
   createButtonText: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: 'bold',
   },
   pickerContainer: {
     borderWidth: 1,
@@ -402,6 +405,7 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
     width: '100%',
+    fontFamily:'OutfitRegular',
   },
 });
 

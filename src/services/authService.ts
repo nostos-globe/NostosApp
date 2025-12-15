@@ -126,7 +126,6 @@ export const authService = {
     async login(credentials: UserCredentials): Promise<AuthResponse> {
         try {
             const response = await api.post(AUTH_ENDPOINTS.LOGIN, credentials);
-            console.log('User ID stored successfully:', response.status);
             // Get tokens from cookies
             const cookies = response.headers['set-cookie'];
             if (cookies) {
@@ -175,7 +174,6 @@ export const authService = {
                 if (authTokenCookie) {
                     const authToken = authTokenCookie.split(';')[0].split('=')[1];
                     await AsyncStorage.setItem(AUTH_STORAGE.TOKEN, authToken);
-                    console.log('Auth token stored successfully');
                 } else {
                     console.warn('No auth token cookie found');
                 }
@@ -183,7 +181,6 @@ export const authService = {
                 if (refreshTokenCookie) {
                     const refreshToken = refreshTokenCookie.split(';')[0].split('=')[1];
                     await AsyncStorage.setItem(AUTH_STORAGE.REFRESH_TOKEN, refreshToken);
-                    console.log('Refresh token stored successfully');
                 } else {
                     console.warn('No refresh token cookie found');
                 }
@@ -194,17 +191,12 @@ export const authService = {
             if (response.data.user_id) {
                 const userIdString = String(response.data.user_id);
                 await AsyncStorage.setItem(AUTH_STORAGE.USER_ID, userIdString);
-                console.log('User ID stored successfully:', userIdString);
             }
 
             // Verify stored values
             const storedToken = await AsyncStorage.getItem(AUTH_STORAGE.TOKEN);
             const storedRefreshToken = await AsyncStorage.getItem(AUTH_STORAGE.REFRESH_TOKEN);
-            
-            console.log('Stored values verification:', {
-                hasToken: !!storedToken,
-                hasRefreshToken: !!storedRefreshToken
-            });
+
 
             return response.data;
         } catch (error: any) {
