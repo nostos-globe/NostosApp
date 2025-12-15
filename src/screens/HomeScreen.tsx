@@ -387,6 +387,10 @@ const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  clickableText: {
+    color: '#007AFF',
+    textDecorationLine: 'underline',
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -491,7 +495,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginRight:'2%',
     padding: 2,
-    float:'right',
     backgroundColor:'rgba(255, 255, 255, 0.7)',
   },
   locationBottom : {
@@ -608,7 +611,7 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     fontSize: 12,
-    float:'right',
+    alignSelf: 'flex-start',
     marginRight: 50,
     color: '#333',
   },

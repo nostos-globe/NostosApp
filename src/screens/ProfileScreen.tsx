@@ -49,7 +49,6 @@ const ProfileScreen = () => {
 
   const handleCategoryPress = (category: string) => {
     // Handle category selection here
-    'Selected category:', category);
   };
 
   const getRandomColor = () => {
@@ -430,6 +429,11 @@ const styles = StyleSheet.create({
     backgroundColor:'#fff',
     borderRadius:20,
     padding: 8,
+  },
+  settingsIcon: {
+    width: 20,
+    height: 20,
+    tintColor: '#000',
   },
   profileContainer: {
     marginTop: -60,

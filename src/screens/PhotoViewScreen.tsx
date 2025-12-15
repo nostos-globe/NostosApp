@@ -71,20 +71,16 @@ const PhotoViewScreen = () => {
   // Add more detailed logging to fetchMediaFavorites
   // Update the fetchMediaFavorites function to correctly parse the API response
   const fetchMediaFavorites = async () => {
-    'Starting to fetch favorites for all media items');
     const favoritesMap: Record<string, boolean> = {};
     
     for (const media of tripMedia) {
       try {
         const mediaId = media.mediaId.toString();
-        `Fetching favorite status for media ID: ${mediaId}`);
         const response = await likesService.getMediaFavoriteStatus(mediaId);
-        'API Response for favorite status:', JSON.stringify(response));
         
         // Check if the response indicates this media is favorited
         // The API returns is_favorite instead of isFavorited
         const isFavorited = response.is_favourite || false;
-        `Media ${mediaId} favorite status: ${isFavorited}`);
         favoritesMap[mediaId] = isFavorited;
       } catch (error) {
         console.error('Error fetching favorite status for media', media.mediaId, error);
@@ -92,7 +88,6 @@ const PhotoViewScreen = () => {
       }
     }
     
-    'Final favorites map:', favoritesMap);
     setFavoritedMedia(favoritesMap);
   };
   
@@ -201,28 +196,21 @@ const PhotoViewScreen = () => {
   // Add more logging to handleFavoriteToggle
   const handleFavoriteToggle = async () => {
     if (!tripMedia || tripMedia.length === 0 || currentIndex >= tripMedia.length) {
-      'Cannot toggle favorite: invalid media or index');
       return;
     }
   
     const mediaId = tripMedia[currentIndex].mediaId.toString();
     const isFavorited = favoritedMedia[mediaId] || false;
-    `Toggling favorite for media ${mediaId}. Current status: ${isFavorited}`);
     
     try {
       if (isFavorited) {
-        `Attempting to unfavorite media ${mediaId}`);
         const response = await likesService.unfavMedia(mediaId);
-        'Unfavorite response:', response);
       } else {
-        `Attempting to favorite media ${mediaId}`);
         const response = await likesService.favMedia(mediaId);
-        'Favorite response:', response);
       }
       
       // Update local state
       const newStatus = !isFavorited;
-      `Updating favorite status for media ${mediaId} to: ${newStatus}`);
       setFavoritedMedia(prev => ({
         ...prev,
         [mediaId]: newStatus
@@ -266,7 +254,6 @@ const PhotoViewScreen = () => {
 
     // Fetch updated media list
     const updatedMedia = await mediaService.getTripMedia(trip.TripID.toString());
-    'Updated Media List:', JSON.stringify(updatedMedia, null, 2));
     
     // Update the screen with new media
     navigation.setParams({
@@ -369,25 +356,17 @@ const PhotoViewScreen = () => {
 
             const mediaId = tripMedia[currentIndex].mediaId.toString();
             try {
-              'Fetching media data for ID:', mediaId);
               const mediaData = await mediaService.getMediaById(mediaId);
-              'Media data received:', mediaData);
               
-              if (mediaData.gps_latitude && mediaData.gps_longitude) {
-                'Location data found:', {
-                  lat: mediaData.gps_latitude,
-                  lng: mediaData.gps_longitude
-                });
+              if (mediaData.metadata?.latitude && mediaData.metadata?.longitude) {
+
                 setCurrentLocation({
-                  latitude: mediaData.gps_latitude,
-                  longitude: mediaData.gps_longitude
+                  latitude: mediaData.metadata.latitude,
+                  longitude: mediaData.metadata.longitude
                 });
                 setShowMap(true);
               } else {
-                'Location data found:', {
-                  lat: 0,
-                  lng: 0
-                });
+               
                 setCurrentLocation({
                   latitude: 0,
                   longitude: 0

@@ -10,4 +10,5 @@ const styles = StyleSheet.create({
     fontFamily: 'OutfitBold',
     lineHeight: 22,
   },
+
 });

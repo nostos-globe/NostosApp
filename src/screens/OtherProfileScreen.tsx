@@ -89,7 +89,7 @@ const OtherProfileScreen = () => {
       
       // Add null check for followersData.Follow.profiles
       const isUserFollowing = followersData?.Follow?.profiles?.some(
-        follower => follower?.profileId?.toString() === loggedUserProfile?.ProfileID?.toString()
+        (        follower: { profileId: { toString: () => any; }; }) => follower?.profileId?.toString() === loggedUserProfile?.ProfileID?.toString()
       ) || false;
       
       setIsFollowing(isUserFollowing);

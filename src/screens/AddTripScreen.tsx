@@ -243,7 +243,7 @@ const AddTripScreen = () => {
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={selectedGlobe}
-                onValueChange={(itemValue) => setSelectedGlobe(itemValue)}
+                onValueChange={(itemValue: React.SetStateAction<string>) => setSelectedGlobe(itemValue)}
                 style={styles.picker}
               >
                 {globes.map((globe) => (

@@ -223,8 +223,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButton: {
-    fontSize: 30,
-    color: '#8BB8E8',
+    
   },
   title: {
     fontSize: 20,
@@ -254,6 +253,10 @@ const styles = StyleSheet.create({
   settingContent: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: '#8BB8E8',
   },
   settingIcon: {
     fontSize: 20,

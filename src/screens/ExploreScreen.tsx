@@ -236,7 +236,6 @@ const ExploreScreen = () => {
           placeholderTextColor="#B3B3B3"
           value={searchQuery}
           onChangeText={handleSearch}
-          placeholderTextColor="#666"
         />
       </View>
 
