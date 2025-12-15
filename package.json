@@ -23,14 +23,14 @@
     "react-native-gl-model-view": "^1.6.0",
     "react-native-global-font": "^1.0.3",
     "react-native-image-picker": "^8.2.0",
-    "react-native-maps": "^1.20.1",
-    "react-native-mmkv": "^3.2.0",
+    "react-native-maps": "^1.25.0",
+    "react-native-mmkv": "^2.12.2",
     "react-native-push-notification": "^8.1.1",
     "react-native-safe-area-context": "^5.2.0",
     "react-native-screens": "^4.9.1",
     "react-native-vector-icons": "^10.2.0",
     "react-native-webview": "^13.13.5",
-    "three": "^0.175.0"
+    "three": "^0.181.2"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
@@ -44,14 +44,14 @@
     "@react-native/metro-config": "0.77.0",
     "@react-native/typescript-config": "0.77.0",
     "@types/jest": "^29.5.13",
-    "@types/react": "^18.2.6",
+    "@types/react": "^18.3.27",
     "@types/react-native-push-notification": "^8.1.4",
-    "@types/react-test-renderer": "^18.0.0",
+    "@types/react-test-renderer": "^18.3.1",
     "eslint": "^9.0.0",
     "jest": "^29.6.3",
-    "prettier": "2.8.8",
+    "prettier": "^3.6.2",
     "react-test-renderer": "18.3.1",
-    "typescript": "5.0.4"
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=18"

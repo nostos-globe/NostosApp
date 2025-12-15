@@ -32,7 +32,6 @@ const LoginScreen = () => {
         setIsLoading(true);
         try {
             const response = await authService.login({ email, password });
-            console.log('Login successful:', response);
             
             // Store the token safely
             if (response.token) {

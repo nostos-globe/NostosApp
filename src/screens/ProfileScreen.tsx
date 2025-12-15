@@ -49,7 +49,7 @@ const ProfileScreen = () => {
 
   const handleCategoryPress = (category: string) => {
     // Handle category selection here
-    console.log('Selected category:', category);
+    'Selected category:', category);
   };
 
   const getRandomColor = () => {

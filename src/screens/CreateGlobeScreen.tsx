@@ -39,13 +39,11 @@ const CreateGlobeScreen = () => {
         visibility
       };
 
-      console.log('Creating new globe:', newGlobe);
       const response = await globesService.createGlobe({
         name,
         description,
         visibility: visibility as 'PUBLIC' | 'PRIVATE' | 'FRIENDS'
       });
-      console.log('Globe created successfully:', response);
 
       // Navigate to the AddTrip screen after creating the globe
       navigation.navigate('AddTrip', { 

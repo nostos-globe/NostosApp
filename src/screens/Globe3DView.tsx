@@ -50,7 +50,6 @@ const Globe3DView = () => {
     try {
       setIsLoadingGlobes(true);
       const response = await globesService.getMyGlobes();
-      console.log('User globes:', response);
       setUserGlobes(response || []);  // Add fallback to empty array
       setIsLoadingGlobes(false);
     } catch (error) {
@@ -63,9 +62,6 @@ const Globe3DView = () => {
   const fetchTrips = async () => {
     try {
       const response = await globesService.getGlobeByIDWithTrips(globe.AlbumID.toString());
-      console.log('Full API Response:', JSON.stringify(response, null, 2));
-      console.log('Trips array:', response.trips);
-      console.log('First trip details:', response.trips?.[0]);
       setGlobeWithTrips(response);
       setIsLoading(false);
     } catch (error) {
@@ -77,17 +73,14 @@ const Globe3DView = () => {
 
   const fetchTripLocations = async (tripId: string) => {
     try {
-      console.log(`Fetching locations for trip ID: ${tripId}`);
       const response = await mediaService.getTripsLocations(tripId);
-      console.log(`Locations received for trip ${tripId}:`, response);
 
       setTripLocations(prev => {
         const updated = {
           ...prev,
           [tripId]: response || []
         };
-        console.log('Updated trip locations state:', updated);
-        return updated as Record<string, string[]>;
+          return updated as Record<string, string[]>;
       });
     } catch (error) {
       console.error(`Error fetching trip locations for trip ${tripId}:`, error);
@@ -187,7 +180,6 @@ const Globe3DView = () => {
           <script>
             // Debug logging function.
             const log = (message, data) => {
-              console.log(message, data);
               window.ReactNativeWebView.postMessage(JSON.stringify({
                 type: 'debug',
                 message: message,
@@ -296,7 +288,6 @@ const Globe3DView = () => {
   const [isListView, setIsListView] = useState(false);
   // Update the handleMessage function to use the fetched trips
   const handleMessage = (event: { nativeEvent: { data: string; }; }) => {
-    console.log('Message received from WebView:', event.nativeEvent.data);
 
     try {
       const data = JSON.parse(event.nativeEvent.data);
@@ -306,7 +297,6 @@ const Globe3DView = () => {
           ? `Debug: ${data.message} ${data.data ? JSON.stringify(data.data) : ''}`
           : `Error: ${data.message}`;
         setDebugMessage(message);
-        console.log('WebView message:', message);
         return;
       }
 
@@ -318,7 +308,6 @@ const Globe3DView = () => {
         if (tripWithMedia) {
           const message = `Clicked: ${tripWithMedia.trip.name} (ID: ${data.tripId})`;
           setDebugMessage(message);
-          console.log('Navigating to trip:', tripWithMedia.trip.name);
           navigation.navigate('ExplorePhotoView', {
             imageUrl: tripWithMedia.media[0]?.url,
             tripMedia: tripWithMedia.media,

@@ -46,7 +46,6 @@ const OtherProfileScreen = () => {
 
   const handleCategoryPress = (category: string) => {
     // Handle category selection here
-    console.log('Selected category:', category);
   };
 
   const onRefresh = async () => {

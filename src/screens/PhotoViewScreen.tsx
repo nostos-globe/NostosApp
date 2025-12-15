@@ -71,20 +71,20 @@ const PhotoViewScreen = () => {
   // Add more detailed logging to fetchMediaFavorites
   // Update the fetchMediaFavorites function to correctly parse the API response
   const fetchMediaFavorites = async () => {
-    console.log('Starting to fetch favorites for all media items');
+    'Starting to fetch favorites for all media items');
     const favoritesMap: Record<string, boolean> = {};
     
     for (const media of tripMedia) {
       try {
         const mediaId = media.mediaId.toString();
-        console.log(`Fetching favorite status for media ID: ${mediaId}`);
+        `Fetching favorite status for media ID: ${mediaId}`);
         const response = await likesService.getMediaFavoriteStatus(mediaId);
-        console.log('API Response for favorite status:', JSON.stringify(response));
+        'API Response for favorite status:', JSON.stringify(response));
         
         // Check if the response indicates this media is favorited
         // The API returns is_favorite instead of isFavorited
         const isFavorited = response.is_favourite || false;
-        console.log(`Media ${mediaId} favorite status: ${isFavorited}`);
+        `Media ${mediaId} favorite status: ${isFavorited}`);
         favoritesMap[mediaId] = isFavorited;
       } catch (error) {
         console.error('Error fetching favorite status for media', media.mediaId, error);
@@ -92,7 +92,7 @@ const PhotoViewScreen = () => {
       }
     }
     
-    console.log('Final favorites map:', favoritesMap);
+    'Final favorites map:', favoritesMap);
     setFavoritedMedia(favoritesMap);
   };
   
@@ -201,28 +201,28 @@ const PhotoViewScreen = () => {
   // Add more logging to handleFavoriteToggle
   const handleFavoriteToggle = async () => {
     if (!tripMedia || tripMedia.length === 0 || currentIndex >= tripMedia.length) {
-      console.log('Cannot toggle favorite: invalid media or index');
+      'Cannot toggle favorite: invalid media or index');
       return;
     }
   
     const mediaId = tripMedia[currentIndex].mediaId.toString();
     const isFavorited = favoritedMedia[mediaId] || false;
-    console.log(`Toggling favorite for media ${mediaId}. Current status: ${isFavorited}`);
+    `Toggling favorite for media ${mediaId}. Current status: ${isFavorited}`);
     
     try {
       if (isFavorited) {
-        console.log(`Attempting to unfavorite media ${mediaId}`);
+        `Attempting to unfavorite media ${mediaId}`);
         const response = await likesService.unfavMedia(mediaId);
-        console.log('Unfavorite response:', response);
+        'Unfavorite response:', response);
       } else {
-        console.log(`Attempting to favorite media ${mediaId}`);
+        `Attempting to favorite media ${mediaId}`);
         const response = await likesService.favMedia(mediaId);
-        console.log('Favorite response:', response);
+        'Favorite response:', response);
       }
       
       // Update local state
       const newStatus = !isFavorited;
-      console.log(`Updating favorite status for media ${mediaId} to: ${newStatus}`);
+      `Updating favorite status for media ${mediaId} to: ${newStatus}`);
       setFavoritedMedia(prev => ({
         ...prev,
         [mediaId]: newStatus
@@ -266,7 +266,7 @@ const PhotoViewScreen = () => {
 
     // Fetch updated media list
     const updatedMedia = await mediaService.getTripMedia(trip.TripID.toString());
-    console.log('Updated Media List:', JSON.stringify(updatedMedia, null, 2));
+    'Updated Media List:', JSON.stringify(updatedMedia, null, 2));
     
     // Update the screen with new media
     navigation.setParams({
@@ -369,12 +369,12 @@ const PhotoViewScreen = () => {
 
             const mediaId = tripMedia[currentIndex].mediaId.toString();
             try {
-              console.log('Fetching media data for ID:', mediaId);
+              'Fetching media data for ID:', mediaId);
               const mediaData = await mediaService.getMediaById(mediaId);
-              console.log('Media data received:', mediaData);
+              'Media data received:', mediaData);
               
               if (mediaData.gps_latitude && mediaData.gps_longitude) {
-                console.log('Location data found:', {
+                'Location data found:', {
                   lat: mediaData.gps_latitude,
                   lng: mediaData.gps_longitude
                 });
@@ -384,7 +384,7 @@ const PhotoViewScreen = () => {
                 });
                 setShowMap(true);
               } else {
-                console.log('Location data found:', {
+                'Location data found:', {
                   lat: 0,
                   lng: 0
                 });

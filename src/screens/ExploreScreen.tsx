@@ -44,7 +44,6 @@ const ExploreScreen = () => {
     try {
       setLoading(true);
       const trips = await mediaService.getPublicTrips();
-      console.log(`Retrieved ${trips?.length || 0} public trips`);
       setPublicTrips(trips || []);
     } catch (error) {
       console.error('Error loading public trips:', error);

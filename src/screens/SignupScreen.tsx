@@ -34,7 +34,7 @@ const SignupScreen = () => {
         setIsLoading(true);
         try {
             const response = await authService.signup({ email, password });
-            console.log('Signup successful:', response);
+            'Signup successful:', response);
             navigation.navigate('CreateProfile' as never);
         } catch (error: any) {
             Alert.alert('Error', error.message);
@@ -45,7 +45,7 @@ const SignupScreen = () => {
 
   const handleSignUp = () => {
     // Implement sign up logic here
-    console.log('Sign up:', email, password);
+    'Sign up:', email, password);
   };
 
   return (

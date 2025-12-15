@@ -69,10 +69,8 @@ const HomeScreen = () => {
     try {
       setLoading(true);
       const trips = await mediaService.getFollowingTrips();
-      console.log('Fetched trips:', trips);
       
       const filteredTrips = trips?.filter(trip => trip.trip.user_id !== 1) || [];
-      console.log('Filtered trips:', filteredTrips);
       
       setFollowingTrips(filteredTrips);
     } catch (error) {

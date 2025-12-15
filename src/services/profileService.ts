@@ -96,7 +96,7 @@ export const profileService = {
         
         const formData = new FormData();
         
-        console.log('Creating profile with data:', profileData);
+        'Creating profile with data:', profileData);
         
         Object.keys(profileData).forEach(key => {
             if (key === 'ProfilePicture' && profileData[key]) {
@@ -105,15 +105,15 @@ export const profileService = {
                     name: 'profile.jpg',
                     type: 'image/jpeg'
                 };
-                console.log('Appending file:', fileData);
+                'Appending file:', fileData);
                 formData.append('ProfilePicture', fileData);
             } else {
-                console.log(`Appending field ${key}:`, profileData[key as keyof typeof profileData]);
+                `Appending field ${key}:`, profileData[key as keyof typeof profileData]);
                 formData.append(key, profileData[key as keyof typeof profileData]);
             }
         });
     
-        console.log('Final FormData:', formData);
+        'Final FormData:', formData);
         
         const response = await axios.post(`${PROFILE_API_URL}/api/profiles`, formData, {
             headers: {
@@ -122,7 +122,7 @@ export const profileService = {
             }
         });
         
-        console.log('Profile creation response:', response.data);
+        'Profile creation response:', response.data);
         return response.data;
     },
 

@@ -125,7 +125,7 @@ export const mediaService = {
         try {
             const config = await getTokenHeader();
             await mediaApi.delete(`/api/media/${mediaId}`, config);
-            console.log(`Media with ID ${mediaId} successfully deleted`);
+            `Media with ID ${mediaId} successfully deleted`);
         } catch (error) {
             console.error('Error deleting media:', error);
             throw new Error(`Failed to delete media: ${error instanceof Error ? error.message : 'Unknown error'}`);
